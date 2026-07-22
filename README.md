@@ -262,7 +262,7 @@ A five-member team where **everyone owns one deep-learning model end-to-end** (d
 
 ## 📄 License
 
-Released under the **MIT License** — see `LICENSE`. *(Dataset licenses belong to their respective providers; review Kaggle terms before redistribution.)*
+Released under the **MIT License** — see [LICENSE](LICENSE). *(Dataset licenses belong to their respective providers; review Kaggle terms before redistribution.)*
 
 ## 🙏 Acknowledgements
 
