@@ -1,75 +1,72 @@
-<h1 align="center">Trustworthy Deep Learning for Chest X-ray Disease Detection</h1>
+<h1 align="center">Does Efficiency Cost Robustness?</h1>
 
 <p align="center">
-  <b>Benchmarking the Robustness, Explainability & Calibration of CNNs and Vision Transformers under Dataset Shortcut Bias</b>
+  <b>LiteCXR-Net — a Lung-Supervised, Explainable, From-Scratch CNN for Chest X-ray Screening</b>
 </p>
 
 <p align="center">
-  <i>A comparative study that goes beyond accuracy — asking not only which model is most accurate, but which is most <b>trustworthy</b> when the data itself is biased.</i>
+  <i>Investigating the efficiency–robustness–faithfulness trade-off in compact chest X-ray models — and using lung-region supervision to break it — for deployment in low-resource clinics.</i>
 </p>
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white">
   <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white">
-  <img alt="timm" src="https://img.shields.io/badge/timm-models-blue">
-  <img alt="Explainability" src="https://img.shields.io/badge/XAI-Grad--CAM%20%7C%20Attention%20Rollout%20%7C%20SHAP-orange">
+  <img alt="From Scratch" src="https://img.shields.io/badge/training-from%20scratch%20(no%20pretrained)-success">
+  <img alt="Models" src="https://img.shields.io/badge/models-CNN%20%7C%20U--Net%20%7C%20LiteCXR--Net-blue">
+  <img alt="XAI" src="https://img.shields.io/badge/XAI-Grad--CAM%20%2B%20faithfulness-orange">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20progress-yellow">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
+
+> **Course:** CS3631 – Deep Neural Networks (2026) · **Team size:** 5 · **Objective:** optimize a DNN (§3-3) — efficient, robust, explainable.
 
 ---
 
 ## 📌 Overview
 
-Chest X-ray (CXR) is the most common medical imaging exam in the world, and deep-learning models can now classify chest diseases with reported accuracies above 95%. **But high accuracy is often misleading.** A large body of research shows these models frequently succeed by exploiting hidden dataset artefacts — such as which hospital or scanner produced an image — rather than by reading the lungs. When such models are tested on data from a new hospital, their performance collapses. This is called **shortcut learning**, and it is the single biggest obstacle to deploying CXR AI in real clinics.
+Automated chest X-ray (CXR) screening is most needed in **low-resource clinics** running on modest hardware — yet the most accurate models are large, slow, and often **untrustworthy**: they exploit **shortcut learning**, keying on source-hospital or scanner artefacts instead of lung pathology, so their accuracy collapses on data from a new hospital.
 
-This project delivers a rigorous, reproducible comparison of four transfer-learning architectures — three CNNs (**ResNet50**, **DenseNet121**, **EfficientNet-B0**) and one Vision Transformer (**ViT-Base**) — evaluated under a single unified protocol. Crucially, models are ranked by **trustworthiness**, not accuracy alone, across **five axes**:
+Shrinking a model for deployment raises an unanswered question:
 
-| Axis | Question it answers |
-|------|--------------------|
-| 🎯 **Accuracy** | Which model classifies best in-distribution? |
-| 📏 **Calibration** | Does the model *know when it is uncertain*? |
-| 🔍 **Explainability / Faithfulness** | Do explanations point at the diseased lung, or at artefacts? |
-| 🛡️ **Robustness (OOD)** | Does it generalise to an unseen external dataset? |
-| ⚡ **Efficiency** | Is it deployable (params, FLOPs, latency, memory)? |
+> **Does compressing a chest X-ray model make shortcut learning better or worse — and can lung-region supervision break the efficiency-vs-robustness trade-off?**
 
-> We do not propose a new architecture. **The contribution is the synthesis** — a unified benchmark across all five axes, using explainability as an *audit tool* to expose shortcut learning on the popular COVID-19 Radiography dataset.
+This project answers that question and acts on it. We train everything **from scratch (no pretrained weights)**, quantify the trade-off, and propose **LiteCXR-Net** — a compact CNN trained with explicit **lung-region supervision** that stays accurate and small while being robust to source shortcuts and anatomically faithful.
 
 ---
 
-## 🧭 Motivation & Research Gap
+## 🧭 Research Gap & Hypotheses
 
-Our literature review (2023–2026) found that:
+Three gaps define the opportunity:
 
-- **Plain CNN-vs-ViT accuracy comparisons are saturated** — dozens of recent papers already do this, and reviewers treat it as incremental.
-- **Single-property studies exist in isolation** — separate papers on Grad-CAM, on calibration, on efficiency — but rarely together under one controlled protocol.
-- **The popular mixed COVID-19 CXR datasets suffer from documented source bias** — because classes were collected from different hospitals, models learn the *source* instead of the *disease*. Internal AUCs above 0.99 have been shown to fall to ~0.76 on external data.
+- **Efficient CXR models almost always start from large pretrained backbones**, importing ImageNet biases and hiding a small model's true behaviour. Genuinely *from-scratch* compact CXR models are under-studied.
+- **The efficiency–robustness interaction is unresolved.** Two opposing hypotheses coexist and neither has been tested on CXR: (a) lower-capacity models latch onto the easiest, most spurious cues → compression *hurts* robustness; (b) compression acts as a regulariser → smaller models are *more* robust.
+- **Faithfulness is rarely quantified**, and never linked to the efficiency/robustness trade-off.
 
-**The gap we exploit:** No existing study systematically compares CNNs and Vision Transformers across accuracy **+** calibration **+** explanation faithfulness **+** efficiency **+** cross-dataset robustness under one identical protocol — and even fewer use explainability to *quantify* shortcut learning. It is also unknown whether a Vision Transformer's global-attention bias makes it **more or less** prone to shortcut learning than convolutional models.
-
----
-
-## ✨ Key Contributions
-
-1. A **unified, open-source benchmark** comparing three CNNs and a Vision Transformer under identical preprocessing and training on chest X-rays.
-2. The first **five-axis trustworthiness comparison** of these architectures (accuracy, calibration, explanation faithfulness, efficiency, cross-dataset robustness) together.
-3. Use of explainability (**Grad-CAM / attention rollout / SHAP**) as a **quantitative audit for shortcut learning**, via a lung-localisation faithfulness score.
-4. Evidence on whether **ViT's global attention** helps or hurts out-of-distribution robustness vs CNNs.
-5. **Practical, reproducible deployment recommendations** depending on whether the priority is accuracy, trust, or compute budget.
+| Hypothesis | Statement |
+|---|---|
+| **H1 — the trade-off** | Naively compressed from-scratch CNNs suffer a *larger* internal→external (OOD) accuracy drop than a larger baseline — efficiency, obtained naively, worsens shortcut reliance. |
+| **H2 — the lever** | Training a compact model with explicit lung-region supervision (LiteCXR-Net) *reduces* the OOD drop and *raises* the lung-faithfulness score at similar/lower cost — breaking the trade-off. |
 
 ---
 
-## 🗂️ Datasets
+## ✨ Contributions
 
-| Dataset | Content | Role | Link |
-|---------|---------|------|------|
-| **COVID-19 Radiography Database** | 4 classes (COVID, Normal, Lung Opacity, Viral Pneumonia), ~21k images | **Primary** — train / val / test | [Kaggle](https://www.kaggle.com/datasets/tawsifurrahman/covid19-radiography-database) |
-| **RSNA Pneumonia Detection Challenge** | ~26.7k frontal CXRs (DICOM) | **External** — out-of-distribution robustness test *(never trained on)* | [Kaggle](https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data) |
-| *NIH ChestX-ray14* | >100k images, 14 labels | *Optional* generalisation check | *(if time permits)* |
+1. **C1 — Scientific finding:** the first systematic map of the **efficiency–robustness–faithfulness trade-off** for from-scratch CXR CNNs.
+2. **C2 — LiteCXR-Net:** a compact architecture + **lung-supervised training recipe** that breaks the trade-off (architecture + learning-strategy novelty).
+3. **C3 — Faithfulness framework:** a **lung-localisation faithfulness score**, evaluated with a **causal recipe-vs-control ablation**.
+4. **C4 — Reproducible artefact:** an open, from-scratch model + protocol that runs on **free hardware**, with deployment guidance.
 
-> ⚠️ The primary dataset is known to contain **source bias** — which is precisely what this study investigates, rather than ignores.
+---
 
-**Download (Kaggle API):**
+## 🗂️ Dataset
+
+| Dataset | Content | Role |
+|---------|---------|------|
+| **COVID-19 Radiography Database** ([Kaggle](https://www.kaggle.com/datasets/tawsifurrahman/covid19-radiography-database)) | 4 classes (COVID, Normal, Lung Opacity, Viral Pneumonia), ~21k images | **Primary** — train / val / test |
+| **RSNA Pneumonia Detection Challenge** ([Kaggle](https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data)) | ~26.7k frontal CXRs | **External** — out-of-distribution robustness test *(never trained on)* |
+
+> The primary dataset's **source bias is an asset here** — it is the very shortcut phenomenon the recipe targets. Compliant with course rule §2.2 (Kaggle datasets).
+
 ```bash
 pip install kaggle
 # place kaggle.json (API token) in ~/.kaggle/
@@ -79,23 +76,14 @@ kaggle competitions download -c rsna-pneumonia-detection-challenge -p data/exter
 
 ---
 
-## 🧠 Models
+## 🧠 Models (all trained from scratch — no pretrained weights)
 
-All four architectures load from [`timm`](https://github.com/huggingface/pytorch-image-models) with ImageNet-pretrained weights:
-
-| Model | Family | ~Params | Role |
-|-------|--------|---------|------|
-| **ResNet50** | CNN (residual) | 25.6 M | Stable universal baseline |
-| **DenseNet121** | CNN (dense) | 8.0 M | Strong medical-imaging baseline |
-| **EfficientNet-B0** | CNN (scaled) | 5.3 M | Smallest / fastest; deployment candidate |
-| **ViT-Base/16** | Vision Transformer | 86 M | Global attention; CNN-vs-Transformer contrast |
-
-```python
-import timm
-model = timm.create_model("vit_base_patch16_224", pretrained=True, num_classes=4)
-```
-
-> DeiT / ViT-Small are documented fallbacks if ViT-Base over-fits on the smaller dataset.
+| Model | Role | Notes |
+|-------|------|-------|
+| **Baseline CNN** | Mandatory baseline (§4) | Standard from-scratch CNN (ResNet-18-style), reference point |
+| **LiteCXR-Net** | Proposed model | Depthwise-separable convs · width multiplier α · lightweight channel-attention · compact head (~0.5–2 M params) |
+| **LiteCXR-Net (control)** | Causal ablation | Identical to LiteCXR-Net but trained **without** lung supervision |
+| **U-Net** | Lung segmentation | Produces lung masks used for *both* the training recipe and the faithfulness score |
 
 ---
 
@@ -103,35 +91,31 @@ model = timm.create_model("vit_base_patch16_224", pretrained=True, num_classes=4
 
 ```mermaid
 flowchart TD
-    A[Chest X-ray datasets<br/>primary + external] --> B[Image cleaning & quality filtering]
-    B --> C[Resize · normalise · optional lung segmentation]
-    C --> D[Data augmentation · stratified 70/15/15 split]
-    D --> E{Train 4 models under ONE identical protocol}
-    E --> M1[ResNet50]
-    E --> M2[DenseNet121]
-    E --> M3[EfficientNet-B0]
-    E --> M4[ViT-Base]
-    M1 & M2 & M3 & M4 --> F[Performance evaluation<br/>accuracy · F1 · AUROC]
-    F --> G[Calibration analysis<br/>ECE · temperature scaling]
-    G --> H[Explainability audit<br/>Grad-CAM · Attention Rollout · SHAP · faithfulness]
-    H --> I[External robustness test<br/>out-of-distribution]
-    I --> J[Efficiency benchmark<br/>+ Pareto trade-off]
-    J --> K[Comparative study → paper]
+    A[COVID-19 Radiography Database] --> U[Train U-Net lung-segmentation → lung masks]
+    U --> C[Lung-focused preprocessing · resize · normalise · augment · 70/15/15 split]
+    C --> D{Train from scratch}
+    D --> B[Baseline CNN]
+    D --> L[LiteCXR-Net · lung-supervised recipe]
+    D --> K[LiteCXR-Net · control · no recipe]
+    B & L & K --> E[Accuracy · F1 · AUROC]
+    E --> F[Efficiency: params · FLOPs · latency · memory · width-α sweep]
+    F --> G[Robustness: internal→external OOD drop  = efficiency–robustness map]
+    G --> H[Grad-CAM + lung-faithfulness score]
+    H --> I[Temperature-scaling calibration]
+    I --> J[Hyper-parameter tuning + ablations → paper]
 ```
 
-**Transfer-learning strategy (identical for every model):** Phase 1 — freeze backbone, train head. Phase 2 — unfreeze final blocks, fine-tune. Shared optimiser (AdamW), schedule, seed and augmentation, so any difference is attributable to the *architecture*, not tuning luck.
-
-**Golden rule:** Freeze one identical preprocessing + training pipeline early and use it for every model. **Fair comparison is the entire point of the study.**
+**Golden rule:** baseline, LiteCXR-Net (recipe) and LiteCXR-Net (control) share the *same* optimiser, schedule, seed and augmentation — so differences are attributable to the **architecture and the lung-supervision recipe**, not to tuning luck.
 
 ---
 
 ## 📊 Evaluation Metrics
 
-- **Classification:** Accuracy, Precision, Recall, F1, ROC-AUC (per-class + macro), confusion matrix
-- **Calibration:** Expected Calibration Error (ECE), Brier score, reliability diagrams (pre/post temperature scaling)
-- **Explainability:** heatmaps + a quantitative **lung-localisation faithfulness score** + cross-method agreement
-- **Robustness:** internal-vs-external accuracy & AUROC drop (generalisation gap)
-- **Efficiency:** parameters, FLOPs, model size, inference time (CPU/GPU), peak GPU memory
+- **Classification:** Accuracy, Precision, Recall, macro-F1, per-class F1, ROC-AUC, confusion matrix
+- **Efficiency:** parameters, FLOPs, model size (MB), latency (CPU & GPU), peak memory, training time
+- **Robustness:** internal→external accuracy & AUROC drop, **across width α**
+- **Faithfulness:** lung-localisation faithfulness score (Grad-CAM ∩ lung mask) + heatmaps
+- **Calibration (supporting):** Expected Calibration Error (ECE), reliability diagram
 
 ---
 
@@ -139,21 +123,16 @@ flowchart TD
 
 ```
 Chest-X-ray-Disease-Detection/
-├── Project Documents/       # Proposal, work-division plan, task tracker (docx/pdf/xlsx)
-├── data/
-│   ├── raw/                 # Primary dataset (untouched)
-│   ├── processed/           # Cleaned, resized, split + saved indices
-│   └── external/            # External RSNA set for OOD testing
-├── src/                     # Shared code: preprocessing, dataloaders,
-│                            # training template, calibration, XAI, efficiency, eval
-├── notebooks/               # Exploratory analysis & per-model experiments
-├── models/checkpoints/      # Saved weights (frozen + fine-tuned)
-├── results/
-│   ├── tables/              # Metric tables (accuracy, calibration, robustness, efficiency)
-│   └── figures/             # Curves, reliability diagrams, heatmaps, Pareto
-├── explainability/          # Grad-CAM / attention-rollout / SHAP outputs + faithfulness
-├── paper/                   # Manuscript drafts & references
-└── presentation/            # Slide deck
+├── Project Documents/       # Proposal, work-division plan, task tracker
+├── data/  raw · processed · external
+├── src/                     # preprocess · lung_mask (U-Net) · dataloader · baseline_cnn
+│                            # litecxrnet · train · calibrate · gradcam · faithfulness · efficiency · external_eval
+├── notebooks/               # EDA & per-experiment notebooks
+├── models/checkpoints/      # from-scratch weights (baseline · LiteCXR-Net · control · U-Net)
+├── results/  tables · figures
+├── explainability/          # Grad-CAM heatmaps + faithfulness outputs
+├── paper/                   # manuscript + references
+└── presentation/            # slide deck
 ```
 
 ---
@@ -167,103 +146,82 @@ python -m venv .venv && source .venv/bin/activate      # or use Colab / Kaggle G
 pip install -r requirements.txt
 ```
 
-**Core dependencies:** `torch`, `torchvision`, `timm`, `scikit-learn`, `grad-cam`, `shap`, `matplotlib`, `seaborn`, `pandas`, `numpy`. Experiment tracking via `wandb` or `tensorboard`.
+**Core deps:** `torch`, `torchvision`, `numpy`, `scikit-learn`, `opencv-python`, `grad-cam`, `matplotlib`, `seaborn`. Tracking via `wandb` / `tensorboard`. *(No `timm` / no pretrained weights.)*
 
 ---
 
 ## ▶️ Usage *(planned interface)*
 
 ```bash
-# 1. Preprocess & split
-python src/preprocess.py --config configs/base.yaml
-
-# 2. Train a model (frozen -> fine-tune)
-python src/train.py --model resnet50 --phase all
-
-# 3. Calibrate
-python src/calibrate.py --model resnet50
-
-# 4. Explainability + faithfulness
-python src/explain.py --model resnet50 --method gradcam
-
-# 5. External robustness test
-python src/external_eval.py --model resnet50 --data data/external
-
-# 6. Efficiency benchmark
-python src/efficiency.py --model resnet50
+python src/preprocess.py --config configs/base.yaml     # preprocess + lung masks (U-Net)
+python src/train.py --model baseline                    # from-scratch baseline CNN
+python src/train.py --model litecxrnet --recipe lung    # proposed (lung-supervised)
+python src/train.py --model litecxrnet --recipe none    # control (no supervision)
+python src/efficiency.py --model litecxrnet             # params/FLOPs/latency/memory
+python src/external_eval.py --model litecxrnet --data data/external   # OOD robustness
+python src/gradcam.py --model litecxrnet                # Grad-CAM + faithfulness score
+python src/calibrate.py --model litecxrnet              # temperature scaling
 ```
 
 ---
 
-## 📈 Results
+## 📈 Results *(to be populated after training)*
 
-> Results will be populated after training. Placeholder for the master comparison table.
-
-| Model | Accuracy | F1 (macro) | AUROC | ECE ↓ | Faithfulness ↑ | OOD Δ ↓ | Params | Latency |
-|-------|----------|-----------|-------|-------|----------------|---------|--------|---------|
-| ResNet50 | – | – | – | – | – | – | 25.6 M | – |
-| DenseNet121 | – | – | – | – | – | – | 8.0 M | – |
-| EfficientNet-B0 | – | – | – | – | – | – | 5.3 M | – |
-| ViT-Base/16 | – | – | – | – | – | – | 86 M | – |
+| Model | Accuracy | macro-F1 | Params ↓ | FLOPs ↓ | Latency ↓ | OOD drop ↓ | Faithfulness ↑ | ECE ↓ |
+|-------|----------|----------|----------|---------|-----------|------------|----------------|-------|
+| Baseline CNN | – | – | – | – | – | – | – | – |
+| LiteCXR-Net (recipe) | – | – | – | – | – | – | – | – |
+| LiteCXR-Net (control) | – | – | – | – | – | – | – | – |
 
 ---
 
-## 👥 Team
+## 👥 Team (each member owns a hands-on ML task — rule §11)
 
-A five-member team where **everyone owns one deep-learning model end-to-end** (data → train → calibrate → explain → robustness → efficiency), plus one shared standard and paper sections.
-
-| Member | DNN model | Shared lead role | Paper sections |
-|--------|-----------|------------------|----------------|
-| **M1** | ResNet50 | Repo, tracking, reproducibility, references | Intro, Related Work, Gap, Conclusion |
-| **M2** | DenseNet121 | Data pipeline (preprocess / augment / split / loaders) | Methodology |
-| **M3** | EfficientNet-B0 | Efficiency harness, Pareto, compute | Slides |
-| **M4** | ViT-Base | Explainability standard + figures | Discussion |
-| **M5** | U-Net segmentation | Calibration + robustness protocol, external data, stats | Results, assembly |
+| Member | Hands-on ML task | Paper section |
+|--------|------------------|---------------|
+| **M1** | Trains & tunes the from-scratch **baseline CNN** | Intro, Related Work, Abstract |
+| **M2** | Trains the **U-Net** lung-segmentation model + the **lung-supervised (recipe) model** | Dataset, Experimental Setup |
+| **M3** | Designs & trains **LiteCXR-Net** + hyperparameter tuning | Proposed Framework |
+| **M4** | Trains & evaluates all **ablation variants** + efficiency benchmark | Experiments (efficiency, ablation) |
+| **M5** | Trains the **control model** + fits **temperature-scaling calibration** + robustness/XAI | Results, Discussion, Conclusion |
 
 ---
 
 ## 🗓️ Milestones
 
-`M0` Foundations (end W1) → `M1` All models trained (end W2) → `M2` Trust experiments (mid W3) → `M3` Robustness & efficiency (end W3) → `M4` Camera-ready paper & slides (end W4).
+`M0` Baseline & pipeline ready (W1) → `M1` Proposed model trained (W2) → `M2` Efficiency & ablations done (mid-W3) → `M3` Robustness, XAI & calibration done (W3) → `M4` Paper & slides ready (W4).
 
----
-
-## 🛠️ Tools & Frameworks
-
-`Python` · `PyTorch` · `timm` / `torchvision` · `pytorch-grad-cam` · `SHAP` · `Matplotlib` / `Seaborn` · `Weights & Biases` / `TensorBoard` · `Git` · `Colab` / `Kaggle GPU`
+Official deadlines: **Proposal Aug 2** (2-page ACM) · **Short paper Aug 23** · **Full paper Week 12**.
 
 ---
 
 ## 🚧 Roadmap
 
-- [ ] Freeze shared data pipeline + baseline (M0)
-- [ ] Train all four classification models (M1)
-- [ ] Calibration + explainability + faithfulness (M2)
-- [ ] External robustness + efficiency benchmark (M3)
-- [ ] Consolidated analysis, Pareto, paper & slides (M4)
-- [ ] Optional: NIH ChestX-ray14 generalisation check
+- [ ] Data pipeline + U-Net lung masks (M0)
+- [ ] From-scratch baseline CNN + hyperparameter tuning (M0 → M1)
+- [ ] LiteCXR-Net (recipe) + control model trained (M1)
+- [ ] Efficiency–robustness map (width-α sweep) + ablations (M2)
+- [ ] Grad-CAM faithfulness + calibration (M3)
+- [ ] Consolidated results, paper & slides (M4)
 
 ---
 
 ## 📚 Citation
 
 ```bibtex
-@misc{chestxray_trustworthy_dnn_2026,
-  title  = {Trustworthy Deep Learning for Chest X-ray Disease Detection:
-            Benchmarking the Robustness, Explainability and Calibration of
-            CNNs and Vision Transformers under Dataset Shortcut Bias},
+@misc{litecxrnet_2026,
+  title  = {Does Efficiency Cost Robustness? A Lung-Supervised, Explainable,
+            From-Scratch CNN for Chest X-ray Screening},
   author = {<Team Members>},
   year   = {2026},
-  note   = {Comparative benchmarking study}
+  note   = {CS3631 Deep Neural Networks research project}
 }
 ```
 
----
-
 ## 📄 License
 
-Released under the **MIT License** — see [LICENSE](LICENSE). *(Dataset licenses belong to their respective providers; review Kaggle terms before redistribution.)*
+MIT — see `LICENSE`. *(Dataset licences belong to their providers; review Kaggle terms before redistribution.)*
 
 ## 🙏 Acknowledgements
 
-COVID-19 Radiography Database (Kaggle) · RSNA Pneumonia Detection Challenge · the `timm` library · and the open-source medical-imaging research community whose work on shortcut learning motivated this study.
+COVID-19 Radiography Database · RSNA Pneumonia Detection Challenge · and the shortcut-learning literature (Geirhos et al., DeGrave et al.) that motivated this study.
