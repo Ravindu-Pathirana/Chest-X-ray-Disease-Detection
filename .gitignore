@@ -1,0 +1,26 @@
+# Secrets / environment
+.env
+.env.*
+
+# Experiment tracking
+wandb/
+
+# Model checkpoints (tracked via W&B artifacts / local disk, not Git)
+*.pth
+*.pt
+artifacts/*
+!artifacts/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+
+# Data (never commit dataset files)
+data/

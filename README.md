@@ -166,6 +166,22 @@ pip install -r requirements.txt
 
 ---
 
+## 🧪 Experiment Tracking
+
+Every training run — regardless of who trains it or which model — follows the same standard:
+
+| Layer | Tool |
+|-------|------|
+| **Training environment** | Kaggle / Google Colab (GPU) |
+| **Experiment tracking** | Weights & Biases |
+| **Configuration** | [`configs/*.yaml`](configs/) |
+| **Reproducibility policy** | [`docs/experiment_policy.md`](docs/experiment_policy.md) |
+| **W&B setup guide** | [`docs/wandb_setup.md`](docs/wandb_setup.md) |
+
+GitHub stores the code, config, and policy needed to reproduce a run; W&B stores that run's metrics and history. Start from [`notebooks/kaggle_training_template.ipynb`](notebooks/kaggle_training_template.ipynb) or [`notebooks/colab_training_template.ipynb`](notebooks/colab_training_template.ipynb) and the shared utilities in [`src/utils/`](src/utils/).
+
+---
+
 ## ▶️ Usage *(planned interface)*
 
 ```bash
