@@ -1,0 +1,18 @@
+# Experiment tracking & reproducibility infrastructure.
+#
+# PyTorch/torchvision are intentionally NOT pinned or listed here: Kaggle and
+# Google Colab both ship a GPU-matched PyTorch build preinstalled, and
+# `pip install torch` in those environments risks pulling a CPU-only wheel or
+# a CUDA version mismatched with the notebook's GPU driver. Only install
+# torch yourself if you're running fully locally (see README "Installation").
+#
+# Other model-specific dependencies (timm, scikit-learn, grad-cam, shap,
+# etc. -- see README) belong to whichever teammate's training code needs
+# them; this file only covers the shared tracking/reproducibility layer.
+
+wandb
+PyYAML
+numpy
+
+# For running tests/ locally (not required on Kaggle/Colab)
+pytest

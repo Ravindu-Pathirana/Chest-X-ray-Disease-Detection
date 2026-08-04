@@ -1,0 +1,47 @@
+# Baseline experiment configuration.
+#
+# Copy this file (e.g. resnet50.yaml, densenet121_aug_v2.yaml) rather than
+# editing it in place, so the baseline always stays a known-good reference
+# point. See configs/README.md for conventions.
+#
+# Do NOT put API keys, tokens, or credentials in this file or any config
+# file -- W&B authentication is handled separately (see docs/wandb_setup.md).
+
+experiment:
+  name: baseline
+  seed: 42
+
+model:
+  name: resnet50
+  pretrained: true
+  num_classes: null # TODO: set once the dataset's label set is finalized
+
+dataset:
+  name: chest_xray
+  version: v1 # dataset snapshot/version identifier
+  image_size: 224
+  split_version: v1 # which split manifest (see docs/experiment_policy.md) to load
+
+training:
+  epochs: 20
+  batch_size: 32
+  learning_rate: 0.0001
+  optimizer: adamw
+  weight_decay: 0.0001
+
+scheduler:
+  name: none # e.g. "cosine", "step", "plateau" once implemented
+
+augmentation:
+  version: baseline_v1 # bump this whenever the augmentation pipeline changes
+
+tracking:
+  provider: wandb
+  project: chest-xray-disease-classification
+  entity: null # W&B team/username; null uses the authenticated user's default
+  mode: null # override at call time, e.g. "offline" or "disabled" for testing
+
+checkpoint:
+  monitor: val_f1
+  mode: max
+  dir: artifacts/checkpoints
