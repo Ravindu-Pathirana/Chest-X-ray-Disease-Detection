@@ -1,0 +1,5 @@
+name,phase1_lr,phase2_lr,weight_decay,optimizer,scheduler,best_epoch,best_val_loss,val_acc_at_best_loss
+D_more_wd,0.0003,3e-05,0.001,adamw,cosine,11,0.31132879326662677,0.8784251968503937
+B_lr,0.0003,3e-05,0.0001,adamw,cosine,11,0.31139839911085415,0.8784251968503937
+A_current,0.001,1e-05,0.0001,adamw,cosine,11,0.4092686451044608,0.8403149606299213
+C_lower_lr,0.0001,1e-05,0.0001,adamw,cosine,11,0.4805353807464359,0.8220472440944881
