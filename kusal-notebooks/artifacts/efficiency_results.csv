@@ -1,0 +1,2 @@
+model,module,input_shape,params_total,params_trainable,flops,gflops,state_dict_size_mb,checkpoint_size_mb,cpu_latency_ms,cpu_throughput_img_s,gpu_latency_ms,gpu_throughput_img_s
+EfficientNet-B0,without_module,1x3x224x224,4012672,4012672,398077984.0,0.398077984,15.58463191986084,,35.24557249999475,28.372357974895966,7.253248009996582,137.86926886020973

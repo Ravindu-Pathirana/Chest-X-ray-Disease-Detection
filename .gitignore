@@ -5,11 +5,16 @@
 # Experiment tracking
 wandb/
 
-# Model checkpoints (tracked via W&B artifacts / local disk, not Git)
+# Model checkpoints and generated experiment artifacts
+# (tracked via W&B artifacts / local disk, not Git)
 *.pth
 *.pt
 artifacts/*
 !artifacts/.gitkeep
+
+# Kaggle-generated notebook metadata and rendered output images
+/kusal-notebooks/artifacts/**/__huggingface_repos__.json
+/kusal-notebooks/artifacts/**/__results___files/
 
 # Python
 __pycache__/
