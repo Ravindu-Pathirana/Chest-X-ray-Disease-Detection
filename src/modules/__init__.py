@@ -15,6 +15,12 @@ from .attention_metrics import (
     energy_inside_lung,
     ilar,
 )
+from .comparison import (
+    build_comparison_table,
+    build_per_image_predictions,
+    check_acceptance_criteria,
+    stratified_cam_subset,
+)
 from .gradcam import cam_for, get_taps
 from .lung_attention import (
     CBAMSpatialAttention,
@@ -56,4 +62,8 @@ __all__ = [
     "build_scheduler",
     "best_history_row",
     "run_full_arm",
+    "stratified_cam_subset",
+    "build_per_image_predictions",
+    "build_comparison_table",
+    "check_acceptance_criteria",
 ]
