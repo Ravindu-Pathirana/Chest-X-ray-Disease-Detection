@@ -38,6 +38,10 @@ jobs:
           # tests/test_gradcam.py needs pytorch_grad_cam -- already used successfully
           # on Kaggle by notebooks/candidate-c-grad-cam-shortcut-suppression-loss.ipynb.
           pip install grad-cam
+          # src/modules/training.py (tests/test_training.py) needs tqdm for its
+          # progress bars -- explicit here rather than relying on it arriving as
+          # some other package's transitive dependency.
+          pip install tqdm
 
       - name: Run tests
         run: pytest -v

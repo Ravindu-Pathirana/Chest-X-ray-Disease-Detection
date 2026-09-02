@@ -28,6 +28,7 @@ from .lung_attention import (
     print_trainable_parameters,
     unfreeze_final_blocks,
 )
+from .training import evaluate, run_epoch, train_phase
 
 __all__ = [
     "LungRegionAttention",
@@ -48,4 +49,7 @@ __all__ = [
     "energy_inside_lung",
     "cam_for",
     "get_taps",
+    "run_epoch",
+    "train_phase",
+    "evaluate",
 ]
