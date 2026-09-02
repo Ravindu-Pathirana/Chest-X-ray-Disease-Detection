@@ -28,6 +28,7 @@ from src.modules import (
     build_scheduler,
     evaluate,
     freeze_backbone,
+    run_full_arm,
     train_phase,
 )
 
@@ -318,3 +319,87 @@ def test_best_history_row_picks_min_val_loss(tmp_path):
     assert row["epoch"] == 2
     assert row["val_loss"] == 0.4
     assert row["val_f1"] == 0.7  # NOT epoch 3's 0.9 -- same "report the kept checkpoint" semantics as train_phase
+
+
+# ---------------------------------------------------------------------------
+# run_full_arm (S10) -- wiring-only tests against a tiny synthetic dataset,
+# 1+1 epochs, wandb_enabled=False. This is the same category as every other
+# test in this file (seconds, not minutes; no real dataset; no GPU hours) --
+# distinct from the actual S8/S9/S10 arm trainings, which need Kaggle GPU
+# time and are never executed on this machine.
+# ---------------------------------------------------------------------------
+
+def _tiny_arm_cfg(**module_overrides):
+    m = {"use_attention": True, "attention": "lung", "gate_mode": "residual", "reduction": 8, "lambda_att": 0.5}
+    m.update(module_overrides)
+    return {
+        "experiment": {"seed": 0},
+        "model": {"num_classes": 4, "pretrained": False},
+        "module": m,
+        "training": {
+            "optimizer": "adamw", "phase1_lr": 1e-3, "phase2_lr": 1e-4, "weight_decay": 1e-4,
+            "phase1_epochs": 1, "phase2_epochs": 1, "patience": 5, "unfreeze_blocks": 1,
+        },
+        "scheduler": {"name": "cosine"},
+    }
+
+
+def test_run_full_arm_writes_checkpoint_and_both_phase_results(tiny_loaders, tmp_path):
+    _base, train_loader, val_loader, criterion = tiny_loaders
+    out_dir = tmp_path / "A2_full"
+
+    results = run_full_arm(
+        "A2_full", _tiny_arm_cfg(), train_loader, val_loader, val_loader, CLASSES, criterion,
+        torch.device("cpu"), out_dir, backbone_name="densenet121", wandb_enabled=False,
+    )
+
+    assert (out_dir / "densenet121_A2_full.pt").exists()
+    assert (out_dir / "phase1_frozen_test_results.json").exists()
+    assert (out_dir / "phase2_finetune_test_results.json").exists()
+    assert "classification_report" in results
+    assert results["attention_ilar"] is not None  # use_attention=True in this arm_cfg
+
+    ckpt = torch.load(out_dir / "densenet121_A2_full.pt", map_location="cpu", weights_only=False)
+    assert ckpt["arm"] == "A2_full"
+    assert ckpt["seed"] == 0
+    assert ckpt["class_names"] == CLASSES
+    assert "model_state_dict" in ckpt
+
+
+def test_run_full_arm_a0_style_has_no_attention_module(tiny_loaders, tmp_path):
+    """use_attention=False (arm A0's shape) must produce a model with no
+    attention map at all, not a disabled/zeroed one -- attention_ilar stays
+    None throughout, matching evaluate()'s NaN-not-zero contract."""
+    _base, train_loader, val_loader, criterion = tiny_loaders
+    out_dir = tmp_path / "A0_style"
+
+    results = run_full_arm(
+        "A0_style", _tiny_arm_cfg(use_attention=False, lambda_att=0.0),
+        train_loader, val_loader, val_loader, CLASSES, criterion,
+        torch.device("cpu"), out_dir, wandb_enabled=False,
+    )
+    assert results["attention_ilar"] is None
+
+
+def test_run_full_arm_reseeds_so_repeated_calls_are_identical(tiny_loaders, tmp_path):
+    """WBS section S10 pitfall: arms must re-seed at the start, not rely on
+    whatever RNG state a previous arm left behind. Verified here by calling
+    run_full_arm twice with the same seed and checking the resulting
+    checkpoints are bit-identical (same init, same 1-epoch update)."""
+    _base, train_loader, val_loader, criterion = tiny_loaders
+
+    run_full_arm(
+        "rep_a", _tiny_arm_cfg(), train_loader, val_loader, val_loader, CLASSES, criterion,
+        torch.device("cpu"), tmp_path / "rep_a", wandb_enabled=False,
+    )
+    # Burn some extra randomness in between, simulating "a previous arm ran first".
+    torch.randn(100, 100)
+    run_full_arm(
+        "rep_b", _tiny_arm_cfg(), train_loader, val_loader, val_loader, CLASSES, criterion,
+        torch.device("cpu"), tmp_path / "rep_b", wandb_enabled=False,
+    )
+
+    ckpt_a = torch.load(tmp_path / "rep_a" / "densenet121_rep_a.pt", map_location="cpu", weights_only=False)
+    ckpt_b = torch.load(tmp_path / "rep_b" / "densenet121_rep_b.pt", map_location="cpu", weights_only=False)
+    for key in ckpt_a["model_state_dict"]:
+        torch.testing.assert_close(ckpt_a["model_state_dict"][key], ckpt_b["model_state_dict"][key])
