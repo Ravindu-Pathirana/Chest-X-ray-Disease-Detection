@@ -32,6 +32,9 @@ jobs:
           # src/datasets/covid_cxr.py -- same reasoning as the torch install above:
           # a CI-only concern, not something every notebook's local env needs.
           pip install pandas scikit-learn Pillow
+          # tests/test_model_assembly.py needs timm to build DenseNet121/ResNet50
+          # (pretrained=False everywhere in tests, so no network weight download).
+          pip install timm
 
       - name: Run tests
         run: pytest -v
