@@ -12,6 +12,13 @@ wandb/
 artifacts/*
 !artifacts/.gitkeep
 
+# Exceptions: reproducibility inputs/small result summaries that
+# docs/experiment_policy.md requires to be committed (the split manifest;
+# T18's JSON/CSV/figure artifacts) -- unlike bulk checkpoints, which the
+# *.pt / *.pth rules above still exclude even inside these directories.
+!artifacts/splits/
+!artifacts/T18_lung_attention/
+
 # Kaggle-generated notebook metadata and rendered output images
 /kusal-notebooks/artifacts/**/__huggingface_repos__.json
 /kusal-notebooks/artifacts/**/__results___files/
