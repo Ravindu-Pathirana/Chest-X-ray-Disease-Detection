@@ -21,6 +21,7 @@ from .comparison import (
     check_acceptance_criteria,
     stratified_cam_subset,
 )
+from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
 from .gradcam import cam_for, get_taps
 from .lung_attention import (
     CBAMSpatialAttention,
@@ -66,4 +67,7 @@ __all__ = [
     "build_per_image_predictions",
     "build_comparison_table",
     "check_acceptance_criteria",
+    "select_heatmap_images",
+    "plot_heatmap_row",
+    "plot_attention_grid",
 ]
