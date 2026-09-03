@@ -23,10 +23,31 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # CPU-only wheel: the shared infra tests don't need a GPU build,
-          # and the default PyPI wheel would pull a much larger CUDA build.
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          # CPU-only wheels: the test suite doesn't need a GPU build, and the
+          # default PyPI wheels would pull much larger CUDA builds.
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
+          # Model-specific deps requirements.txt intentionally excludes (see its
+          # header comment), but tests/test_covid_cxr.py needs them to import
+          # src/datasets/covid_cxr.py -- same reasoning as the torch install above:
+          # a CI-only concern, not something every notebook's local env needs.
+          pip install pandas scikit-learn Pillow
+          # tests/test_model_assembly.py needs timm to build DenseNet121/ResNet50
+          # (pretrained=False everywhere in tests, so no network weight download).
+          pip install timm
+          # tests/test_gradcam.py needs pytorch_grad_cam -- already used successfully
+          # on Kaggle by notebooks/candidate-c-grad-cam-shortcut-suppression-loss.ipynb.
+          pip install grad-cam
+          # src/modules/training.py (tests/test_training.py) needs tqdm for its
+          # progress bars -- explicit here rather than relying on it arriving as
+          # some other package's transitive dependency.
+          pip install tqdm
+          # src/modules/training.py's lambda_sweep.png (S9) and
+          # src/modules/figures.py (S12, tests/test_figures.py) need
+          # matplotlib -- same reasoning as tqdm above: it happened to
+          # already arrive as grad-cam's transitive dependency, but that's
+          # not something to rely on for a package these files import directly.
+          pip install matplotlib
 
       - name: Run tests
         run: pytest -v
