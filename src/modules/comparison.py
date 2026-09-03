@@ -1,5 +1,6 @@
-"""T18 section S11: per-image predictions, the cross-arm comparison table,
-and the acceptance-criteria (section 1.3, A1-A4) check.
+"""T18 sections S11 and S14: per-image predictions, the cross-arm
+comparison table, the acceptance-criteria (section 1.3, A1-A4) check,
+and (S14, optional) multi-seed mean +/- std summaries.
 
 Three real dependencies this module has on prior work:
 - evaluate() (training.py, S6) already writes attention_ilar/dice/iou
@@ -215,3 +216,60 @@ def check_acceptance_criteria(comparison_df: pd.DataFrame, headline_arm: str = "
             "pass": bool(row["delta_macro_f1"] >= -0.01),
         },
     }
+
+
+def summarize_multiseed(
+    per_seed_comparison_dfs: Dict[int, pd.DataFrame],
+    arms: Optional[List[str]] = None,
+    metrics: List[str] = ["test_macro_f1", "EIL_post"],
+) -> Dict[str, Dict[str, Dict[str, float]]]:
+    """Mean +/- std across seeds for the given metrics, per arm (WBS
+    section S14): "A2 beat A0 by 0.06 EIL" -> "A2 beat A0 by 0.06 +/- 0.01".
+
+    `per_seed_comparison_dfs`: {seed: comparison_df} -- one
+    build_comparison_table() output per seed (e.g. {42: df_seed42,
+    123: df_seed123, 2026: df_seed2026}), each with the same arm names in
+    its "arm" column.
+
+    Requires >= 2 seeds. A single seed's "mean +/- std" is meaningless and
+    the WBS explicitly warns against implying repeats that weren't run
+    (section S14: "do not imply repeats you didn't run") -- raises
+    ValueError rather than silently returning std=0 or std=NaN for one
+    seed, which could be mistaken for a real (if small) spread.
+
+    Returns {arm_name: {metric: {"mean": float, "std": float, "n_seeds": int,
+    "values": [float, ...]}}}. `values` is kept so a caller can report the
+    raw per-seed numbers alongside the summary, not just the aggregate.
+    """
+    if len(per_seed_comparison_dfs) < 2:
+        raise ValueError(
+            f"summarize_multiseed needs >= 2 seeds to report a meaningful mean +/- std; "
+            f"got {len(per_seed_comparison_dfs)}. If only one seed was run, state that "
+            f"explicitly (WBS section S14) rather than calling this function."
+        )
+
+    seeds = sorted(per_seed_comparison_dfs.keys())
+    if arms is None:
+        first_df = per_seed_comparison_dfs[seeds[0]]
+        arms = list(first_df["arm"].unique())
+
+    summary: Dict[str, Dict[str, Dict[str, float]]] = {}
+    for arm_name in arms:
+        summary[arm_name] = {}
+        for metric in metrics:
+            values = []
+            for seed in seeds:
+                df = per_seed_comparison_dfs[seed]
+                match = df[df["arm"] == arm_name]
+                if match.empty:
+                    raise KeyError(f"arm '{arm_name}' not found in seed {seed}'s comparison_df")
+                values.append(float(match.iloc[0][metric]))
+            arr = np.array(values)
+            summary[arm_name][metric] = {
+                "mean": float(arr.mean()),
+                "std": float(arr.std(ddof=1)),  # sample std -- these are a sample of seeds, not the population
+                "n_seeds": len(values),
+                "values": values,
+                "seeds": seeds,
+            }
+    return summary
