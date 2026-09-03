@@ -21,6 +21,7 @@ from .comparison import (
     check_acceptance_criteria,
     stratified_cam_subset,
 )
+from .efficiency_check import check_module_efficiency
 from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
 from .gradcam import cam_for, get_taps
 from .lung_attention import (
@@ -70,4 +71,5 @@ __all__ = [
     "select_heatmap_images",
     "plot_heatmap_row",
     "plot_attention_grid",
+    "check_module_efficiency",
 ]
