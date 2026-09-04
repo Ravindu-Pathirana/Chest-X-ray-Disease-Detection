@@ -1,0 +1,94 @@
+# T18 -- Lung-Region Attention Module (Candidate A) on DenseNet121.
+#
+# Copied from baseline.yaml per configs/README.md; the `training` block is
+# extended for two-phase transfer learning (phase1_* / phase2_*) since a
+# single flat epochs/learning_rate pair can't express the frozen -> fine-tune
+# schedule every architecture in this project actually uses.
+#
+# This file represents arm A2 (the full module: gate on, guidance on).
+# Other T18 arms (A0/A1/A4/A5) are produced from this file at run time via
+# merge_overrides() -- see notebooks/T18_lung_region_attention.ipynb S1 and
+# the Claude Working Files/T18_Lung_Region_Attention_WBS.md arm->flags table
+# (Appendix A.3). Do not fork a separate YAML per arm; that would let the
+# arms drift out of sync, which is exactly what the ablation must not do.
+#
+# Do NOT put API keys, tokens, or credentials in this file -- W&B
+# authentication is handled separately (see docs/wandb_setup.md).
+
+experiment:
+  name: T18_lung_attention
+  seed: 42
+
+model:
+  name: densenet121
+  pretrained: true
+  num_classes: 4
+
+module:
+  # T18-specific block. Not present in baseline.yaml -- this is the module
+  # under study. See WBS section 3.2 for the formal definition.
+  name: lung_region_attention
+  attention: lung # lung (ours, Appendix A.2) | cbam (arm A5, Appendix A.4b)
+  use_attention: true # false selects arm A0 (vanilla control)
+  in_channels: 1024 # DenseNet121 forward_features() channel count
+  reduction: 8 # bottleneck ratio -> 128 hidden channels, 131,329 added params
+  gate_mode: residual # residual (ours) | multiply (arm A3) | none (arm A4)
+  target_mode: soft # soft (area-pooled mask, WBS 4.4) | hard (thresholded)
+  lambda_att: 0.5 # placeholder -- overwritten by the S9 lambda-sweep selection
+
+dataset:
+  name: covid19_radiography
+  version: v1
+  image_size: 224
+  split_version: v1 # -> artifacts/splits/split_manifest_v1.csv (this task, S1 step 5)
+  use_masks: true # loads (image, label, mask) triples via JointTransform + CXRWithMaskDataset
+
+training:
+  # Two-phase schedule (frozen backbone -> fine-tune final block), replacing
+  # baseline.yaml's flat epochs/learning_rate pair.
+  #
+  # WBS section 3.4a: these are NOT the guide's original 1e-3 / 1e-5 / 1e-4
+  # defaults. The team's own committed T16 sweep
+  # (kusal-notebooks/artifacts/EfficientNet B0/runs/T16_efficientnet_b0/tuning_summary.csv)
+  # showed the guide's pair scores 3.8pp val-accuracy worse than this config.
+  # T13 (Member 2's DenseNet121 HP tuning) does not have a committed winner
+  # as of this task -- notebooks/baseline-cnn-model-dnn-research.ipynb only
+  # exposes phase1_lr/phase2_lr as argparse defaults, it never sweeps them.
+  # Revisit if/when T13 lands a DenseNet-specific result.
+  phase1_epochs: 15
+  phase1_lr: 0.0003 # 3e-4 -- T16 winner, NOT the guide's 1e-3
+  phase2_epochs: 40
+  phase2_lr: 0.00003 # 3e-5 -- T16 winner, NOT the guide's 1e-5
+  unfreeze_blocks: 1 # denseblock4 + transition3 + norm5 (WBS Appendix A.4)
+  batch_size: 32
+  optimizer: adamw
+  weight_decay: 0.001 # 1e-3 -- T16 winner, NOT the guide's 1e-4
+  patience: 5 # early stopping patience, monitored on val_loss
+
+scheduler:
+  name: cosine
+
+augmentation:
+  # Distinct from baseline_v1: JointTransform applies identical spatial ops
+  # (resize/pad/crop/flip/rotate) to image AND mask together, in a different
+  # order than build_transforms' image-only pipeline (WBS section 4.6/4.8).
+  # Bump this again if JointTransform's implementation changes.
+  version: joint_v1
+
+tracking:
+  provider: wandb
+  project: chest-xray-disease-classification
+  entity: null
+  mode: null # override at call time: "offline" or "disabled" for S7 smoke tests
+
+checkpoint:
+  # NOTE: baseline.yaml declares monitor: val_f1 / mode: max, but every
+  # existing team notebook (T12/T14/T16/T19) early-stops on val_loss instead
+  # -- a pre-existing policy/code mismatch (WBS gap G7), not something T18
+  # introduced. Kept as val_loss here so A0 stays comparable to the rest of
+  # the team's runs; best_val_f1 is still logged in the training loop
+  # (WBS section S6) so it's available even though it isn't the stopping
+  # criterion.
+  monitor: val_loss
+  mode: min
+  dir: artifacts/T18_lung_attention/runs
