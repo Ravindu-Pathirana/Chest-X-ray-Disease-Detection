@@ -32,6 +32,12 @@ jobs:
           # src/datasets/covid_cxr.py -- same reasoning as the torch install above:
           # a CI-only concern, not something every notebook's local env needs.
           pip install pandas scikit-learn Pillow
+          # tests/test_model_assembly.py needs timm to build DenseNet121/ResNet50
+          # (pretrained=False everywhere in tests, so no network weight download).
+          pip install timm
+          # tests/test_gradcam.py needs pytorch_grad_cam -- already used successfully
+          # on Kaggle by notebooks/candidate-c-grad-cam-shortcut-suppression-loss.ipynb.
+          pip install grad-cam
 
       - name: Run tests
         run: pytest -v
