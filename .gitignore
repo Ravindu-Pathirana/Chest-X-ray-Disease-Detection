@@ -11,6 +11,9 @@ wandb/
 *.pt
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/DenseNet121-HPO/
+artifacts/DenseNet121-HPO/*
+!artifacts/DenseNet121-HPO/.gitkeep
 
 # Kaggle-generated notebook metadata and rendered output images
 /kusal-notebooks/artifacts/**/__huggingface_repos__.json
