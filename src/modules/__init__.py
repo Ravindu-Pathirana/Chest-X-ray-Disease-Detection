@@ -7,6 +7,15 @@ DenseNet121 and designed to be backbone-agnostic for reuse in T23
 for `src.utils` and `src.datasets` (see CLAUDE.md).
 """
 
+from .attention_metrics import (
+    attention_dice,
+    attention_entropy,
+    attention_iou,
+    background_attention,
+    energy_inside_lung,
+    ilar,
+)
+from .gradcam import cam_for, get_taps
 from .lung_attention import (
     CBAMSpatialAttention,
     DenseNetLungAttention,
@@ -31,4 +40,12 @@ __all__ = [
     "freeze_backbone",
     "unfreeze_final_blocks",
     "print_trainable_parameters",
+    "ilar",
+    "attention_iou",
+    "attention_dice",
+    "attention_entropy",
+    "background_attention",
+    "energy_inside_lung",
+    "cam_for",
+    "get_taps",
 ]
