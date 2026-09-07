@@ -8,13 +8,27 @@ for `src.utils` and `src.datasets` (see CLAUDE.md).
 """
 
 from .lung_attention import (
+    CBAMSpatialAttention,
+    DenseNetLungAttention,
+    LogitsOnly,
     LungRegionAttention,
     attention_guidance_loss,
+    build_model,
     compute_total_loss,
+    freeze_backbone,
+    print_trainable_parameters,
+    unfreeze_final_blocks,
 )
 
 __all__ = [
     "LungRegionAttention",
+    "CBAMSpatialAttention",
+    "DenseNetLungAttention",
+    "LogitsOnly",
+    "build_model",
     "attention_guidance_loss",
     "compute_total_loss",
+    "freeze_backbone",
+    "unfreeze_final_blocks",
+    "print_trainable_parameters",
 ]
