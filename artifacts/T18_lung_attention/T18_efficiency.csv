@@ -1,0 +1,3 @@
+model,module,input_shape,params_total,params_trainable,flops,gflops,state_dict_size_mb,checkpoint_size_mb,cpu_latency_ms,cpu_throughput_img_s,gpu_latency_ms,gpu_throughput_img_s
+DenseNet121,without_module,1x3x224x224,6957956,6957956,2864526848.0,2.864526848,27.139409065246586,,18.44264498000002,54.2221574554215,,
+DenseNet121,with_module,1x3x224x224,7089285,7089285,2870955648.0,2.870955648,27.641674995422363,,18.45424998000004,54.18805971978049,,
