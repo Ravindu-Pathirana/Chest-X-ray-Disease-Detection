@@ -15,11 +15,13 @@ auxiliary segmentation head, Grad-CAM-penalty loss — see `notebooks/candidate-
 using the dataset's supplied lung masks. Full methodology and the 17-stage pipeline plan (P01–P17)
 are in `Project Documents/Each task description.md`; product framing is in `README.md`.
 
-**Current state:** the shared experiment-tracking/reproducibility infrastructure (`src/utils/`) is
-built and tested. Model training is happening per-architecture in `notebooks/` (currently ResNet50
-baseline + HP tuning). Data-pipeline stages (manifest, fixed split, class weighting) and the
-shortcut-suppression modules are in progress — don't assume `data/`, `models/`, or `results/`
-directories exist yet; they are `.gitignore`d / not-yet-created per the README's planned layout.
+**Current state:** the shared experiment-tracking/reproducibility infrastructure (`src/utils/`) and
+the shared mask-paired data pipeline (`src/datasets/`) are built and tested. Model training is
+happening per-architecture in `notebooks/` (ResNet50 baseline + HP tuning; DenseNet121 AuxSeg; the
+T18 lung-region-attention candidate). `src/modules/` (shortcut-suppression modules, starting with
+T18's Lung-Region Attention Module) is in progress. Don't assume `data/`, `models/`, or `results/`
+directories exist yet — they are `.gitignore`d / not-yet-created per the README's planned layout;
+committed run artifacts instead live under `artifacts/` (see below).
 
 ## Commands
 
@@ -42,6 +44,42 @@ used by `src/utils`. `conftest.py` puts the repo root on `sys.path` so `from src
 works under pytest with no packaging setup.
 
 ## Architecture
+
+### `src/datasets/` — shared mask-paired data pipeline
+
+`src/datasets/covid_cxr.py` (import via `from src.datasets import ...`, per the same
+re-export convention as `src/utils`) is the one dataset pipeline every mask-aware model owner
+should share, ported verbatim from the AuxSeg (Candidate B) notebook so T18 and future work stay
+aligned:
+
+- `JointTransform` applies identical spatial augmentation (resize/pad/crop/flip/rotate) to an
+  (image, mask) pair from the same random draw; masks always use `NEAREST` interpolation and are
+  zero-padded, never reflected.
+- `CXRWithMaskDataset` returns `(image, label, mask)` triples, locating each mask by swapping
+  `images/` for `masks/` one directory up (`COVID/images/COVID-1.png` → `COVID/masks/COVID-1.png`)
+  and raising `FileNotFoundError` loudly on a missing mask rather than skipping it.
+- `load_split_indices_from_manifest` reads the committed split manifest
+  (`artifacts/splits/split_manifest_v1.csv`) so training loads a fixed split instead of
+  recomputing one — this is what actually enforces `docs/experiment_policy.md`'s "same split for
+  every model" rule. `stratified_split` (the 70/15/15 stratified fallback) exists mainly for
+  regenerating the manifest itself.
+- `compute_class_weights` (`w_c = N / (K * n_c)`) and `build_dataloaders` (wires all of the above
+  into train/val/test `DataLoader`s, with reproducible worker seeding on the shuffling train
+  loader only) round out the module.
+
+### `src/modules/` — shortcut-suppression modules
+
+Architecture-agnostic modules implementing the candidate shortcut-suppression techniques (see
+README's "second research thread"), designed to be reused across backbones rather than tied to one
+notebook — e.g. T18's Lung-Region Attention Module, built on DenseNet121 but intended for reuse on
+ResNet50.
+
+### `artifacts/` — committed, reproducible run outputs
+
+Unlike `data/`/`models/`/`results/` (gitignored, not yet created), `artifacts/` **is** committed:
+`artifacts/splits/` holds the fixed split manifest(s) that `src/datasets` loads, and
+`artifacts/<experiment>/runs/<run_name>/` holds small per-run outputs tied to a specific
+experiment. Treat anything here as a checked-in reproducibility artifact, not scratch space.
 
 ### `src/utils/` — shared infrastructure, not model-specific
 
@@ -84,8 +122,12 @@ runs using the `src/utils` wrapper rather than calling `wandb` directly.
 
 ### Notebooks vs `src/`
 
-Heavy experiment/model code currently lives in `notebooks/` (per-architecture training, HP tuning,
-candidate shortcut-suppression modules), while `src/` holds only the infrastructure meant to be
-shared across every notebook. When adding reusable pipeline code (dataset/manifest loading,
-preprocessing, splitting, evaluation), prefer putting it in `src/` so multiple model owners'
-notebooks can import it, consistent with how `src/utils` is already used.
+Heavy experiment/model code (per-architecture training loops, HP tuning, candidate
+shortcut-suppression notebooks, the T34 efficiency-benchmark harness `notebooks/efficiency.py`)
+lives in `notebooks/`, while `src/` holds infrastructure and pipeline code meant to be shared
+across notebooks (`src/utils`, `src/datasets`, `src/modules`). When code originates in a notebook
+but is reusable by more than one model owner (as `src/datasets/covid_cxr.py` was promoted from the
+AuxSeg notebook), move it into `src/` rather than copy-pasting it into each new notebook.
+`notebooks/` used to be split across a second `kusal-notebooks/` directory (one member's
+baseline-CNN/AuxSeg/EfficientNet-B0 work); it has since been merged in — everything lives in
+`notebooks/` and `artifacts/` now.
