@@ -11,6 +11,9 @@ wandb/
 *.pt
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/DenseNet121-HPO/
+artifacts/DenseNet121-HPO/*
+!artifacts/DenseNet121-HPO/.gitkeep
 
 # Exceptions: reproducibility inputs/small result summaries that
 # docs/experiment_policy.md requires to be committed (the split manifest;
