@@ -21,7 +21,15 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 
 from src.datasets import CXRWithMaskDataset, JointTransform, compute_class_weights, only_images_folder
-from src.modules import build_model, evaluate, freeze_backbone, train_phase
+from src.modules import (
+    best_history_row,
+    build_model,
+    build_optimizer,
+    build_scheduler,
+    evaluate,
+    freeze_backbone,
+    train_phase,
+)
 
 CLASSES = ["COVID", "Normal", "Lung_Opacity", "Viral_Pneumonia"]
 
@@ -101,13 +109,27 @@ def test_train_phase_runs_and_writes_history(tiny_loaders, tmp_path):
 
 def test_train_phase_att_loss_starts_near_log2_at_init(tiny_loaders, tmp_path):
     """Sanity-checks the WBS section 4.4a expectation from inside the real
-    training loop, not just the loss function in isolation."""
-    _base, train_loader, val_loader, criterion = tiny_loaders
+    training loop, not just the loss function in isolation.
+
+    Uses a single-batch loader (batch_size == full train set) so "epoch 1's
+    average att_loss" is literally the value at step 1 -- with the normal
+    multi-batch tiny_loaders fixture, attention updates every batch at
+    lr=1e-3, and by batch 11 the epoch average has already drifted below a
+    tight +/-0.05 window around log(2) (this is real, expected movement --
+    the same thing S7's check 2 showed empirically on the real dataset --
+    not a bug, just the wrong quantity for a "value at init" assertion)."""
+    base, _train_loader, _val_loader, criterion = tiny_loaders
     model, optimizer, device = _build_and_freeze(use_attention=True, gate_mode="residual")
+
+    from torch.utils.data import DataLoader
+    single_batch_loader = DataLoader(
+        CXRWithMaskDataset(base, np.arange(len(base)), JointTransform(img_size=224, train=False)),
+        batch_size=len(base), shuffle=False, num_workers=0,
+    )
 
     hist_dir = tmp_path / "run2"
     train_phase(
-        model, train_loader, val_loader, criterion, optimizer, scheduler=None,
+        model, single_batch_loader, single_batch_loader, criterion, optimizer, scheduler=None,
         device=device, epochs=1, patience=5, phase_name="phase1_frozen",
         output_dir=hist_dir, lambda_att=0.5, wandb_enabled=False,
     )
@@ -232,3 +254,67 @@ def test_evaluate_arm_a0_writes_nan_not_zero_for_attention_columns(tiny_loaders,
     assert pd.isna(df["attention_ilar"].iloc[0])
     assert pd.isna(df["attention_dice"].iloc[0])
     assert pd.isna(df["attention_iou"].iloc[0])
+
+
+# ---------------------------------------------------------------------------
+# build_optimizer / build_scheduler / best_history_row (S9)
+# ---------------------------------------------------------------------------
+
+def test_build_optimizer_each_kind_filters_to_trainable_params():
+    model = nn.Linear(4, 2)
+    for p in model.parameters():
+        p.requires_grad = False
+    model.bias.requires_grad = True  # only 1 of 2 param tensors trainable
+
+    for name, cls in [("adamw", torch.optim.AdamW), ("adam", torch.optim.Adam), ("sgd", torch.optim.SGD)]:
+        opt = build_optimizer(model, name, lr=1e-3, weight_decay=1e-4)
+        assert isinstance(opt, cls)
+        n_params = sum(len(g["params"]) for g in opt.param_groups)
+        assert n_params == 1  # only bias, not weight
+
+
+def test_build_optimizer_unknown_name_raises():
+    model = nn.Linear(4, 2)
+    with pytest.raises(ValueError):
+        build_optimizer(model, "not_a_real_optimizer", lr=1e-3, weight_decay=0.0)
+
+
+def test_build_scheduler_each_kind():
+    model = nn.Linear(4, 2)
+    opt = torch.optim.AdamW(model.parameters(), lr=1e-3)
+
+    cosine = build_scheduler(opt, "cosine", epochs=10)
+    assert isinstance(cosine, torch.optim.lr_scheduler.CosineAnnealingLR)
+
+    opt2 = torch.optim.AdamW(model.parameters(), lr=1e-3)
+    step = build_scheduler(opt2, "step", epochs=9)
+    assert isinstance(step, torch.optim.lr_scheduler.StepLR)
+
+    opt3 = torch.optim.AdamW(model.parameters(), lr=1e-3)
+    plateau = build_scheduler(opt3, "plateau", epochs=10)
+    assert isinstance(plateau, torch.optim.lr_scheduler.ReduceLROnPlateau)
+
+    opt4 = torch.optim.AdamW(model.parameters(), lr=1e-3)
+    assert build_scheduler(opt4, "none", epochs=10) is None
+
+
+def test_build_scheduler_unknown_name_raises():
+    model = nn.Linear(4, 2)
+    opt = torch.optim.AdamW(model.parameters(), lr=1e-3)
+    with pytest.raises(ValueError):
+        build_scheduler(opt, "not_a_real_scheduler", epochs=10)
+
+
+def test_best_history_row_picks_min_val_loss(tmp_path):
+    history = [
+        {"epoch": 1, "val_loss": 1.0, "val_f1": 0.5, "val_ilar": 0.2},
+        {"epoch": 2, "val_loss": 0.4, "val_f1": 0.7, "val_ilar": 0.3},  # best (lowest val_loss)
+        {"epoch": 3, "val_loss": 0.6, "val_f1": 0.9, "val_ilar": 0.4},  # higher f1, but NOT the kept checkpoint
+    ]
+    hist_path = tmp_path / "phase2_finetune_history.json"
+    hist_path.write_text(json.dumps(history))
+
+    row = best_history_row(hist_path)
+    assert row["epoch"] == 2
+    assert row["val_loss"] == 0.4
+    assert row["val_f1"] == 0.7  # NOT epoch 3's 0.9 -- same "report the kept checkpoint" semantics as train_phase
