@@ -20,6 +20,7 @@ from .comparison import (
     build_per_image_predictions,
     check_acceptance_criteria,
     stratified_cam_subset,
+    summarize_multiseed,
 )
 from .efficiency_check import check_module_efficiency
 from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
@@ -72,4 +73,5 @@ __all__ = [
     "plot_heatmap_row",
     "plot_attention_grid",
     "check_module_efficiency",
+    "summarize_multiseed",
 ]
