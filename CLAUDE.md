@@ -15,13 +15,16 @@ auxiliary segmentation head, Grad-CAM-penalty loss — see `notebooks/candidate-
 using the dataset's supplied lung masks. Full methodology and the 17-stage pipeline plan (P01–P17)
 are in `Project Documents/Each task description.md`; product framing is in `README.md`.
 
-**Current state:** the shared experiment-tracking/reproducibility infrastructure (`src/utils/`) and
-the shared mask-paired data pipeline (`src/datasets/`) are built and tested. Model training is
-happening per-architecture in `notebooks/` (ResNet50 baseline + HP tuning; DenseNet121 AuxSeg; the
-T18 lung-region-attention candidate). `src/modules/` (shortcut-suppression modules, starting with
-T18's Lung-Region Attention Module) is in progress. Don't assume `data/`, `models/`, or `results/`
-directories exist yet — they are `.gitignore`d / not-yet-created per the README's planned layout;
-committed run artifacts instead live under `artifacts/` (see below).
+**Current state:** the shared experiment-tracking/reproducibility infrastructure (`src/utils/`) is
+built and tested. The dataset split is fixed and committed (`artifacts/splits/split_manifest_v1.csv`,
+verified against the real dataset and cross-checked against AuxSeg's committed test results).
+Model training is happening per-architecture in `notebooks/` (ResNet50 baseline + HP tuning;
+DenseNet121 baseline + AuxSeg candidate; EfficientNet-B0 baseline + tuning). T18's Lung-Region
+Attention Module (Candidate A, `src/modules/`) is code-complete and locally verified (unit tests,
+plus real diagnostic runs against the actual dataset for the smoke/overfit checks) but not yet
+trained on Kaggle — see `artifacts/T18_lung_attention/T18_module_card.md` for status and handoff
+notes. Don't assume `data/`, `models/`, or `results/` directories exist yet; they are `.gitignore`d
+/ not-yet-created per the README's planned layout.
 
 ## Commands
 
@@ -45,42 +48,6 @@ works under pytest with no packaging setup.
 
 ## Architecture
 
-### `src/datasets/` — shared mask-paired data pipeline
-
-`src/datasets/covid_cxr.py` (import via `from src.datasets import ...`, per the same
-re-export convention as `src/utils`) is the one dataset pipeline every mask-aware model owner
-should share, ported verbatim from the AuxSeg (Candidate B) notebook so T18 and future work stay
-aligned:
-
-- `JointTransform` applies identical spatial augmentation (resize/pad/crop/flip/rotate) to an
-  (image, mask) pair from the same random draw; masks always use `NEAREST` interpolation and are
-  zero-padded, never reflected.
-- `CXRWithMaskDataset` returns `(image, label, mask)` triples, locating each mask by swapping
-  `images/` for `masks/` one directory up (`COVID/images/COVID-1.png` → `COVID/masks/COVID-1.png`)
-  and raising `FileNotFoundError` loudly on a missing mask rather than skipping it.
-- `load_split_indices_from_manifest` reads the committed split manifest
-  (`artifacts/splits/split_manifest_v1.csv`) so training loads a fixed split instead of
-  recomputing one — this is what actually enforces `docs/experiment_policy.md`'s "same split for
-  every model" rule. `stratified_split` (the 70/15/15 stratified fallback) exists mainly for
-  regenerating the manifest itself.
-- `compute_class_weights` (`w_c = N / (K * n_c)`) and `build_dataloaders` (wires all of the above
-  into train/val/test `DataLoader`s, with reproducible worker seeding on the shuffling train
-  loader only) round out the module.
-
-### `src/modules/` — shortcut-suppression modules
-
-Architecture-agnostic modules implementing the candidate shortcut-suppression techniques (see
-README's "second research thread"), designed to be reused across backbones rather than tied to one
-notebook — e.g. T18's Lung-Region Attention Module, built on DenseNet121 but intended for reuse on
-ResNet50.
-
-### `artifacts/` — committed, reproducible run outputs
-
-Unlike `data/`/`models/`/`results/` (gitignored, not yet created), `artifacts/` **is** committed:
-`artifacts/splits/` holds the fixed split manifest(s) that `src/datasets` loads, and
-`artifacts/<experiment>/runs/<run_name>/` holds small per-run outputs tied to a specific
-experiment. Treat anything here as a checked-in reproducibility artifact, not scratch space.
-
 ### `src/utils/` — shared infrastructure, not model-specific
 
 Every team member's training notebook (any architecture) imports from here rather than
@@ -92,6 +59,58 @@ reimplementing config/seeding/tracking/checkpointing per-model:
 - `checkpointing.py` — `BestCheckpointSaver` tracks one monitored metric across epochs and writes a checkpoint only on improvement; `load_checkpoint` reads it back. Architecture-agnostic (takes any `nn.Module`/optimizer).
 
 All of it is re-exported from `src/utils/__init__.py`; import from there (`from src.utils import ...`), not from the submodules directly.
+
+### `src/datasets/` — shared mask-aware CXR data pipeline
+
+Built for T18, reusable by T23. `JointTransform` applies identical spatial augmentation to an
+image and its lung mask together (not the image-only `build_transforms` most training notebooks
+use); `CXRWithMaskDataset` returns `(image, label, mask)` triples. `build_dataloaders(...,
+split_manifest_path=...)` loads the fixed split from `artifacts/splits/split_manifest_v1.csv`
+rather than regenerating it (`load_split_indices_from_manifest` is the lower-level function this
+calls) — per `docs/experiment_policy.md`, the split must never be regenerated per-notebook.
+`compute_class_weights`/`stratified_split`/`only_images_folder`/`IMAGENET_MEAN`/`IMAGENET_STD`
+match the values every other notebook already uses. Import from `src.datasets`, not
+`src.datasets.covid_cxr` directly.
+
+### `src/modules/` — shortcut-suppression modules
+
+T18's Lung-Region Attention Module (Candidate A), designed backbone-agnostic for T23. Split by
+concern, one file per WBS build step:
+
+- `lung_attention.py` — `LungRegionAttention` (the module itself), `CBAMSpatialAttention` (the
+  published-method comparator), `DenseNetLungAttention`/`build_model()` (backbone-agnostic model
+  wrapper — works for any timm architecture, not just DenseNet despite the filename),
+  `freeze_backbone`/`unfreeze_final_blocks` (one small per-architecture-family registry covering
+  densenet/resnet/efficientnet/vit), `LogitsOnly` (adapter for tools expecting `model(x) ->
+  Tensor` — the model itself returns a 3-tuple `(logits, attention, attention_logits)`).
+- `attention_metrics.py` — `ilar`, `attention_iou`, `attention_dice`, `attention_entropy`,
+  `background_attention`, `energy_inside_lung` (the module-agnostic Grad-CAM faithfulness metric
+  used to compare across shortcut-suppression candidates, not just within this one).
+- `gradcam.py` — `cam_for`/`get_taps`: Grad-CAM at two taps (pre-gate and post-gate) to
+  distinguish "the module reshaped the backbone's own evidence" from "the module just multiplies
+  by a lung-shaped mask at the end."
+- `training.py` — `run_epoch`/`train_phase`/`evaluate`/`run_full_arm`
+  (build→freeze→train→unfreeze→train→evaluate→save, one function for every experimental arm, no
+  per-arm branching)/`build_optimizer`/`build_scheduler`/`best_history_row`.
+- `comparison.py` — per-image predictions, the cross-arm comparison table, acceptance-criteria
+  checks, and (optional) multi-seed mean±std summaries.
+- `efficiency_check.py` — reads `notebooks/efficiency.py`'s benchmark output and applies a
+  pass/fail threshold; does not duplicate that harness.
+- `figures.py` — heat-map overlay selection/rendering for the paper's figures.
+
+Import from `src.modules`, not the submodules directly. Full design rationale, formal equations,
+and the acceptance-criteria targets: `Claude Working Files/T18_Lung_Region_Attention_WBS.md` and
+`artifacts/T18_lung_attention/T18_module_card.md`.
+
+### `artifacts/` — committed, reproducible run outputs
+
+Unlike `data/`/`models/`/`results/` (gitignored, not yet created), `artifacts/` **is** committed:
+`artifacts/splits/` holds the fixed split manifest(s) that `src/datasets` loads, and
+`artifacts/<experiment>/runs/<run_name>/` holds small per-run outputs tied to a specific
+experiment (e.g. `artifacts/densenet121_auxseg/`, `artifacts/efficientnet_b0/`,
+`artifacts/T18_lung_attention/`, which also carries top-level status files like
+`T18_module_card.md` alongside its `runs/`). Treat anything here as a checked-in reproducibility
+artifact, not scratch space.
 
 ### `configs/` — YAML-driven experiments
 
@@ -122,12 +141,15 @@ runs using the `src/utils` wrapper rather than calling `wandb` directly.
 
 ### Notebooks vs `src/`
 
-Heavy experiment/model code (per-architecture training loops, HP tuning, candidate
-shortcut-suppression notebooks, the T34 efficiency-benchmark harness `notebooks/efficiency.py`)
-lives in `notebooks/`, while `src/` holds infrastructure and pipeline code meant to be shared
-across notebooks (`src/utils`, `src/datasets`, `src/modules`). When code originates in a notebook
-but is reusable by more than one model owner (as `src/datasets/covid_cxr.py` was promoted from the
-AuxSeg notebook), move it into `src/` rather than copy-pasting it into each new notebook.
+Per-architecture training/HP-tuning still lives directly in `notebooks/` (ResNet50, DenseNet121,
+EfficientNet-B0 baselines). T18's shortcut-suppression module is the one deliberate exception to
+"heavy model code stays in the notebook": the module, training loop, and evaluation harness live
+in `src/modules/`, and `notebooks/T18_lung_region_attention.ipynb` only orchestrates calls into
+it — because T23 needs to reuse the exact same module code on ResNet50 later, and a notebook-local
+implementation can't be imported. When adding reusable pipeline code (dataset/manifest loading,
+preprocessing, splitting, evaluation) — or a model/module intended for reuse across
+architectures — prefer putting it in `src/` so multiple model owners' notebooks can import it,
+consistent with how `src/utils`, `src/datasets`, and `src/modules` are already used.
 `notebooks/` used to be split across a second `kusal-notebooks/` directory (one member's
-baseline-CNN/AuxSeg/EfficientNet-B0 work); it has since been merged in — everything lives in
-`notebooks/` and `artifacts/` now.
+baseline-CNN/AuxSeg/EfficientNet-B0 work, including `efficiency.py`, the T34 efficiency-benchmark
+harness); it has since been merged in — everything lives in `notebooks/` and `artifacts/` now.
