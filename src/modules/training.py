@@ -42,6 +42,43 @@ from .attention_metrics import attention_dice, attention_iou, ilar
 from .lung_attention import compute_total_loss
 
 
+def build_optimizer(model: torch.nn.Module, name: str, lr: float, weight_decay: float) -> torch.optim.Optimizer:
+    """Matches every other team notebook's build_optimizer (T12/T14/T15/T16/T19) --
+    only trainable (requires_grad=True) parameters are passed, so this is safe
+    to call in either phase 1 (frozen backbone) or phase 2 (partially unfrozen)."""
+    params = [p for p in model.parameters() if p.requires_grad]
+    if name == "adamw":
+        return torch.optim.AdamW(params, lr=lr, weight_decay=weight_decay)
+    if name == "adam":
+        return torch.optim.Adam(params, lr=lr, weight_decay=weight_decay)
+    if name == "sgd":
+        return torch.optim.SGD(params, lr=lr, momentum=0.9, weight_decay=weight_decay)
+    raise ValueError(f"Unknown optimizer: {name}")
+
+
+def build_scheduler(optimizer: torch.optim.Optimizer, name: str, epochs: int):
+    """Matches every other team notebook's build_scheduler. Returns None for
+    "none" -- train_phase already handles a None scheduler as a no-op."""
+    if name == "cosine":
+        return torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+    if name == "step":
+        return torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(1, epochs // 3), gamma=0.1)
+    if name == "plateau":
+        return torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.1, patience=2)
+    if name == "none":
+        return None
+    raise ValueError(f"Unknown scheduler: {name}")
+
+
+def best_history_row(history_file) -> Dict[str, Any]:
+    """T16's exact helper (kusal-notebooks/efficientnet-b0-baseline-model.ipynb,
+    cell 25) -- the epoch with the lowest val_loss, i.e. the one train_phase
+    actually kept as best_state. Reused verbatim per WBS section S9."""
+    with open(history_file, "r") as f:
+        history = json.load(f)
+    return min(history, key=lambda x: x["val_loss"])
+
+
 def run_epoch(
     model: torch.nn.Module,
     loader,

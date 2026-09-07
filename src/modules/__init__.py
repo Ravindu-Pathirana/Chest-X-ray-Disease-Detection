@@ -28,7 +28,7 @@ from .lung_attention import (
     print_trainable_parameters,
     unfreeze_final_blocks,
 )
-from .training import evaluate, run_epoch, train_phase
+from .training import best_history_row, build_optimizer, build_scheduler, evaluate, run_epoch, train_phase
 
 __all__ = [
     "LungRegionAttention",
@@ -52,4 +52,7 @@ __all__ = [
     "run_epoch",
     "train_phase",
     "evaluate",
+    "build_optimizer",
+    "build_scheduler",
+    "best_history_row",
 ]
