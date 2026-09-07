@@ -36,10 +36,17 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 
-from src.utils import initialize_wandb, log_metrics, log_summary_metrics  # noqa: F401  (initialize_wandb re-exported for caller convenience)
+from src.utils import (  # noqa: F401  (initialize_wandb/generate_run_name re-exported for caller convenience)
+    finish_run,
+    generate_run_name,
+    initialize_wandb,
+    log_metrics,
+    log_summary_metrics,
+    set_seed,
+)
 
 from .attention_metrics import attention_dice, attention_iou, ilar
-from .lung_attention import compute_total_loss
+from .lung_attention import build_model, compute_total_loss, freeze_backbone, unfreeze_final_blocks
 
 
 def build_optimizer(model: torch.nn.Module, name: str, lr: float, weight_decay: float) -> torch.optim.Optimizer:
@@ -424,5 +431,94 @@ def evaluate(model: torch.nn.Module, loader, class_names: List[str], device: tor
         "cam_eil_pre": float("nan"),
     }
     pd.DataFrame([summary]).to_csv(output_dir / f"{evaluation_type}_summary_metrics.csv", index=False)
+
+    return results
+
+
+def run_full_arm(
+    arm_name: str,
+    arm_cfg: Dict[str, Any],
+    train_loader,
+    val_loader,
+    test_loader,
+    class_names: List[str],
+    criterion,
+    device: torch.device,
+    output_dir,
+    backbone_name: str = "densenet121",
+    wandb_enabled: bool = True,
+) -> Dict[str, Any]:
+    """Runs one T18 arm's complete two-phase schedule: build model -> freeze
+    -> phase1 train_phase -> evaluate -> unfreeze -> phase2 train_phase ->
+    evaluate -> save checkpoint. Returns phase2's evaluate() results dict.
+
+    `arm_cfg` must be a fully-resolved config (e.g. via merge_overrides) --
+    every model-building and hyperparameter value is read from arm_cfg
+    itself (arm_cfg["module"], arm_cfg["training"], arm_cfg["scheduler"]),
+    not passed as separate arguments. This is what makes ONE function
+    handle every arm (A0-A5) with no per-arm branching or copy-pasted
+    training code -- exactly the WBS section S6 DoD, applied here to S8/S10
+    too, since without this a 4th/5th arm would otherwise mean copy-pasting
+    S8's ~40-line cell body 4-5 times with small, easy-to-typo edits.
+
+    Re-seeds fresh at the start (WBS section S10 pitfall: continuing a
+    session without re-seeding means arm N's init depends on how many
+    random numbers arm N-1 consumed -- a subtle, real confound between arms).
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    seed = arm_cfg["experiment"]["seed"]
+    m = arm_cfg["module"]
+    t = arm_cfg["training"]
+
+    set_seed(seed)
+    if wandb_enabled:
+        initialize_wandb(arm_cfg, run_name=generate_run_name(backbone_name, f"T18-{arm_name}", seed))
+
+    try:
+        model = build_model(
+            num_classes=arm_cfg["model"]["num_classes"],
+            use_attention=m["use_attention"],
+            attention=m.get("attention", "lung"),
+            gate_mode=m.get("gate_mode", "residual"),
+            reduction=m.get("reduction", 8),
+            backbone_name=backbone_name,
+            pretrained=arm_cfg["model"]["pretrained"],
+        ).to(device)
+        lambda_att = m["lambda_att"]
+
+        freeze_backbone(model)
+        opt1 = build_optimizer(model, t["optimizer"], t["phase1_lr"], t["weight_decay"])
+        sched1 = build_scheduler(opt1, arm_cfg["scheduler"]["name"], t["phase1_epochs"])
+        model = train_phase(
+            model, train_loader, val_loader, criterion, opt1, sched1, device,
+            epochs=t["phase1_epochs"], patience=t["patience"], phase_name="phase1_frozen",
+            output_dir=output_dir, lambda_att=lambda_att, wandb_enabled=wandb_enabled,
+        )
+        evaluate(model, test_loader, class_names, device, output_dir, "phase1_frozen")
+
+        unfreeze_final_blocks(model, t["unfreeze_blocks"])
+        opt2 = build_optimizer(model, t["optimizer"], t["phase2_lr"], t["weight_decay"])
+        sched2 = build_scheduler(opt2, arm_cfg["scheduler"]["name"], t["phase2_epochs"])
+        model = train_phase(
+            model, train_loader, val_loader, criterion, opt2, sched2, device,
+            epochs=t["phase2_epochs"], patience=t["patience"], phase_name="phase2_finetune",
+            output_dir=output_dir, lambda_att=lambda_att, wandb_enabled=wandb_enabled,
+        )
+        results = evaluate(model, test_loader, class_names, device, output_dir, "phase2_finetune")
+
+        torch.save(
+            {
+                "model_state_dict": model.state_dict(),
+                "class_names": class_names,
+                "config": arm_cfg,
+                "arm": arm_name,
+                "seed": seed,
+            },
+            output_dir / f"{backbone_name}_{arm_name}.pt",
+        )
+    finally:
+        if wandb_enabled:
+            finish_run()
 
     return results
