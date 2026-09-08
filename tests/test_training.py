@@ -99,8 +99,8 @@ def test_train_phase_runs_and_writes_history(tiny_loaders, tmp_path):
     hist = json.loads(hist_path.read_text())
     assert len(hist) == 2
     expected_keys = {
-        "epoch", "train_loss", "train_cls_loss", "train_att_loss", "train_acc", "train_ilar",
-        "val_loss", "val_cls_loss", "val_att_loss", "val_acc", "val_ilar",
+        "epoch", "train_loss", "train_cls_loss", "train_att_loss", "train_bg_loss", "train_acc", "train_ilar",
+        "val_loss", "val_cls_loss", "val_att_loss", "val_bg_loss", "val_acc", "val_ilar",
         "val_precision", "val_recall", "val_f1", "val_auroc",
     }
     assert expected_keys <= set(hist[0].keys())
@@ -154,6 +154,28 @@ def test_train_phase_arm_a0_has_nan_ilar(tiny_loaders, tmp_path):
     assert np.isnan(hist[0]["train_ilar"])
     assert np.isnan(hist[0]["val_ilar"])
     assert hist[0]["train_att_loss"] == 0.0  # lambda_att=0.0 -> total==cls, att detached to 0
+    assert hist[0]["train_bg_loss"] == 0.0  # no attention map at all -> bg_loss forced to 0 too
+
+
+def test_train_phase_lambda_bg_positive_logs_finite_bounded_bg_loss(tiny_loaders, tmp_path):
+    """lambda_bg is opt-in and not used by any frozen A0-A5 arm, but when a
+    caller does set it > 0 (the "A2+bg" follow-up experiment), the logged
+    bg_loss must be a real, finite value in background_suppression_loss's
+    own [0, 1] range -- not silently dropped or left at a stale default."""
+    _base, train_loader, val_loader, criterion = tiny_loaders
+    model, optimizer, device = _build_and_freeze(use_attention=True, gate_mode="residual")
+
+    out_dir = tmp_path / "run_bg"
+    train_phase(
+        model, train_loader, val_loader, criterion, optimizer, scheduler=None,
+        device=device, epochs=1, patience=5, phase_name="phase1_frozen",
+        output_dir=out_dir, lambda_att=0.5, lambda_bg=1.0, wandb_enabled=False,
+    )
+    hist = json.loads((out_dir / "phase1_frozen_history.json").read_text())
+    assert np.isfinite(hist[0]["train_bg_loss"])
+    assert np.isfinite(hist[0]["val_bg_loss"])
+    assert 0.0 <= hist[0]["train_bg_loss"] <= 1.0
+    assert 0.0 <= hist[0]["val_bg_loss"] <= 1.0
 
 
 def test_train_phase_early_stopping_fires(tiny_loaders, tmp_path):
@@ -364,6 +386,25 @@ def test_run_full_arm_writes_checkpoint_and_both_phase_results(tiny_loaders, tmp
     assert ckpt["seed"] == 0
     assert ckpt["class_names"] == CLASSES
     assert "model_state_dict" in ckpt
+
+
+def test_run_full_arm_reads_lambda_bg_from_config(tiny_loaders, tmp_path):
+    """lambda_bg lives in arm_cfg["module"], defaults to absent/0.0 for the
+    frozen A0-A5 arms (see _tiny_arm_cfg's default). When a config DOES set
+    it, run_full_arm must actually read and use it, not silently ignore it
+    -- checked here via the logged bg_loss history, the only externally
+    observable signal that the value was threaded through at all."""
+    _base, train_loader, val_loader, criterion = tiny_loaders
+    out_dir = tmp_path / "A2_bg"
+
+    run_full_arm(
+        "A2_bg", _tiny_arm_cfg(lambda_bg=1.0), train_loader, val_loader, val_loader, CLASSES, criterion,
+        torch.device("cpu"), out_dir, backbone_name="densenet121", wandb_enabled=False,
+    )
+
+    hist = json.loads((out_dir / "phase1_frozen_history.json").read_text())
+    assert np.isfinite(hist[0]["train_bg_loss"])
+    assert 0.0 <= hist[0]["train_bg_loss"] <= 1.0
 
 
 def test_run_full_arm_a0_style_has_no_attention_module(tiny_loaders, tmp_path):

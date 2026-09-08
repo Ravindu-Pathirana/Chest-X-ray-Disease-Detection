@@ -23,6 +23,12 @@ model:
   name: densenet121
   pretrained: true
   num_classes: 4
+  # T13 (Member 2's DenseNet121 HPO, notebooks/DenseNet_HPO_train.ipynb, Optuna
+  # trial 9/20, best val_loss 0.2354) winner. Passed as timm's head drop_rate --
+  # WBS section 4.3 requires A0/A2 share "the same head, same pooling, same
+  # dropout" as Member 2's vanilla baseline, or the comparison has a confound.
+  # Adds zero parameters, so this doesn't affect the A6 cost acceptance criterion.
+  drop_rate: 0.430365
 
 module:
   # T18-specific block. Not present in baseline.yaml -- this is the module
@@ -35,6 +41,13 @@ module:
   gate_mode: residual # residual (ours) | multiply (arm A3) | none (arm A4)
   target_mode: soft # soft (area-pooled mask, WBS 4.4) | hard (thresholded)
   lambda_att: 0.5 # placeholder -- overwritten by the S9 lambda-sweep selection
+  # Background-suppression loss weight, opt-in -- NOT part of the frozen
+  # A0-A5 ablation (every arm uses 0.0, so this config still represents
+  # arm A2 exactly as originally specified). Set > 0.0 only for a separate
+  # follow-up run (e.g. "A2+bg") testing whether directly penalizing
+  # background attention mass improves shortcut suppression beyond
+  # guidance-loss alone. See src/modules/lung_attention.py::background_suppression_loss.
+  lambda_bg: 0.0
 
 dataset:
   name: covid19_radiography
@@ -47,26 +60,33 @@ training:
   # Two-phase schedule (frozen backbone -> fine-tune final block), replacing
   # baseline.yaml's flat epochs/learning_rate pair.
   #
-  # WBS section 3.4a: these are NOT the guide's original 1e-3 / 1e-5 / 1e-4
-  # defaults. The team's own committed T16 sweep
-  # (artifacts/efficientnet_b0/runs/T16_efficientnet_b0/tuning_summary.csv)
-  # showed the guide's pair scores 3.8pp val-accuracy worse than this config.
-  # T13 (Member 2's DenseNet121 HP tuning) does not have a committed winner
-  # as of this task -- notebooks/baseline-cnn-model-dnn-research.ipynb only
-  # exposes phase1_lr/phase2_lr as argparse defaults, it never sweeps them.
-  # Revisit if/when T13 lands a DenseNet-specific result.
+  # WBS section 3.4a decision order: "If Member 2's T13 (DenseNet HP tuning)
+  # has a winner -> use it" -- it now does. notebooks/DenseNet_HPO_train.ipynb
+  # ran a 20-trial Optuna search (TPE sampler, MedianPruner) directly on
+  # DenseNet121 and retrained trial 9's winning config at the full epoch
+  # budget: 94.83% test accuracy, macro-F1 0.9505, macro ROC-AUC 0.9928
+  # (see that notebook's final cells). This replaces the previous inherited
+  # default (T16's EfficientNet-B0 sweep winner, kept only because T13 hadn't
+  # landed yet -- see artifacts/efficientnet_b0/runs/T16_efficientnet_b0/
+  # tuning_summary.csv for that superseded value).
+  #
+  # optimizer/scheduler/unfreeze_blocks/batch_size are adopted from the same
+  # trial (not just phase*_lr/weight_decay) per the WBS's "use it" directive --
+  # every T18 arm must share Member 2's exact tuned config, not a partial
+  # subset of it, or the A0-vs-A2 comparison isn't testing against the same
+  # baseline the paper's Table 2 baseline row reports.
   phase1_epochs: 15
-  phase1_lr: 0.0003 # 3e-4 -- T16 winner, NOT the guide's 1e-3
+  phase1_lr: 0.00412 # ~4.12e-3 -- T13 winner (was 3e-4, T16-inherited)
   phase2_epochs: 40
-  phase2_lr: 0.00003 # 3e-5 -- T16 winner, NOT the guide's 1e-5
-  unfreeze_blocks: 1 # denseblock4 + transition3 + norm5 (WBS Appendix A.4)
-  batch_size: 32
-  optimizer: adamw
-  weight_decay: 0.001 # 1e-3 -- T16 winner, NOT the guide's 1e-4
+  phase2_lr: 0.000062 # ~6.2e-5 -- T13 winner (was 3e-5, T16-inherited)
+  unfreeze_blocks: 3 # denseblock4/3/2 + transition2/3 + norm5 -- T13 winner (was 1)
+  batch_size: 64 # T13 winner (was 32)
+  optimizer: adam # T13 winner -- NOT adamw (was adamw)
+  weight_decay: 0.0000187 # ~1.87e-5 -- T13 winner (was 1e-3)
   patience: 5 # early stopping patience, monitored on val_loss
 
 scheduler:
-  name: cosine
+  name: plateau # T13 winner -- NOT cosine (was cosine); see build_scheduler's ReduceLROnPlateau branch
 
 augmentation:
   # Distinct from baseline_v1: JointTransform applies identical spatial ops

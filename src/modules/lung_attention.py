@@ -86,19 +86,69 @@ def attention_guidance_loss(
     return F.binary_cross_entropy_with_logits(att_logits, target, pos_weight=pos_weight)
 
 
+def background_suppression_loss(att: torch.Tensor, masks: torch.Tensor) -> torch.Tensor:
+    """Fraction of attention MASS placed on background (non-lung) cells, per
+    image -- directly minimizes what attention_metrics.py's
+    ``background_attention`` measures at eval time, computed here at the
+    native attention resolution (no upsampling to 224, unlike that metric)
+    so it's cheap enough to use as a training loss every step.
+
+    Complements ``attention_guidance_loss``: BCE-toward-the-mask already
+    pushes background cells toward 0 in expectation, but doesn't directly
+    minimize total background MASS the way ILAR/background_attention
+    measure it -- this loss does that directly. Opt-in only (see
+    ``compute_total_loss``'s ``lambda_bg``): the frozen A0-A5 ablation
+    arms all use ``lambda_bg=0.0`` and are unaffected by this function
+    existing.
+
+    Takes ``att`` (attention PROBABILITIES, i.e. post-sigmoid), not
+    ``att_logits`` -- this penalizes attention MASS, not a
+    classification-style boundary, so there's no BCE-style numerical-
+    stability reason to prefer logits here (unlike attention_guidance_loss).
+    """
+    if masks.ndim == 3:
+        masks = masks.unsqueeze(1)
+    h, w = att.shape[-2:]
+    bg_weight = 1.0 - F.adaptive_avg_pool2d(masks.float(), (h, w)).clamp(0.0, 1.0)
+    return (att * bg_weight).flatten(1).sum(1) / (bg_weight.flatten(1).sum(1) + 1e-8)
+
+
 def compute_total_loss(
     class_logits, att_logits, labels, masks,
     classification_criterion, lambda_att: float = 0.5, target_mode: str = "soft",
+    att: torch.Tensor | None = None, lambda_bg: float = 0.0,
 ):
-    """L = CE_w + lambda * L_att.  Returns (total, cls, att) for logging."""
+    """L = CE_w + lambda_att * L_att + lambda_bg * L_bg.
+    Returns (total, cls, att_loss, bg_loss) for logging.
+
+    ``att`` (attention probabilities) and ``lambda_bg`` are optional and
+    both default to off -- every existing call site (which predates the
+    background-suppression loss) is unaffected. Pass ``att`` (already
+    available to every caller from the model's forward pass) only when
+    setting ``lambda_bg > 0``.
+    """
     cls_loss = classification_criterion(class_logits, labels)
+    zero = torch.zeros((), device=cls_loss.device, dtype=cls_loss.dtype)
+
     if att_logits is None or lambda_att == 0.0:
-        zero = torch.zeros((), device=cls_loss.device, dtype=cls_loss.dtype)
         att_loss = (attention_guidance_loss(att_logits, masks, target_mode)
-                    if att_logits is not None else zero)
-        return cls_loss, cls_loss, att_loss.detach()
-    att_loss = attention_guidance_loss(att_logits, masks, target_mode)
-    return cls_loss + lambda_att * att_loss, cls_loss, att_loss
+                    if att_logits is not None else zero).detach()
+    else:
+        att_loss = attention_guidance_loss(att_logits, masks, target_mode)
+
+    if att is None or lambda_bg == 0.0:
+        bg_loss = (background_suppression_loss(att, masks).mean()
+                   if att is not None else zero).detach()
+    else:
+        bg_loss = background_suppression_loss(att, masks).mean()
+
+    total = cls_loss
+    if att_logits is not None and lambda_att != 0.0:
+        total = total + lambda_att * att_loss
+    if att is not None and lambda_bg != 0.0:
+        total = total + lambda_bg * bg_loss
+
+    return total, cls_loss, att_loss, bg_loss
 
 
 class CBAMSpatialAttention(nn.Module):
@@ -143,9 +193,12 @@ class DenseNetLungAttention(nn.Module):
         gate_mode: str = "residual",
         backbone_name: str = "densenet121",
         attention: str = "lung",          # "lung" (ours) | "cbam" (arm A5)
+        drop_rate: float = 0.0,           # head dropout -- match T13's tuned baseline (see build_model)
     ) -> None:
         super().__init__()
-        self.backbone = timm.create_model(backbone_name, pretrained=pretrained, num_classes=num_classes)
+        self.backbone = timm.create_model(
+            backbone_name, pretrained=pretrained, num_classes=num_classes, drop_rate=drop_rate
+        )
         self.backbone_name = backbone_name       # read by _family() below
         self.use_attention = use_attention
         self.attention_kind = attention
@@ -180,8 +233,17 @@ def build_model(
     backbone_name: str = "densenet121",
     pretrained: bool = True,
     attention: str = "lung",
+    drop_rate: float = 0.0,
 ) -> DenseNetLungAttention:
-    return DenseNetLungAttention(num_classes, pretrained, use_attention, reduction, gate_mode, backbone_name, attention)
+    """`drop_rate` (timm's head dropout) defaults to 0.0 for backwards compatibility
+    with every existing call site/test, but should be set to Member 2's tuned value
+    (T13, DenseNet121 HPO) for real arm runs -- WBS section 4.3's whole point is that
+    A0 and A2 must share "the same head, same pooling, same dropout" as the vanilla
+    baseline, or the comparison has a confound. Dropout adds no parameters, so this
+    doesn't change any of the module's cost/param-count acceptance criteria (A6)."""
+    return DenseNetLungAttention(
+        num_classes, pretrained, use_attention, reduction, gate_mode, backbone_name, attention, drop_rate
+    )
 
 
 class LogitsOnly(nn.Module):

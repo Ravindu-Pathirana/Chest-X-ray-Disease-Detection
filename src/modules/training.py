@@ -6,8 +6,8 @@ Adapted from the AuxSeg notebook's run_epoch/train_phase/evaluate
 cells 23-25), which already handle the (image, label, mask) batch
 contract, AMP + GradScaler, early stopping, and history JSON. Per WBS
 section 8 (S6), only the loss block and the logged metric names change:
-- classification-only loss -> compute_total_loss (CE + lambda*attention
-  guidance) from lung_attention.py
+- classification-only loss -> compute_total_loss (CE + lambda_att*attention
+  guidance + optional lambda_bg*background suppression) from lung_attention.py
 - segmentation Dice/IoU -> attention ilar/dice/iou from attention_metrics.py
 - adds per-epoch validation precision/recall/F1/AUROC (mandatory per
   docs/experiment_policy.md's "Required Information"), which the AuxSeg
@@ -15,7 +15,10 @@ section 8 (S6), only the loss block and the logged metric names change:
 
 One function handles all T18 arms via the model's own use_attention/
 gate_mode flags and this module's lambda_att -- no per-arm branching or
-copy-pasted training code (WBS S6 DoD).
+copy-pasted training code (WBS S6 DoD). lambda_bg defaults to 0.0 (off)
+everywhere, so it doesn't affect the frozen A0-A5 ablation -- it's an
+opt-in knob for a separate "does background suppression help" experiment
+(see configs/densenet121_lung_attention.yaml's module.lambda_bg comment).
 """
 from __future__ import annotations
 
@@ -95,6 +98,7 @@ def run_epoch(
     train: bool,
     lambda_att: float = 0.5,
     target_mode: str = "soft",
+    lambda_bg: float = 0.0,
     desc: str = "",
     scaler: Optional[torch.amp.GradScaler] = None,
 ) -> Dict[str, Any]:
@@ -111,7 +115,7 @@ def run_epoch(
     """
     model.train() if train else model.eval()
 
-    total_loss = total_cls_loss = total_att_loss = 0.0
+    total_loss = total_cls_loss = total_att_loss = total_bg_loss = 0.0
     correct = total = 0
     ilar_sum = 0.0
     ilar_count = 0
@@ -136,9 +140,10 @@ def run_epoch(
 
             with torch.autocast(device_type=device.type, enabled=(device.type == "cuda")):
                 class_logits, att, att_logits = model(images)
-                loss, cls_loss, att_loss = compute_total_loss(
+                loss, cls_loss, att_loss, bg_loss = compute_total_loss(
                     class_logits, att_logits, labels, masks, criterion,
                     lambda_att=lambda_att, target_mode=target_mode,
+                    att=att, lambda_bg=lambda_bg,
                 )
 
             if train:
@@ -154,6 +159,7 @@ def run_epoch(
             total_loss += loss.item() * batch_size
             total_cls_loss += cls_loss.item() * batch_size
             total_att_loss += att_loss.item() * batch_size
+            total_bg_loss += bg_loss.item() * batch_size
 
             probs = torch.softmax(class_logits, dim=1).detach()
             preds = probs.argmax(dim=1)
@@ -181,6 +187,7 @@ def run_epoch(
         "loss": total_loss / total,
         "cls_loss": total_cls_loss / total,
         "att_loss": total_att_loss / total,
+        "bg_loss": total_bg_loss / total,
         "accuracy": correct / total,
         "ilar": (ilar_sum / ilar_count) if ilar_count > 0 else float("nan"),
     }
@@ -215,6 +222,7 @@ def train_phase(
     output_dir,
     lambda_att: float = 0.5,
     target_mode: str = "soft",
+    lambda_bg: float = 0.0,
     wandb_enabled: bool = True,
 ) -> torch.nn.Module:
     """Trains for up to `epochs`, early-stopping on val_loss (the total
@@ -252,11 +260,13 @@ def train_phase(
 
         tr = run_epoch(
             model, train_loader, criterion, optimizer, device, train=True,
-            lambda_att=lambda_att, target_mode=target_mode, desc=train_desc, scaler=scaler,
+            lambda_att=lambda_att, target_mode=target_mode, lambda_bg=lambda_bg,
+            desc=train_desc, scaler=scaler,
         )
         va = run_epoch(
             model, val_loader, criterion, optimizer, device, train=False,
-            lambda_att=lambda_att, target_mode=target_mode, desc=val_desc,
+            lambda_att=lambda_att, target_mode=target_mode, lambda_bg=lambda_bg,
+            desc=val_desc,
         )
 
         if scheduler is not None:
@@ -268,8 +278,10 @@ def train_phase(
         row = {
             "epoch": epoch,
             "train_loss": tr["loss"], "train_cls_loss": tr["cls_loss"], "train_att_loss": tr["att_loss"],
+            "train_bg_loss": tr.get("bg_loss", 0.0),
             "train_acc": tr["accuracy"], "train_ilar": tr["ilar"],
             "val_loss": va["loss"], "val_cls_loss": va["cls_loss"], "val_att_loss": va["att_loss"],
+            "val_bg_loss": va.get("bg_loss", 0.0),
             "val_acc": va["accuracy"], "val_ilar": va["ilar"],
             "val_precision": va["precision"], "val_recall": va["recall"],
             "val_f1": va["f1"], "val_auroc": va["auroc"],
@@ -290,6 +302,7 @@ def train_phase(
                 "train_loss": tr["loss"], "val_loss": va["loss"],
                 "train_cls_loss": tr["cls_loss"], "val_cls_loss": va["cls_loss"],
                 "train_att_loss": tr["att_loss"], "val_att_loss": va["att_loss"],
+                "train_bg_loss": tr.get("bg_loss", 0.0), "val_bg_loss": va.get("bg_loss", 0.0),
                 "val_accuracy": va["accuracy"], "val_precision": va["precision"],
                 "val_recall": va["recall"], "val_f1": va["f1"], "val_auroc": va["auroc"],
                 "val_ilar": va["ilar"] if not np.isnan(va["ilar"]) else None,
@@ -484,8 +497,10 @@ def run_full_arm(
             reduction=m.get("reduction", 8),
             backbone_name=backbone_name,
             pretrained=arm_cfg["model"]["pretrained"],
+            drop_rate=arm_cfg["model"].get("drop_rate", 0.0),
         ).to(device)
         lambda_att = m["lambda_att"]
+        lambda_bg = m.get("lambda_bg", 0.0)  # opt-in background-suppression loss; 0.0 = off (every frozen A0-A5 arm)
 
         freeze_backbone(model)
         opt1 = build_optimizer(model, t["optimizer"], t["phase1_lr"], t["weight_decay"])
@@ -493,7 +508,7 @@ def run_full_arm(
         model = train_phase(
             model, train_loader, val_loader, criterion, opt1, sched1, device,
             epochs=t["phase1_epochs"], patience=t["patience"], phase_name="phase1_frozen",
-            output_dir=output_dir, lambda_att=lambda_att, wandb_enabled=wandb_enabled,
+            output_dir=output_dir, lambda_att=lambda_att, lambda_bg=lambda_bg, wandb_enabled=wandb_enabled,
         )
         evaluate(model, test_loader, class_names, device, output_dir, "phase1_frozen")
 
@@ -503,7 +518,7 @@ def run_full_arm(
         model = train_phase(
             model, train_loader, val_loader, criterion, opt2, sched2, device,
             epochs=t["phase2_epochs"], patience=t["patience"], phase_name="phase2_finetune",
-            output_dir=output_dir, lambda_att=lambda_att, wandb_enabled=wandb_enabled,
+            output_dir=output_dir, lambda_att=lambda_att, lambda_bg=lambda_bg, wandb_enabled=wandb_enabled,
         )
         results = evaluate(model, test_loader, class_names, device, output_dir, "phase2_finetune")
 
