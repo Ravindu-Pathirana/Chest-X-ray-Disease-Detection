@@ -19,12 +19,15 @@ are in `Project Documents/Each task description.md`; product framing is in `READ
 built and tested. The dataset split is fixed and committed (`artifacts/splits/split_manifest_v1.csv`,
 verified against the real dataset and cross-checked against AuxSeg's committed test results).
 Model training is happening per-architecture in `notebooks/` (ResNet50 baseline + HP tuning;
-DenseNet121 baseline + AuxSeg candidate; EfficientNet-B0 baseline + tuning). T18's Lung-Region
-Attention Module (Candidate A, `src/modules/`) is code-complete and locally verified (unit tests,
-plus real diagnostic runs against the actual dataset for the smoke/overfit checks) but not yet
-trained on Kaggle — see `artifacts/T18_lung_attention/T18_module_card.md` for status and handoff
-notes. Don't assume `data/`, `models/`, or `results/` directories exist yet; they are `.gitignore`d
-/ not-yet-created per the README's planned layout.
+DenseNet121 baseline + AuxSeg candidate + HP tuning; EfficientNet-B0 baseline + tuning). T13
+(DenseNet121 HPO, `notebooks/DenseNet_HPO_train.ipynb`) has a committed winner as of this task
+(94.83% test accuracy) — `configs/densenet121_lung_attention.yaml` now uses that config instead
+of the EfficientNet-B0-inherited placeholder it carried before. T18's Lung-Region Attention Module
+(Candidate A, `src/modules/`) is code-complete and locally verified (unit tests, plus real
+diagnostic runs against the actual dataset for the smoke/overfit checks) but not yet trained on
+Kaggle with the updated config — see `artifacts/T18_lung_attention/T18_module_card.md` for status
+and handoff notes. Don't assume `data/`, `models/`, or `results/` directories exist yet; they are
+`.gitignore`d / not-yet-created per the README's planned layout.
 
 ## Commands
 
@@ -79,10 +82,18 @@ concern, one file per WBS build step:
 
 - `lung_attention.py` — `LungRegionAttention` (the module itself), `CBAMSpatialAttention` (the
   published-method comparator), `DenseNetLungAttention`/`build_model()` (backbone-agnostic model
-  wrapper — works for any timm architecture, not just DenseNet despite the filename),
-  `freeze_backbone`/`unfreeze_final_blocks` (one small per-architecture-family registry covering
-  densenet/resnet/efficientnet/vit), `LogitsOnly` (adapter for tools expecting `model(x) ->
-  Tensor` — the model itself returns a 3-tuple `(logits, attention, attention_logits)`).
+  wrapper — works for any timm architecture, not just DenseNet despite the filename; `drop_rate`
+  matches Member 2's tuned baseline head, see T13 below), `freeze_backbone`/`unfreeze_final_blocks`
+  (one small per-architecture-family registry covering densenet/resnet/efficientnet/vit),
+  `LogitsOnly` (adapter for tools expecting `model(x) -> Tensor` — the model itself returns a
+  3-tuple `(logits, attention, attention_logits)`), `compute_total_loss`/`attention_guidance_loss`
+  (CE + λ_att·guidance) plus the opt-in `background_suppression_loss`/`lambda_bg` term (default
+  `0.0` — not part of the frozen A0-A5 ablation, see `configs/densenet121_lung_attention.yaml`).
+- `counterfactual.py` — `perturb_background`/`counterfactual_stability`/
+  `evaluate_counterfactual_robustness`: pure post-hoc robustness tests (no training) that zero,
+  shuffle, or noise a checkpoint's background pixels (lung held pixel-identical) and measure how
+  much the prediction shifts — tests shortcut *reliance*, not attention *placement*, so it works
+  identically on arm A0. See `artifacts/T18_lung_attention/T18_module_card.md` §10.
 - `attention_metrics.py` — `ilar`, `attention_iou`, `attention_dice`, `attention_entropy`,
   `background_attention`, `energy_inside_lung` (the module-agnostic Grad-CAM faithfulness metric
   used to compare across shortcut-suppression candidates, not just within this one).

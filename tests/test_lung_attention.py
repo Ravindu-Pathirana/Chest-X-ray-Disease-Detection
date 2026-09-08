@@ -1,6 +1,6 @@
 import pytest, torch, torch.nn as nn
 from src.modules import (
-    LungRegionAttention, attention_guidance_loss, compute_total_loss,
+    LungRegionAttention, attention_guidance_loss, background_suppression_loss, compute_total_loss,
 )
 
 C, B, H, W = 1024, 2, 7, 7
@@ -89,9 +89,94 @@ def test_lambda_zero_contributes_no_gradient():
     logit_cls = torch.randn(B, 4, requires_grad=True)
     y = torch.tensor([0, 1])
     mask = torch.zeros(B, 1, 224, 224); mask[:, :, 64:160, 48:176] = 1.0
-    total, cls, att = compute_total_loss(logit_cls, logits, y, mask, crit, lambda_att=0.0)
+    total, cls, att, bg = compute_total_loss(logit_cls, logits, y, mask, crit, lambda_att=0.0)
     torch.testing.assert_close(total, cls)
     assert att.requires_grad is False and torch.isfinite(att)
+    assert bg.requires_grad is False and torch.isfinite(bg)  # lambda_bg defaults to 0.0 too
+
+
+# ---------------------------------------------------------------------------
+# background_suppression_loss / compute_total_loss's lambda_bg (opt-in,
+# not part of the frozen A0-A5 ablation -- see configs/densenet121_lung_attention.yaml)
+# ---------------------------------------------------------------------------
+
+def test_background_suppression_loss_zero_when_attention_confined_to_lung():
+    """Attention with zero mass outside the lung mask -> loss is exactly 0,
+    regardless of how much mass is inside (mirrors ILAR/background_attention's
+    own convention of ignoring in-lung mass entirely).
+
+    Mask boundary (column 96) is deliberately cell-aligned (96 = 3*32) so
+    every 7x7 cell's lung fraction is exactly 0 or 1, with no partial
+    boundary cell -- otherwise setting att=target would still leave a
+    boundary cell partially attending to background, by construction.
+    """
+    mask = torch.zeros(1, 1, 224, 224); mask[:, :, :, :96] = 1.0  # left 3 cells are lung
+    target = torch.nn.functional.adaptive_avg_pool2d(mask, (H, W))
+    assert set(target.unique().tolist()) <= {0.0, 1.0}  # confirm no partial cell
+    att = target.clone()  # attention == the (binary) lung mask itself
+    loss = background_suppression_loss(att, mask)
+    assert loss.shape == (1,)
+    torch.testing.assert_close(loss, torch.zeros(1), atol=1e-6, rtol=0)
+
+
+def test_background_suppression_loss_positive_when_attention_leaks_into_background():
+    mask = torch.zeros(1, 1, 224, 224); mask[:, :, :, :112] = 1.0
+    att_leaky = torch.full((1, 1, H, W), 0.5)  # uniform attention -> half the mass is on background
+    loss = background_suppression_loss(att_leaky, mask)
+    assert loss.item() > 0.1  # should sit near 0.5 for a uniform map over a half-lung image
+
+
+def test_background_suppression_loss_worse_than_confined_attention():
+    """A sanity ordering check: an attention map concentrated in the
+    background must score strictly worse than one concentrated in the lung."""
+    mask = torch.zeros(1, 1, 224, 224); mask[:, :, :, :112] = 1.0
+    target = torch.nn.functional.adaptive_avg_pool2d(mask, (H, W))
+    confined = background_suppression_loss(target, mask)
+    inverted = background_suppression_loss(1.0 - target, mask)
+    assert confined.item() < inverted.item()
+
+
+def test_lambda_bg_zero_contributes_no_gradient_and_no_change_to_total():
+    """lambda_bg=0.0 (the value every frozen A0-A5 arm uses) must leave
+    `total` and `att` identical to not passing lambda_bg/att at all."""
+    m = LungRegionAttention(C)
+    f = torch.randn(B, C, H, W)
+    _, att, logits = m(f)
+    crit = nn.CrossEntropyLoss()
+    logit_cls = torch.randn(B, 4, requires_grad=True)
+    y = torch.tensor([0, 1])
+    mask = torch.zeros(B, 1, 224, 224); mask[:, :, 64:160, 48:176] = 1.0
+
+    baseline = compute_total_loss(logit_cls, logits, y, mask, crit, lambda_att=0.5)
+    with_bg_off = compute_total_loss(
+        logit_cls, logits, y, mask, crit, lambda_att=0.5, att=att, lambda_bg=0.0,
+    )
+    torch.testing.assert_close(baseline[0], with_bg_off[0])  # total
+    torch.testing.assert_close(baseline[1], with_bg_off[1])  # cls
+    torch.testing.assert_close(baseline[2], with_bg_off[2])  # att_loss
+    assert with_bg_off[3].requires_grad is False and torch.isfinite(with_bg_off[3])
+
+
+def test_lambda_bg_positive_adds_to_total_and_moves_gradient():
+    m = LungRegionAttention(C)
+    f = torch.randn(B, C, H, W)
+    _, att, logits = m(f)
+    crit = nn.CrossEntropyLoss()
+    logit_cls = torch.randn(B, 4, requires_grad=True)
+    y = torch.tensor([0, 1])
+    mask = torch.zeros(B, 1, 224, 224); mask[:, :, 64:160, 48:176] = 1.0
+
+    total, cls, att_loss, bg_loss = compute_total_loss(
+        logit_cls, logits, y, mask, crit, lambda_att=0.0, att=att, lambda_bg=1.0,
+    )
+    expected_bg = background_suppression_loss(att, mask).mean()
+    torch.testing.assert_close(bg_loss, expected_bg)
+    torch.testing.assert_close(total, cls + 1.0 * bg_loss)
+    assert bg_loss.requires_grad is True  # unlike the lambda_bg=0.0 branch, this one backprops
+
+    total.backward()
+    assert m.conv2.weight.grad is not None
+    assert torch.isfinite(m.conv2.weight.grad).all()
 
 
 def test_param_count():
