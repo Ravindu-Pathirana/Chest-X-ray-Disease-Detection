@@ -48,10 +48,12 @@ m̃ = AdaptiveAvgPool2d(m, (H,W))          m ∈ {0,1}^{B×1×224×224}, m̃ ∈
 | `reduction` (attention bottleneck) | 8 (→128 hidden channels) | design, §3.4 |
 | `gate_mode` | `residual` (arm A2) | design, §4.2 |
 | `target_mode` | `soft` (area-pooled mask) | design, §4.4 |
-| `phase1_lr` / `phase2_lr` | 3e-4 / 3e-5 | T16's measured winning config (T13 had no result at time of writing — see §6) |
-| `weight_decay` | 1e-3 | same source |
-| `optimizer` / `scheduler` | AdamW / cosine | team standard |
-| `unfreeze_blocks` | 1 (denseblock4 + transition3 + norm5) | team standard |
+| `phase1_lr` / `phase2_lr` | 4.12e-3 / 6.2e-5 | T13's measured winning config (landed after this card was first written — see §6) |
+| `weight_decay` | 1.87e-5 | same source |
+| `optimizer` / `scheduler` | Adam / plateau | same source (was AdamW / cosine team-standard defaults, superseded — see §6) |
+| `unfreeze_blocks` | 3 (denseblock4/3/2 + transition2/3 + norm5) | same source (was 1) |
+| `batch_size` | 64 | same source (was 32) |
+| `drop_rate` (timm head dropout) | 0.4303 | same source — new knob, added to `build_model`/`DenseNetLungAttention` specifically to carry this value (§4.3: must match Member 2's baseline head exactly) |
 | `lambda_att` (λ*) | **PENDING** — selected by S9's sweep over {0.1, 0.3, 0.5, 1.0}, rule: largest λ within 0.5pp of arm A1's validation macro-F1, ties broken by higher validation ILAR | `artifacts/T18_lung_attention/sweep/selected_config.json` once S9 runs |
 
 Added cost: **131,329 parameters** (+1.89% over DenseNet121's ~6.96M), **+0.0064 GFLOPs** (+0.22%) — measured for real, not estimated (§5, A6).
@@ -91,7 +93,7 @@ A failing verdict, once real numbers exist, is a legitimate finding to report �
 - **λ\* was selected on a short training schedule** (4+6 epochs), not the full 15+40 used for final numbers — the same accepted trade-off Member 2's T16 (EfficientNet) sweep made. May be slightly off-optimal for the full schedule.
 - **Lung masks are the dataset's bundled masks, not the "automatically generated" ones the submitted proposal describes** (`DNN_Project_Idea.pdf` §4.1, §5.3 say an off-the-shelf segmentation model; this implementation uses the COVID-19 Radiography Database's supplied `masks/` folder, confirmed both locally and on the Kaggle-hosted copy of the dataset). This was flagged to the team at the start of this task (design doc §12.2, gap G4) — whoever owns the Methods/Proposed Framework section needs to reconcile the wording with what was actually run.
 - **7×7 attention resolution.** DenseNet121's feature map at 224×224 input is 7×7 — each attention cell covers a 32×32 pixel region. Coarser than the 224×224 mask; the soft-target area-pooling (§2) is the mitigation, not a resolution increase.
-- **T13 (Member 2's DenseNet121-specific HP tuning) had no committed result at the time this module was built.** `notebooks/baseline-cnn-model-dnn-research.ipynb` only exposes `phase1_lr`/`phase2_lr` as argparse *defaults* (1e-3/1e-5), never swept. This module instead adopted the team's own committed T16 (EfficientNet-B0) sweep winner (3e-4/3e-5/wd 1e-3) as the working default — measured on this exact dataset/split/seed, both values inside the proposal's declared search space, but tuned on a different architecture. If T13 lands a DenseNet121-specific result later, `configs/densenet121_lung_attention.yaml`'s `training` block should be updated and results marked accordingly — check whether that happened before treating this card's numbers as final.
+- **T13 (Member 2's DenseNet121-specific HP tuning) has now landed** (`notebooks/DenseNet_HPO_train.ipynb`, a 20-trial Optuna search retrained at full budget: 94.83% test accuracy, macro-F1 0.9505). `configs/densenet121_lung_attention.yaml`'s `training` block, `scheduler.name`, and the new `model.drop_rate` field were updated to T13's winning config as this task's own to-do above required, replacing the T16 (EfficientNet-B0)-inherited placeholder this card originally described. No T18 arm has been trained yet (see this card's header), so nothing here needed re-marking as stale — but note T13's HPO computed its own stratified split (`stratified_split`/`load_base_dataset_and_split` in that notebook) rather than loading the committed `artifacts/splits/split_manifest_v1.csv`; same seed and stratification method, so it should match, but this wasn't independently verified the way the split manifest itself was (§5, A7). Also note `unfreeze_blocks` (now 3) and `batch_size` (now 64) were adopted from the same trial per §3.4a's "use it" directive, not just the learning-rate/weight-decay pair this note originally focused on.
 - **The submitted proposal's Table 2 (DenseNet121 baseline numbers) may itself be a placeholder** — its own caption says the values "will be populated using the Week 1 experimental results and finalized before submission." Confirm with Member 2 whether it's final before citing it as the baseline to beat.
 
 ## 7. How to reuse this module on another backbone (for T23)
@@ -147,3 +149,54 @@ Everything under this heading originates from T18 (Member 1's substantive techni
 - **Infrastructure also used elsewhere**: `run_full_arm`, the freeze-registry, and the split-manifest generation (`artifacts/splits/split_manifest_v1.csv`) were built for T18 but are reused by the rest of the team's notebooks — worth noting as broader impact, not just a T18-local contribution.
 
 Hand this list to whoever assembles the highlighted submission version.
+
+## 10. Optional extensions (opt-in — do not affect the frozen A0-A5 ablation)
+
+Added after an external novelty/literature review of T18: the core critique was
+that lung-mask-supervised attention is no longer novel by itself, and that "lung
+region" ≠ "disease evidence" — attention-Dice/ILAR only measure where the
+attention map *points*, not whether the classifier's decision still depends on
+background content. A full architectural redesign (dual lung+disease attention,
+class-specific attention, adversarial CAM alignment) was deliberately rejected
+as too risky this close to T18's first real Kaggle run and out of step with this
+project's own framing as a five-axis *comparison*, not a novel-architecture
+paper. These two additions were judged worth the (small) cost instead:
+
+- **Background-suppression loss** (`src/modules/lung_attention.py::background_suppression_loss`,
+  `module.lambda_bg` in the config, default `0.0`): directly penalizes attention
+  MASS placed outside the lung mask, complementing `attention_guidance_loss`'s
+  BCE-toward-the-mask term. Every A0-A5 arm keeps `lambda_bg=0.0` — this is a
+  separate, later "A2+bg" experiment, not a redefinition of A2. Fully wired
+  through `run_epoch`/`train_phase`/`run_full_arm` and logged as
+  `train_bg_loss`/`val_bg_loss` regardless of `lambda_bg`'s value (same
+  diagnostic-even-when-off convention as `att_loss`).
+- **Counterfactual background-perturbation robustness** (`src/modules/counterfactual.py`):
+  pure post-hoc evaluation on an already-trained checkpoint — zeroes,
+  randomizes, or adds noise to the background only (lung pixels held
+  pixel-identical) and measures how much the predicted distribution shifts
+  (`counterfactual_stability`) and how often the predicted class flips. Unlike
+  every other metric in this card, this one is model-architecture-agnostic
+  (works on arm A0 exactly the same way) and directly tests shortcut
+  *reliance*, not attention *placement* — the strongest single piece of
+  evidence this project's "trustworthy CXR" framing can produce. Not yet run
+  against real checkpoints (none exist yet — see this card's header); intended
+  as an S11-adjacent step once A0/A2 checkpoints exist. Suggested notebook
+  cell, reusing the existing `ARM_CHECKPOINTS`/`load_arm_model` helpers from S11:
+
+  ```python
+  from src.modules import LogitsOnly, evaluate_counterfactual_robustness
+
+  CF_CSV = REPO_ROOT / "artifacts" / "T18_lung_attention" / "counterfactual_robustness.csv"
+  for arm_name, ckpt_path in ARM_CHECKPOINTS.items():
+      model, _cfg, _classes = load_arm_model(ckpt_path)
+      evaluate_counterfactual_robustness(
+          LogitsOnly(model), test_loader, device=device,
+          modes=("zero", "shuffle", "noise"), arm_name=arm_name, output_csv=CF_CSV,
+      )
+  ```
+
+Both additions have unit tests (`tests/test_lung_attention.py`,
+`tests/test_counterfactual.py`) using toy/synthetic data verified against
+hand-computed expectations, but neither has been exercised against a real
+checkpoint or the real dataset — treat the numbers as implemented-and-tested,
+not yet validated at scale.
