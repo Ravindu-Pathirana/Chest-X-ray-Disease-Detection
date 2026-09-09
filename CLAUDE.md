@@ -94,13 +94,23 @@ concern, one file per WBS build step:
   per-arm branching)/`build_optimizer`/`build_scheduler`/`best_history_row`.
 - `comparison.py` — per-image predictions, the cross-arm comparison table, acceptance-criteria
   checks, and (optional) multi-seed mean±std summaries.
-- `efficiency_check.py` — reads `kusal-notebooks/efficiency.py`'s benchmark output and applies a
+- `efficiency_check.py` — reads `notebooks/efficiency.py`'s benchmark output and applies a
   pass/fail threshold; does not duplicate that harness.
 - `figures.py` — heat-map overlay selection/rendering for the paper's figures.
 
 Import from `src.modules`, not the submodules directly. Full design rationale, formal equations,
 and the acceptance-criteria targets: `Claude Working Files/T18_Lung_Region_Attention_WBS.md` and
 `artifacts/T18_lung_attention/T18_module_card.md`.
+
+### `artifacts/` — committed, reproducible run outputs
+
+Unlike `data/`/`models/`/`results/` (gitignored, not yet created), `artifacts/` **is** committed:
+`artifacts/splits/` holds the fixed split manifest(s) that `src/datasets` loads, and
+`artifacts/<experiment>/runs/<run_name>/` holds small per-run outputs tied to a specific
+experiment (e.g. `artifacts/densenet121_auxseg/`, `artifacts/efficientnet_b0/`,
+`artifacts/T18_lung_attention/`, which also carries top-level status files like
+`T18_module_card.md` alongside its `runs/`). Treat anything here as a checked-in reproducibility
+artifact, not scratch space.
 
 ### `configs/` — YAML-driven experiments
 
@@ -140,3 +150,6 @@ implementation can't be imported. When adding reusable pipeline code (dataset/ma
 preprocessing, splitting, evaluation) — or a model/module intended for reuse across
 architectures — prefer putting it in `src/` so multiple model owners' notebooks can import it,
 consistent with how `src/utils`, `src/datasets`, and `src/modules` are already used.
+`notebooks/` used to be split across a second `kusal-notebooks/` directory (one member's
+baseline-CNN/AuxSeg/EfficientNet-B0 work, including `efficiency.py`, the T34 efficiency-benchmark
+harness); it has since been merged in — everything lives in `notebooks/` and `artifacts/` now.

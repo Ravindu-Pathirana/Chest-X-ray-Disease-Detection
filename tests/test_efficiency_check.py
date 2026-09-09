@@ -1,7 +1,7 @@
 """Tests for src/modules/efficiency_check.py (S13, acceptance criterion A6).
 
 Fast, synthetic-CSV tests, plus one test that replays the real measured
-numbers from an actual local run of kusal-notebooks/efficiency.py's
+numbers from an actual local run of notebooks/efficiency.py's
 benchmark_model against build_model(use_attention=False/True) --
 confirming this function's math against real data, not just synthetic
 rows (architecture-level profiling of a freshly-initialized model needs

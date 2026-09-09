@@ -1,14 +1,14 @@
 """T18 section S13: acceptance criterion A6 (module is cheap).
 
 Deliberately does NOT reimplement or duplicate benchmark_model/results_to_table
-from kusal-notebooks/efficiency.py (Member 5's T34/T35 harness, shared
+from notebooks/efficiency.py (Member 5's T34/T35 harness, shared
 across every architecture) -- that stays the single source of truth for
 how efficiency is measured. This file only reads its output and applies
 T18's specific pass/fail threshold on top.
 
 Named efficiency_check.py, not efficiency.py, so it can never collide on
 `import efficiency` with the top-level module the WBS's own S13 snippet
-imports directly from kusal-notebooks/ (see the notebook's S13 cell).
+imports directly from notebooks/ (see the notebook's S13 cell).
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def check_module_efficiency(
     """WBS section 1.3, criterion A6 -- computed here in S13.
 
     `efficiency_results` is either a path to a CSV or an already-loaded
-    DataFrame in kusal-notebooks/efficiency.py::benchmark_model's own
+    DataFrame in notebooks/efficiency.py::benchmark_model's own
     output schema (model, module, input_shape, params_total,
     params_trainable, flops, gflops, ...) -- i.e. what benchmark_model's
     own `output_csv` parameter writes, NOT results_to_table's narrower
