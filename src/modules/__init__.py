@@ -22,6 +22,7 @@ from .comparison import (
     stratified_cam_subset,
     summarize_multiseed,
 )
+from .counterfactual import counterfactual_stability, evaluate_counterfactual_robustness, perturb_background
 from .efficiency_check import check_module_efficiency
 from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
 from .gradcam import cam_for, get_taps
@@ -31,6 +32,7 @@ from .lung_attention import (
     LogitsOnly,
     LungRegionAttention,
     attention_guidance_loss,
+    background_suppression_loss,
     build_model,
     compute_total_loss,
     freeze_backbone,
@@ -46,6 +48,7 @@ __all__ = [
     "LogitsOnly",
     "build_model",
     "attention_guidance_loss",
+    "background_suppression_loss",
     "compute_total_loss",
     "freeze_backbone",
     "unfreeze_final_blocks",
@@ -74,4 +77,7 @@ __all__ = [
     "plot_attention_grid",
     "check_module_efficiency",
     "summarize_multiseed",
+    "perturb_background",
+    "counterfactual_stability",
+    "evaluate_counterfactual_robustness",
 ]
