@@ -2,7 +2,7 @@
 train_phase, evaluate.
 
 Adapted from the AuxSeg notebook's run_epoch/train_phase/evaluate
-(kusal-notebooks/baseline-cnn-model-dnn-research-auxseg-updated.ipynb,
+(notebooks/baseline-cnn-model-dnn-research-auxseg-updated.ipynb,
 cells 23-25), which already handle the (image, label, mask) batch
 contract, AMP + GradScaler, early stopping, and history JSON. Per WBS
 section 8 (S6), only the loss block and the logged metric names change:
@@ -78,7 +78,7 @@ def build_scheduler(optimizer: torch.optim.Optimizer, name: str, epochs: int):
 
 
 def best_history_row(history_file) -> Dict[str, Any]:
-    """T16's exact helper (kusal-notebooks/efficientnet-b0-baseline-model.ipynb,
+    """T16's exact helper (notebooks/efficientnet-b0-baseline-model.ipynb,
     cell 25) -- the epoch with the lowest val_loss, i.e. the one train_phase
     actually kept as best_state. Reused verbatim per WBS section S9."""
     with open(history_file, "r") as f:

@@ -2,7 +2,7 @@
 
 `JointTransform` / `CXRWithMaskDataset` / `stratified_split` / `compute_class_weights`
 are copied verbatim from the AuxSeg (Candidate B) notebook
-(kusal-notebooks/baseline-cnn-model-dnn-research-auxseg-updated.ipynb, cells 10-15)
+(notebooks/baseline-cnn-model-dnn-research-auxseg-updated.ipynb, cells 10-15)
 so T18's data path matches the only other mask-carrying pipeline in the repo exactly
 -- see Claude Working Files/T18_Lung_Region_Attention_WBS.md section 4.6.
 
