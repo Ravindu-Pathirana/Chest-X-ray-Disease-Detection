@@ -42,3 +42,4 @@ venv/
 
 # Data (never commit dataset files)
 data/
+!artifacts/segmentation/
