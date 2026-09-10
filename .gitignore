@@ -23,6 +23,8 @@ artifacts/DenseNet121-HPO/*
 !artifacts/T18_lung_attention/
 !artifacts/densenet121_auxseg/
 !artifacts/efficientnet_b0/
+!artifacts/vit_base/
+!artifacts/candidate_c_suppression/
 !artifacts/efficiency_results.csv
 
 # Kaggle-generated notebook metadata and rendered output images
