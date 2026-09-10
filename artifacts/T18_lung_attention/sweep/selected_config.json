@@ -1,0 +1,18 @@
+{
+  "name": "lam_1.0",
+  "lambda_att": 1.0,
+  "phase1_lr": 0.00412,
+  "phase2_lr": 6.2e-05,
+  "weight_decay": 1.87e-05,
+  "optimizer": "adam",
+  "scheduler": "plateau",
+  "gate_mode": "residual",
+  "target_mode": "soft",
+  "reduction": 8,
+  "rule": "largest lambda whose val macro-F1 is within 0.5pp of lam_0.0; ties -> higher val ILAR",
+  "reference_row": "lam_0.0",
+  "reference_val_macro_f1": 0.9410894486497492,
+  "schedule": "short(4+6)",
+  "seed": 42,
+  "config_provenance": "T16 winner D_more_wd (T13 unavailable at time of writing)"
+}

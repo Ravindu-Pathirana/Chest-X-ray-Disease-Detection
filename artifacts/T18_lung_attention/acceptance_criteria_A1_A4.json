@@ -1,0 +1,22 @@
+{
+  "A1_attention_matches_lung_mask": {
+    "target": "Attention-Dice >= 0.80 on test",
+    "value": 0.8390191793441772,
+    "pass": true
+  },
+  "A2_evidence_inside_lung_up": {
+    "target": "delta Grad-CAM EIL (post-gate) >= +0.05",
+    "value": 0.07734852619096633,
+    "pass": true
+  },
+  "A3_mechanism_is_real": {
+    "target": "delta Grad-CAM EIL (pre-gate) > 0",
+    "value": 0.014954532947391241,
+    "pass": true
+  },
+  "A4_no_accuracy_tax": {
+    "target": "delta test macro-F1 >= -1.0pp vs. A0",
+    "value": -0.00034587723388668223,
+    "pass": true
+  }
+}

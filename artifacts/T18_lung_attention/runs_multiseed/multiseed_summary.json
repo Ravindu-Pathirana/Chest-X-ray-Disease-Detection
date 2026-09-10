@@ -1,0 +1,5 @@
+{
+  "multiseed_repeat_run": false,
+  "seed": 42,
+  "statement": "All T18 results are reported from a single seed (42). The WBS section S14 multi-seed repeat (A0 and A2 at seeds 123 and 2026) was not run due to GPU budget constraints. No mean +/- std is reported for any T18 metric; all numbers in the comparison table and module card are single-run point estimates."
+}
