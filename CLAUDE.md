@@ -77,8 +77,10 @@ match the values every other notebook already uses. Import from `src.datasets`, 
 
 ### `src/modules/` — shortcut-suppression modules
 
-T18's Lung-Region Attention Module (Candidate A), designed backbone-agnostic for T23. Split by
-concern, one file per WBS build step:
+Mainly T18's Lung-Region Attention Module (Candidate A), designed backbone-agnostic for T23, split
+by concern (one file per WBS build step) — plus `calibration.py` (T27), which is not T18-specific:
+it's the shared harness every model owner uses for the calibration trustworthiness axis (T28), the
+same role `notebooks/efficiency.py` plays for the efficiency axis.
 
 - `lung_attention.py` — `LungRegionAttention` (the module itself), `CBAMSpatialAttention` (the
   published-method comparator), `DenseNetLungAttention`/`build_model()` (backbone-agnostic model
@@ -108,6 +110,15 @@ concern, one file per WBS build step:
 - `efficiency_check.py` — reads `notebooks/efficiency.py`'s benchmark output and applies a
   pass/fail threshold; does not duplicate that harness.
 - `figures.py` — heat-map overlay selection/rendering for the paper's figures.
+- `calibration.py` — **T27, architecture-agnostic, used by every model owner (T28), not just
+  T18.** `expected_calibration_error`/`brier_score`/`reliability_diagram_data` (hand-verified
+  binning math, shared by all three) and `TemperatureScaler`/`fit_temperature` (a single learnable
+  scalar `T`, fit via LBFGS). `calibration_report(model, val_loader, test_loader, ...)` is the
+  one-call harness: fits `T` on `val_loader` only and reports ECE/Brier before vs. after scaling on
+  `test_loader` — never the other way around, matching `docs/experiment_policy.md`'s rule that the
+  test split is touched only for final numbers, never for fitting/selection. `model` must return
+  plain logits — wrap T18-style `(logits, attention, attention_logits)` models with `LogitsOnly`
+  first, same convention as `efficiency.py`/`gradcam.py`.
 
 Import from `src.modules`, not the submodules directly. Full design rationale, formal equations,
 and the acceptance-criteria targets: `Claude Working Files/T18_Lung_Region_Attention_WBS.md` and
