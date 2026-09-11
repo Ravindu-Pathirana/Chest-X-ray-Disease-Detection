@@ -1,0 +1,82 @@
+{
+  "classification_report": {
+    "COVID": {
+      "precision": 0.8220183486238533,
+      "recall": 0.8265682656826568,
+      "f1-score": 0.8242870285188593,
+      "support": 542.0
+    },
+    "Lung_Opacity": {
+      "precision": 0.8268625393494229,
+      "recall": 0.8736141906873615,
+      "f1-score": 0.8495956873315363,
+      "support": 902.0
+    },
+    "Normal": {
+      "precision": 0.9125946317962835,
+      "recall": 0.8672334859385219,
+      "f1-score": 0.8893360160965795,
+      "support": 1529.0
+    },
+    "Viral Pneumonia": {
+      "precision": 0.8660714285714286,
+      "recall": 0.9603960396039604,
+      "f1-score": 0.9107981220657277,
+      "support": 202.0
+    },
+    "accuracy": 0.8680314960629921,
+    "macro avg": {
+      "precision": 0.8568867370852471,
+      "recall": 0.8819529954781251,
+      "f1-score": 0.8685042135031757,
+      "support": 3175.0
+    },
+    "weighted avg": {
+      "precision": 0.8698165593811823,
+      "recall": 0.8680314960629921,
+      "f1-score": 0.8683070452595952,
+      "support": 3175.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      448,
+      41,
+      46,
+      7
+    ],
+    [
+      36,
+      788,
+      74,
+      4
+    ],
+    [
+      60,
+      124,
+      1326,
+      19
+    ],
+    [
+      1,
+      0,
+      7,
+      194
+    ]
+  ],
+  "roc_auc_macro": 0.9739734794501216,
+  "roc_auc_per_class": [
+    0.971841220501077,
+    0.9634868206059175,
+    0.9624008735130529,
+    0.9981650031804391
+  ],
+  "segmentation_dice": 0.9247589111328125,
+  "segmentation_iou": 0.8621948957443237,
+  "class_names": [
+    "COVID",
+    "Lung_Opacity",
+    "Normal",
+    "Viral Pneumonia"
+  ]
+}
