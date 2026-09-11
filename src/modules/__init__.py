@@ -24,6 +24,16 @@ from .comparison import (
 )
 from .counterfactual import counterfactual_stability, evaluate_counterfactual_robustness, perturb_background
 from .efficiency_check import check_module_efficiency
+from .external_eval import (
+    BINARY_COLLAPSE_MAP,
+    CLASS_MATCHED_KEEP,
+    RSNA_BINARY_COLLAPSE_MAP,
+    RSNA_CLASS_MATCHED_MAP,
+    compute_ood_metrics,
+    map_binary_collapse,
+    map_class_matched,
+    run_external_test_protocol,
+)
 from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
 from .gradcam import cam_for, get_taps
 from .lung_attention import (
@@ -80,4 +90,12 @@ __all__ = [
     "perturb_background",
     "counterfactual_stability",
     "evaluate_counterfactual_robustness",
+    "BINARY_COLLAPSE_MAP",
+    "RSNA_BINARY_COLLAPSE_MAP",
+    "CLASS_MATCHED_KEEP",
+    "RSNA_CLASS_MATCHED_MAP",
+    "map_binary_collapse",
+    "map_class_matched",
+    "compute_ood_metrics",
+    "run_external_test_protocol",
 ]
