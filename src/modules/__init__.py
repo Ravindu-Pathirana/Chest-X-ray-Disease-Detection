@@ -1,10 +1,12 @@
 """Shortcut-suppression modules shared across model owners.
 
-Currently: T18's Lung-Region Attention Module (Candidate A), built on
+Includes T18's Lung-Region Attention Module (Candidate A), built on
 DenseNet121 and designed to be backbone-agnostic for reuse in T23
-(applying the winning module to ResNet50). Import from here, not from
-`src.modules.lung_attention` directly, matching this repo's convention
-for `src.utils` and `src.datasets` (see CLAUDE.md).
+(applying the winning module to ResNet50), and T27's calibration harness
+(calibration.py) -- architecture-agnostic, used by every model owner for
+T28, not T18-specific. Import from here, not from `src.modules.<submodule>`
+directly, matching this repo's convention for `src.utils` and
+`src.datasets` (see CLAUDE.md).
 """
 
 from .attention_metrics import (
@@ -14,6 +16,16 @@ from .attention_metrics import (
     background_attention,
     energy_inside_lung,
     ilar,
+)
+from .calibration import (
+    TemperatureScaler,
+    brier_score,
+    calibration_report,
+    collect_logits,
+    expected_calibration_error,
+    fit_temperature,
+    plot_reliability_diagram,
+    reliability_diagram_data,
 )
 from .comparison import (
     build_comparison_table,
@@ -80,4 +92,12 @@ __all__ = [
     "perturb_background",
     "counterfactual_stability",
     "evaluate_counterfactual_robustness",
+    "TemperatureScaler",
+    "collect_logits",
+    "expected_calibration_error",
+    "brier_score",
+    "reliability_diagram_data",
+    "fit_temperature",
+    "plot_reliability_diagram",
+    "calibration_report",
 ]
