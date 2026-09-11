@@ -22,9 +22,11 @@ artifacts/DenseNet121-HPO/*
 !artifacts/splits/
 !artifacts/T18_lung_attention/
 !artifacts/densenet121_auxseg/
+!artifacts/AuxSeg-Tuning
 !artifacts/efficientnet_b0/
 !artifacts/vit_base/
 !artifacts/candidate_c_suppression/
+!artifacts/T21_ablation/
 !artifacts/efficiency_results.csv
 
 # Kaggle-generated notebook metadata and rendered output images
