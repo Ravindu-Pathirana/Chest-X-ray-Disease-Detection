@@ -76,10 +76,11 @@ def map_binary_collapse(per_image_df: pd.DataFrame, class_names: List[str], sour
     """Reduces a 4-class (or RSNA's native 2-class) per-image predictions
     DataFrame to the "binary_collapse" mapping: Normal vs. Abnormal.
 
-    `source` is `"primary"` (4-class softmax, needs summing) or `"rsna"`
-    (already 2-class, needs only relabeling) -- the two datasets start from
-    different numbers of columns, so they're handled by two branches, not
-    one that guesses from the DataFrame's shape.
+    `source` is `"primary"` for primary ground truth or `"rsna"` for RSNA
+    ground truth. In both cases, probabilities come from the same 4-class
+    model and are indexed by `class_names`; only the ground-truth labels
+    use different maps, so they are handled by two branches rather than
+    guessed from the DataFrame's shape.
 
     Returns a DataFrame with `image_path`, `true_binary` (Normal/Abnormal),
     `prob_abnormal` (probability of the Abnormal class, in [0, 1]).
