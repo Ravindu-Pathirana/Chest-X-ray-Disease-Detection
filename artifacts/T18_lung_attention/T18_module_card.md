@@ -118,6 +118,7 @@ A failing verdict, once real numbers exist, is a legitimate finding to report �
 4. Freeze/unfreeze: `freeze_backbone()`/`unfreeze_final_blocks()` use a small per-architecture-family registry (`_TAIL_MODULES` in the same file) already covering `densenet`/`resnet`/`efficientnet`/`vit` — T23 needs no new freeze logic, just `unfreeze_final_blocks(model, n)` as-is.
 5. Everything else (`run_full_arm`, `evaluate`, `build_per_image_predictions`, the Grad-CAM harness, the comparison-table/acceptance-criteria functions) is already architecture-agnostic — pass `backbone_name="resnet50"` through and it works unchanged.
 6. One thing that is NOT automatic: T23's own config file (a new `configs/resnet50_lung_attention.yaml`, copied from `configs/baseline.yaml` per repo convention, not from T18's DenseNet config) needs its own hyperparameters — don't assume T18's tuned values transfer.
+7. **ViT-Base is not covered by points 1–6 above.** `forward_features()` on ViT returns `[B,197,768]` tokens, not a spatial `[B,C,H,W]` map, and this repo's existing ViT baseline pools via the CLS token only — a post-hoc gate on the patch tokens would have zero effect on that classifier. Full adaptation design (reshape patch tokens to a 14×14 grid, switch to average-pooling so the gate actually matters, new `ViTLungAttention` wrapper class): `Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md` §4. Do not attempt `build_model(backbone_name="vit_base_patch16_224")` as-is expecting it to work like ResNet50/EfficientNet-B0 — it will error on the shape mismatch alone, and even fixing that reshape isn't sufficient without the pooling change.
 
 ## 8. Handoff
 
@@ -139,7 +140,9 @@ A failing verdict, once real numbers exist, is a legitimate finding to report �
   3. **RSNA OOD robustness (T33):** RSNA is 2-class (Pneumonia/Normal); this model's head is 4-class. A class-mapping decision is needed (e.g. Viral Pneumonia + Lung Opacity + COVID → "Pneumonia-like") — your call, but the mapping needs to be decided and documented. RSNA also ships **no lung masks**, so faithfulness can't be measured on that axis without a separate segmentation model; report accuracy/AUC drop only unless one is added.
 
 ### To myself (T23)
-- `src/modules/lung_attention.py` (already backbone-agnostic — §7 above)
+- `src/modules/lung_attention.py` (already backbone-agnostic for CNNs — §7 above)
+- Full cross-backbone plan, now scoped to all four backbones (not just ResNet50) and including the
+  ViT-Base adaptation design: `Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`
 
 ### Checkpoints
 `.pt` files are **not** committed to this repo (per `.gitignore` and repo convention — they're large, and `artifacts/*` is checkpoint-excluded even where JSON/CSV exceptions exist). Once trained on Kaggle: upload to a Kaggle Dataset or shared Drive folder and **paste the URL here**:
@@ -182,6 +185,14 @@ paper. These two additions were judged worth the (small) cost instead:
   through `run_epoch`/`train_phase`/`run_full_arm` and logged as
   `train_bg_loss`/`val_bg_loss` regardless of `lambda_bg`'s value (same
   diagnostic-even-when-off convention as `att_loss`).
+  **2026-09-23: this "later experiment" now has an actual notebook** —
+  `notebooks/T18_A2bg_background_suppression_followup.ipynb`, a standalone
+  Kaggle notebook (does not modify `T18_lung_region_attention.ipynb` or any
+  frozen A0-A5 checkpoint) that runs a `lambda_bg` short-schedule sweep, trains
+  the new arm "A2_bg", and directly measures `background_attention` (A2 vs.
+  A2_bg) — motivated by the qualitative observation that even A2's own Grad-CAM
+  example (`docs/paper/figures/covid_shortcut_example_crop.png`, panel 3) still
+  shows residual heat on the "PORTÁTIL AP" acquisition marker. **Status: run (single seed 42, 2026-09-24) — negative result for Grad-CAM.** λ_bg*=1.0 (grid edge). Test: acc 94.93%, macro-F1 95.41%, AUC 0.9934. Attention moved off the background (ILAR 0.625→0.672, background attention 0.118→0.087) but the map covers the lungs less fully (Dice 0.839→0.759, IoU 0.729→0.623). Grad-CAM evidence did NOT improve on the fixed 1,000-image CAM subset: EIL post-gate 0.374→0.359 and pre-gate 0.311→0.297 (paired Wilcoxon p≈3e-21 for the drop; back to A0's 0.296). McNemar vs A2 n.s. (25 vs 34 discordant, p=0.30). So the residual marker heat is not fixed by the bg loss at this λ_bg/seed; not a winner under the project rule. Caveats: one seed, λ_bg at grid edge, no map renders yet. Outputs: `artifacts/T18_lung_attention/bg_suppression_followup/`.
 - **Counterfactual background-perturbation robustness** (`src/modules/counterfactual.py`):
   pure post-hoc evaluation on an already-trained checkpoint — zeroes,
   randomizes, or adds noise to the background only (lung pixels held

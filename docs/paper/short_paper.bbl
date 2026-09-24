@@ -1,0 +1,199 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{17}
+%%% ============================================================
+%%% WARNING: this .bbl was manually reordered into CITATION ORDER
+%%% (order of first \cite appearance in short_paper.tex), not the
+%%% alphabetical order ACM-Reference-Format.bst produces by default.
+%%%
+%%% DO NOT rerun `bibtex short_paper` -- it will regenerate this file
+%%% from references.bib and silently revert to alphabetical order.
+%%% If references.bib changes, regenerate with bibtex, then reorder
+%%% again to match \cite order before the final pdflatex passes.
+%%% ============================================================
+
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter does
+%%% not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+\makeatletter
+\@ifundefined{NAT@parse@date}{}{\let\NAT@parse@date@orig\NAT@parse@date}
+\@ifundefined{NAT@parse@date}{}{\def\NAT@parse@date#1#2#3#4#5#6@@{\NAT@parse@date@orig#1#2#3#4#5#6@@\def\NAT@tempyear{0000}\def\NAT@tempexlab{{?}}\ifx\NAT@year\NAT@tempyear\ifx\NAT@exlab\NAT@tempexlab\def\NAT@date{[n.\,d.]}\else\edef\NAT@date{[n.\,d.]\NAT@exlab}\fi\fi}}
+\makeatother
+
+\bibitem[Zech et~al\mbox{.}(2018)]%
+        {zech2018variable}
+\bibfield{author}{\bibinfo{person}{John~R. Zech}, \bibinfo{person}{Marcus~A. Badgeley}, \bibinfo{person}{Manway Liu}, \bibinfo{person}{Anthony~B. Costa}, \bibinfo{person}{Joseph~J. Titano}, {and} \bibinfo{person}{Eric~K. Oermann}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Variable Generalization Performance of a Deep Learning Model to Detect Pneumonia in Chest Radiographs: A Cross-sectional Study}.
+\newblock \bibinfo{journal}{\emph{PLOS Medicine}} \bibinfo{volume}{15}, \bibinfo{number}{11} (\bibinfo{year}{2018}), \bibinfo{pages}{e1002683}.
+\newblock
+\href{https://doi.org/10.1371/journal.pmed.1002683}{doi:\nolinkurl{10.1371/journal.pmed.1002683}}
+
+
+\bibitem[DeGrave et~al\mbox{.}(2021)]%
+        {degrave2021shortcuts}
+\bibfield{author}{\bibinfo{person}{Alex~J. DeGrave}, \bibinfo{person}{Joseph~D. Janizek}, {and} \bibinfo{person}{Su-In Lee}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{{AI} for Radiographic {COVID-19} Detection Selects Shortcuts over Signal}.
+\newblock \bibinfo{journal}{\emph{Nature Machine Intelligence}} \bibinfo{volume}{3}, \bibinfo{number}{7} (\bibinfo{year}{2021}), \bibinfo{pages}{610--619}.
+\newblock
+\href{https://doi.org/10.1038/s42256-021-00338-7}{doi:\nolinkurl{10.1038/s42256-021-00338-7}}
+
+
+\bibitem[Oakden-Rayner et~al\mbox{.}(2020)]%
+        {oakdenrayner2020hidden}
+\bibfield{author}{\bibinfo{person}{Luke Oakden-Rayner}, \bibinfo{person}{Jared Dunnmon}, \bibinfo{person}{Gustavo Carneiro}, {and} \bibinfo{person}{Christopher R{\'e}}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Hidden Stratification Causes Clinically Meaningful Failures in Machine Learning for Medical Imaging}. In \bibinfo{booktitle}{\emph{Proceedings of the ACM Conference on Health, Inference, and Learning (CHIL)}}. \bibinfo{pages}{151--159}.
+\newblock
+\href{https://doi.org/10.1145/3368555.3384468}{doi:\nolinkurl{10.1145/3368555.3384468}}
+
+
+\bibitem[Geirhos et~al\mbox{.}(2020)]%
+        {geirhos2020shortcut}
+\bibfield{author}{\bibinfo{person}{Robert Geirhos}, \bibinfo{person}{J{\"o}rn-Henrik Jacobsen}, \bibinfo{person}{Claudio Michaelis}, \bibinfo{person}{Richard Zemel}, \bibinfo{person}{Wieland Brendel}, \bibinfo{person}{Matthias Bethge}, {and} \bibinfo{person}{Felix~A. Wichmann}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Shortcut Learning in Deep Neural Networks}.
+\newblock \bibinfo{journal}{\emph{Nature Machine Intelligence}} \bibinfo{volume}{2}, \bibinfo{number}{11} (\bibinfo{year}{2020}), \bibinfo{pages}{665--673}.
+\newblock
+\href{https://doi.org/10.1038/s42256-020-00257-z}{doi:\nolinkurl{10.1038/s42256-020-00257-z}}
+
+
+\bibitem[Selvaraju et~al\mbox{.}(2017)]%
+        {selvaraju2017gradcam}
+\bibfield{author}{\bibinfo{person}{Ramprasaath~R. Selvaraju}, \bibinfo{person}{Michael Cogswell}, \bibinfo{person}{Abhishek Das}, \bibinfo{person}{Ramakrishna Vedantam}, \bibinfo{person}{Devi Parikh}, {and} \bibinfo{person}{Dhruv Batra}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Grad-{CAM}: Visual Explanations from Deep Networks via Gradient-based Localization}. In \bibinfo{booktitle}{\emph{Proceedings of the IEEE International Conference on Computer Vision (ICCV)}}. \bibinfo{pages}{618--626}.
+\newblock
+\href{https://doi.org/10.1109/ICCV.2017.74}{doi:\nolinkurl{10.1109/ICCV.2017.74}}
+
+
+\bibitem[He et~al\mbox{.}(2016)]%
+        {he2016resnet}
+\bibfield{author}{\bibinfo{person}{Kaiming He}, \bibinfo{person}{Xiangyu Zhang}, \bibinfo{person}{Shaoqing Ren}, {and} \bibinfo{person}{Jian Sun}.} \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Deep Residual Learning for Image Recognition}. In \bibinfo{booktitle}{\emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}}. \bibinfo{pages}{770--778}.
+\newblock
+\href{https://doi.org/10.1109/CVPR.2016.90}{doi:\nolinkurl{10.1109/CVPR.2016.90}}
+
+
+\bibitem[Huang et~al\mbox{.}(2017)]%
+        {huang2017densenet}
+\bibfield{author}{\bibinfo{person}{Gao Huang}, \bibinfo{person}{Zhuang Liu}, \bibinfo{person}{Laurens Van Der~Maaten}, {and} \bibinfo{person}{Kilian~Q. Weinberger}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Densely Connected Convolutional Networks}. In \bibinfo{booktitle}{\emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}}. \bibinfo{pages}{2261--2269}.
+\newblock
+\href{https://doi.org/10.1109/CVPR.2017.243}{doi:\nolinkurl{10.1109/CVPR.2017.243}}
+
+
+\bibitem[Rajpurkar et~al\mbox{.}(2017)]%
+        {rajpurkar2017chexnet}
+\bibfield{author}{\bibinfo{person}{Pranav Rajpurkar}, \bibinfo{person}{Jeremy Irvin}, \bibinfo{person}{Kaylie Zhu}, \bibinfo{person}{Brandon Yang}, \bibinfo{person}{Hershel Mehta}, \bibinfo{person}{Tony Duan}, \bibinfo{person}{Daisy Ding}, \bibinfo{person}{Aarti Bagul}, \bibinfo{person}{Curtis Langlotz}, \bibinfo{person}{Katie Shpanskaya}, \bibinfo{person}{Matthew~P. Lungren}, {and} \bibinfo{person}{Andrew~Y. Ng}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{{CheXNet}: Radiologist-Level Pneumonia Detection on Chest X-Rays with Deep Learning}.
+\newblock \bibinfo{journal}{\emph{arXiv preprint arXiv:1711.05225}} (\bibinfo{year}{2017}).
+\newblock
+
+
+\bibitem[Woo et~al\mbox{.}(2018)]%
+        {woo2018cbam}
+\bibfield{author}{\bibinfo{person}{Sanghyun Woo}, \bibinfo{person}{Jongchan Park}, \bibinfo{person}{Joon-Young Lee}, {and} \bibinfo{person}{In~So Kweon}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{{CBAM}: Convolutional Block Attention Module}. In \bibinfo{booktitle}{\emph{Proceedings of the European Conference on Computer Vision (ECCV)}}. \bibinfo{pages}{3--19}.
+\newblock
+\href{https://doi.org/10.1007/978-3-030-01234-2_1}{doi:\nolinkurl{10.1007/978-3-030-01234-2_1}}
+
+
+\bibitem[Tang et~al\mbox{.}(2018)]%
+        {tang2018attention}
+\bibfield{author}{\bibinfo{person}{Yuxing Tang}, \bibinfo{person}{Xiaosong Wang}, \bibinfo{person}{Adam~P. Harrison}, \bibinfo{person}{Le Lu}, \bibinfo{person}{Jing Xiao}, {and} \bibinfo{person}{Ronald~M. Summers}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Attention-Guided Curriculum Learning for Weakly Supervised Classification and Localization of Thoracic Diseases on Chest Radiographs}. In \bibinfo{booktitle}{\emph{Machine Learning in Medical Imaging (MLMI)}} \emph{(\bibinfo{series}{Lecture Notes in Computer Science}, Vol.~\bibinfo{volume}{11046})}. \bibinfo{pages}{249--258}.
+\newblock
+\href{https://doi.org/10.1007/978-3-030-00919-9_29}{doi:\nolinkurl{10.1007/978-3-030-00919-9_29}}
+
+
+\bibitem[Bassi and Attux(2022)]%
+        {bassi2022segmentation}
+\bibfield{author}{\bibinfo{person}{Pedro R. A.~S. Bassi} {and} \bibinfo{person}{Romis Attux}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{{COVID-19} Detection Using Chest {X-Rays}: Is Lung Segmentation Important for Generalization?}
+\newblock \bibinfo{journal}{\emph{Research on Biomedical Engineering}} \bibinfo{volume}{38}, \bibinfo{number}{4} (\bibinfo{year}{2022}), \bibinfo{pages}{1121--1139}.
+\newblock
+\href{https://doi.org/10.1007/s42600-022-00242-y}{doi:\nolinkurl{10.1007/s42600-022-00242-y}}
+
+
+\bibitem[Wei et~al\mbox{.}(2022)]%
+        {wei2022deeppneumonia}
+\bibfield{author}{\bibinfo{person}{Xinxu Wei}, \bibinfo{person}{Xiangke Niu}, \bibinfo{person}{Xianshi Zhang}, {and} \bibinfo{person}{Yongjie Li}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Deep Pneumonia: Attention-Based Contrastive Learning for Class-Imbalanced Pneumonia Lesion Recognition in Chest {X-Rays}}. In \bibinfo{booktitle}{\emph{2022 IEEE International Conference on Big Data (Big Data)}}. \bibinfo{publisher}{IEEE}, \bibinfo{pages}{5361--5369}.
+\newblock
+\href{https://doi.org/10.1109/BIGDATA55660.2022.10020283}{doi:\nolinkurl{10.1109/BIGDATA55660.2022.10020283}}
+
+
+\bibitem[Al~Mamun et~al\mbox{.}(2026)]%
+        {mamun2026beyond}
+\bibfield{author}{\bibinfo{person}{Abdullah Al~Mamun}, \bibinfo{person}{Md. Nasif~Osman Khansur}, \bibinfo{person}{Md~Ashraful~Hossen Akash}, \bibinfo{person}{Md.~Kishor Morol}, {and} \bibinfo{person}{Tze~Hui Liew}.} \bibinfo{year}{2026}\natexlab{}.
+\newblock \bibinfo{title}{Beyond Accuracy: Quantifying Pulmonary Attribution in Anatomy-Guided Chest {X-Ray} Classification Under Domain Shift}.
+\newblock
+\showeprint[arxiv]{2608.30467}
+\urldef\tempurl%
+\url{https://arxiv.org/abs/2608.30467}
+\showURL{%
+\tempurl}
+
+
+\bibitem[Luo et~al\mbox{.}(2022)]%
+        {luo2022pseudobias}
+\bibfield{author}{\bibinfo{person}{Luyang Luo}, \bibinfo{person}{Dunyuan Xu}, \bibinfo{person}{Hao Chen}, \bibinfo{person}{Tien-Tsin Wong}, {and} \bibinfo{person}{Pheng-Ann Heng}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Pseudo Bias-Balanced Learning for Debiased Chest {X-Ray} Classification}. In \bibinfo{booktitle}{\emph{Medical Image Computing and Computer Assisted Intervention -- MICCAI 2022}}. \bibinfo{publisher}{Springer}, \bibinfo{pages}{621--631}.
+\newblock
+\href{https://doi.org/10.1007/978-3-031-16452-1_59}{doi:\nolinkurl{10.1007/978-3-031-16452-1_59}}
+
+
+\bibitem[Chowdhury et~al\mbox{.}(2020)]%
+        {chowdhury2020covidradiography}
+\bibfield{author}{\bibinfo{person}{Muhammad E.~H. Chowdhury}, \bibinfo{person}{Tawsifur Rahman}, \bibinfo{person}{Amith Khandakar}, \bibinfo{person}{Rashid Mazhar}, \bibinfo{person}{Muhammad~Abdul Kadir}, \bibinfo{person}{Zaid~Bin Mahbub}, \bibinfo{person}{Khandakar~Reajul Islam}, \bibinfo{person}{Muhammad~Salman Khan}, \bibinfo{person}{Atif Iqbal}, \bibinfo{person}{Nasser Al~Emadi}, \bibinfo{person}{Mamun Bin~Ibne Reaz}, {and} \bibinfo{person}{Mohammad~Tariqul Islam}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Can {AI} Help in Screening Viral and {COVID-19} Pneumonia?}
+\newblock \bibinfo{journal}{\emph{IEEE Access}}  \bibinfo{volume}{8} (\bibinfo{year}{2020}), \bibinfo{pages}{132665--132676}.
+\newblock
+\href{https://doi.org/10.1109/ACCESS.2020.3010287}{doi:\nolinkurl{10.1109/ACCESS.2020.3010287}}
+
+
+\bibitem[Rahman et~al\mbox{.}(2021)]%
+        {rahman2021enhancement}
+\bibfield{author}{\bibinfo{person}{Tawsifur Rahman}, \bibinfo{person}{Amith Khandakar}, \bibinfo{person}{Yazan Qiblawey}, \bibinfo{person}{Anas Tahir}, \bibinfo{person}{Serkan Kiranyaz}, \bibinfo{person}{Saad~Bin Abul~Kashem}, \bibinfo{person}{Mohammad~Tariqul Islam}, \bibinfo{person}{Somaya Al~Maadeed}, \bibinfo{person}{Susu~M. Zughaier}, \bibinfo{person}{Muhammad~Salman Khan}, {and} \bibinfo{person}{Muhammad E.~H. Chowdhury}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Exploring the Effect of Image Enhancement Techniques on {COVID-19} Detection using Chest X-ray Images}.
+\newblock \bibinfo{journal}{\emph{Computers in Biology and Medicine}}  \bibinfo{volume}{132} (\bibinfo{year}{2021}), \bibinfo{pages}{104319}.
+\newblock
+\href{https://doi.org/10.1016/j.compbiomed.2021.104319}{doi:\nolinkurl{10.1016/j.compbiomed.2021.104319}}
+
+
+\bibitem[Adebayo et~al\mbox{.}(2018)]%
+        {adebayo2018sanity}
+\bibfield{author}{\bibinfo{person}{Julius Adebayo}, \bibinfo{person}{Justin Gilmer}, \bibinfo{person}{Michael Muelly}, \bibinfo{person}{Ian Goodfellow}, \bibinfo{person}{Moritz Hardt}, {and} \bibinfo{person}{Been Kim}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Sanity Checks for Saliency Maps}. In \bibinfo{booktitle}{\emph{Advances in Neural Information Processing Systems (NeurIPS)}}, Vol.~\bibinfo{volume}{31}.
+\newblock
+
+
+\end{thebibliography}
