@@ -91,6 +91,10 @@ same role `notebooks/efficiency.py` plays for the efficiency axis.
   3-tuple `(logits, attention, attention_logits)`), `compute_total_loss`/`attention_guidance_loss`
   (CE + λ_att·guidance) plus the opt-in `background_suppression_loss`/`lambda_bg` term (default
   `0.0` — not part of the frozen A0-A5 ablation, see `configs/densenet121_lung_attention.yaml`).
+  This term now has a runnable follow-up experiment — `notebooks/T18_A2bg_background_suppression_followup.ipynb`
+  trains a new "A2_bg" arm with `lambda_bg > 0`, as a standalone notebook that does not modify
+  `T18_lung_region_attention.ipynb` or any frozen checkpoint. Run once (seed 42): improved ILAR/background
+  attention but not Grad-CAM EIL (0.374→0.359) — see `T18_module_card.md` §10.
 - `counterfactual.py` — `perturb_background`/`counterfactual_stability`/
   `evaluate_counterfactual_robustness`: pure post-hoc robustness tests (no training) that zero,
   shuffle, or noise a checkpoint's background pixels (lung held pixel-identical) and measure how
@@ -123,6 +127,17 @@ same role `notebooks/efficiency.py` plays for the efficiency axis.
 Import from `src.modules`, not the submodules directly. Full design rationale, formal equations,
 and the acceptance-criteria targets: `Claude Working Files/T18_Lung_Region_Attention_WBS.md` and
 `artifacts/T18_lung_attention/T18_module_card.md`.
+
+**Planned, not yet built:** applying the T18 module (and its full 6-arm ablation) to ResNet50,
+EfficientNet-B0 and ViT-Base (P13 cross-architecture generalization). ResNet50/EfficientNet-B0 are
+mechanically compatible with the existing `build_model(backbone_name=...)` as-is. ViT-Base is not —
+its default classifier reads only the CLS token, which the attention gate (inserted after
+`forward_features()`, mirroring the CNN insertion point) never reaches, so the gate would be a
+functional no-op there. The design (a `ViTLungAttention` wrapper that reshapes the 196 patch tokens
+into a 14×14 grid and switches the head to average-pooling so the gate actually affects the
+classifier) is fully written up in
+`Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md` — read that before writing any
+ViT-adjacent code in this directory.
 
 ### `artifacts/` — committed, reproducible run outputs
 
