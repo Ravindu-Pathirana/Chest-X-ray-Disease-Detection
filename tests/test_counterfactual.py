@@ -205,3 +205,26 @@ def test_evaluate_counterfactual_robustness_writes_and_appends_csv(tmp_path):
     on_disk = pd.read_csv(csv_path)
     assert len(on_disk) == 2  # appended, not overwritten
     assert set(on_disk["arm"]) == {"A2", "A0"}
+
+
+def test_evaluate_counterfactual_robustness_writes_per_image_csv(tmp_path):
+    images = torch.zeros(3, 3, 224, 224)
+    images[:, :, :, 112:] = 5.0
+    masks = torch.zeros(3, 1, 224, 224)
+    masks[:, :, :, :112] = 1.0
+    labels = torch.tensor([0, 1, 1])
+    loader = [(images, labels, masks)]
+    model = _RegionMeanModel(row_slice=slice(0, 224), col_slice=slice(112, 224), scale=10.0)
+    path = tmp_path / "counterfactual_per_image.csv"
+
+    evaluate_counterfactual_robustness(
+        model, loader, torch.device("cpu"), modes=("zero", "noise"),
+        arm_name="A6", per_image_csv=path,
+    )
+    rows = pd.read_csv(path)
+    assert len(rows) == 6
+    assert set(rows["mode"]) == {"zero", "noise"}
+    assert set(rows.columns) >= {
+        "image_path", "true_label", "original_prediction", "perturbed_prediction",
+        "stability", "prediction_flipped", "confidence_change",
+    }
