@@ -99,3 +99,13 @@ def test_nonuniform_gate_taps_genuinely_diverge():
     assert torch.equal(preds_post, preds_pre)  # the gate doesn't change the prediction path
     max_diff = (cam_post - cam_pre).abs().max().item()
     assert max_diff > 1e-2, f"expected clear divergence with a strongly non-uniform gate, got {max_diff}"
+
+
+def test_get_taps_supports_efficientnet_final_feature_layer():
+    model = build_model(
+        num_classes=4, use_attention=True, backbone_name="efficientnet_b0",
+        reduction=16, pretrained=False,
+    )
+    tap_post, tap_pre = get_taps(model)
+    assert tap_post is model.post_attn
+    assert tap_pre is model.backbone.bn2
