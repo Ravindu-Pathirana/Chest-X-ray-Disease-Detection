@@ -22,8 +22,9 @@ same pipeline again.
 from __future__ import annotations
 
 import random
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -135,6 +136,73 @@ class CXRWithMaskDataset(Dataset):
         return image, label, mask
 
 
+def preload_resized_cache(
+    base_dataset: ImageFolder, img_size: int = 224, num_threads: int = 8
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Decodes and resizes every (image, mask) pair once, into two uint8 arrays of
+    shape [N, img_size, img_size] indexed like ``base_dataset.samples``.
+
+    Applies exactly JointTransform's own first step (``.convert("L")``, then BILINEAR
+    resize for the image and NEAREST for the mask). Feeding the cached arrays back
+    through JointTransform is bit-identical to reading from disk, because PIL's
+    ``resize`` returns an exact copy when the size is unchanged -- which is what
+    JointTransform's resize becomes on cached input. Removes PNG decode + resize +
+    disk reads from every epoch (~55% of per-sample CPU cost, measured), which is
+    what bottlenecks training on 4-vCPU Kaggle machines.
+
+    Memory: 2 x N x img_size^2 bytes (~2.1 GB for the full 21,165-image dataset at
+    224). DataLoader workers share it copy-on-write under fork (Linux/Kaggle); under
+    spawn (Windows/macOS) each worker would get its own pickled copy.
+    """
+    n = len(base_dataset.samples)
+    images = np.empty((n, img_size, img_size), dtype=np.uint8)
+    masks = np.empty((n, img_size, img_size), dtype=np.uint8)
+
+    def _load(i: int) -> None:
+        image_path = Path(base_dataset.samples[i][0])
+        mask_path = image_path.parent.parent / "masks" / image_path.name
+        if not mask_path.exists():
+            raise FileNotFoundError(f"Mask not found for: {image_path}\nExpected mask: {mask_path}")
+        image = Image.open(image_path).convert("L")
+        mask = Image.open(mask_path).convert("L")
+        images[i] = np.asarray(TF.resize(image, [img_size, img_size], interpolation=InterpolationMode.BILINEAR))
+        masks[i] = np.asarray(TF.resize(mask, [img_size, img_size], interpolation=InterpolationMode.NEAREST))
+
+    # PIL releases the GIL while decoding/resizing, so threads parallelize this.
+    with ThreadPoolExecutor(max_workers=num_threads) as pool:
+        list(pool.map(_load, range(n)))
+    return images, masks
+
+
+class CachedCXRWithMaskDataset(CXRWithMaskDataset):
+    """CXRWithMaskDataset served from ``preload_resized_cache`` arrays instead of disk.
+
+    Same (image, label, mask) contract and same ``base_dataset``/``indices``
+    attributes, so everything downstream (comparison.py, stratified_cam_subset)
+    works unchanged.
+    """
+
+    def __init__(
+        self,
+        base_dataset: ImageFolder,
+        indices: np.ndarray,
+        transform: JointTransform,
+        images: np.ndarray,
+        masks: np.ndarray,
+    ):
+        super().__init__(base_dataset, indices, transform)
+        self.images = images
+        self.masks = masks
+
+    def __getitem__(self, idx: int):
+        base_idx = self.indices[idx]
+        label = self.base_dataset.samples[base_idx][1]
+        image = Image.fromarray(self.images[base_idx])
+        mask = Image.fromarray(self.masks[base_idx])
+        image, mask = self.transform(image, mask)
+        return image, label, mask
+
+
 def stratified_split(dataset: ImageFolder, seed: int = 42):
     """70/15/15 stratified split. Verbatim across every notebook in the repo.
 
@@ -179,7 +247,7 @@ def load_split_indices_from_manifest(
     buckets = {"train": train_idx, "val": val_idx, "test": test_idx}
 
     for i, (path, _target) in enumerate(base_dataset.samples):
-        rel = str(Path(path).relative_to(data_root))
+        rel = Path(path).relative_to(data_root).as_posix()  # manifest uses "/" on every OS
         split = split_of.get(rel)
         if split is None:
             raise KeyError(f"{rel} not found in split manifest {manifest_path} (data_root={data_root})")
@@ -196,6 +264,34 @@ def compute_class_weights(train_targets: np.ndarray, num_classes: int) -> torch.
     return torch.tensor(weights, dtype=torch.float32)
 
 
+def make_train_loader(
+    train_dataset: Dataset,
+    batch_size: int,
+    seed: int,
+    num_workers: int = 4,
+    persistent_workers: bool = False,
+) -> DataLoader:
+    """A shuffling, reproducibly-seeded train DataLoader with a FRESH generator.
+
+    Build one per training run (arm / sweep config) rather than sharing one
+    loader across runs: a shared loader's generator carries state from run to
+    run, so run N's shuffle order and augmentation draws would depend on how
+    many epochs every earlier run in the same session consumed -- and would
+    silently change if runs are split across sessions.
+    """
+    use_workers = num_workers > 0
+    return DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available(),
+        worker_init_fn=seed_worker,
+        generator=create_generator(seed),
+        persistent_workers=persistent_workers and use_workers,
+    )
+
+
 def build_dataloaders(
     data_dir: Union[str, Path],
     img_size: int,
@@ -203,6 +299,8 @@ def build_dataloaders(
     seed: int,
     num_workers: int = 4,
     split_manifest_path: Optional[Union[str, Path]] = None,
+    cache_in_ram: bool = False,
+    persistent_workers: bool = False,
 ):
     """Builds (train, val, test) DataLoaders of (image, label, mask) triples.
 
@@ -214,6 +312,11 @@ def build_dataloaders(
     WBS section 4.8. val/test loaders don't shuffle and JointTransform(train=
     False) has no randomness, so a generator/worker_init_fn there would be a
     no-op.
+
+    `cache_in_ram=True` serves every split from `preload_resized_cache` (bit-
+    identical tensors, roughly half the per-sample CPU cost); `persistent_workers`
+    keeps the train/val workers alive across epochs. Both default off, which
+    reproduces the original behaviour exactly.
     """
     base_dataset = ImageFolder(root=str(data_dir), is_valid_file=only_images_folder)
 
@@ -225,22 +328,24 @@ def build_dataloaders(
     train_tf = JointTransform(img_size=img_size, train=True)
     eval_tf = JointTransform(img_size=img_size, train=False)
 
-    train_ds = CXRWithMaskDataset(base_dataset, train_idx, train_tf)
-    val_ds = CXRWithMaskDataset(base_dataset, val_idx, eval_tf)
-    test_ds = CXRWithMaskDataset(base_dataset, test_idx, eval_tf)
+    if cache_in_ram:
+        images, masks = preload_resized_cache(base_dataset, img_size=img_size)
+        train_ds = CachedCXRWithMaskDataset(base_dataset, train_idx, train_tf, images, masks)
+        val_ds = CachedCXRWithMaskDataset(base_dataset, val_idx, eval_tf, images, masks)
+        test_ds = CachedCXRWithMaskDataset(base_dataset, test_idx, eval_tf, images, masks)
+    else:
+        train_ds = CXRWithMaskDataset(base_dataset, train_idx, train_tf)
+        val_ds = CXRWithMaskDataset(base_dataset, val_idx, eval_tf)
+        test_ds = CXRWithMaskDataset(base_dataset, test_idx, eval_tf)
 
     pin_memory = torch.cuda.is_available()
+    keep_alive = persistent_workers and num_workers > 0
 
-    train_loader = DataLoader(
-        train_ds,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=pin_memory,
-        worker_init_fn=seed_worker,
-        generator=create_generator(seed),
+    train_loader = make_train_loader(train_ds, batch_size, seed, num_workers, persistent_workers)
+    val_loader = DataLoader(
+        val_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers,
+        pin_memory=pin_memory, persistent_workers=keep_alive,
     )
-    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
     class_names = base_dataset.classes

@@ -9,12 +9,15 @@ from `src.datasets.covid_cxr` directly, matching this repo's convention for
 from .covid_cxr import (
     IMAGENET_MEAN,
     IMAGENET_STD,
+    CachedCXRWithMaskDataset,
     CXRWithMaskDataset,
     JointTransform,
     build_dataloaders,
     compute_class_weights,
     load_split_indices_from_manifest,
+    make_train_loader,
     only_images_folder,
+    preload_resized_cache,
     stratified_split,
 )
 
@@ -23,6 +26,9 @@ __all__ = [
     "IMAGENET_STD",
     "JointTransform",
     "CXRWithMaskDataset",
+    "CachedCXRWithMaskDataset",
+    "preload_resized_cache",
+    "make_train_loader",
     "only_images_folder",
     "stratified_split",
     "load_split_indices_from_manifest",
