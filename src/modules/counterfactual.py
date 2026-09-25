@@ -21,7 +21,7 @@ not just a sanity check of the attention module itself.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Union
 
 import pandas as pd
 import torch
@@ -116,9 +116,26 @@ def counterfactual_stability(
 
     tv_distance = 0.5 * (p_orig - p_pert).abs().sum(dim=1)
     stability = 1.0 - tv_distance
-    pred_changed = (p_orig.argmax(dim=1) != p_pert.argmax(dim=1)).float()
+    orig_conf, orig_pred = p_orig.max(dim=1)
+    pert_conf, pert_pred = p_pert.max(dim=1)
+    pred_changed = (orig_pred != pert_pred).float()
 
-    return {"stability": stability, "pred_changed": pred_changed}
+    return {
+        "stability": stability,
+        "pred_changed": pred_changed,
+        "original_prediction": orig_pred,
+        "perturbed_prediction": pert_pred,
+        "original_confidence": orig_conf,
+        "perturbed_confidence": pert_conf,
+        "confidence_change": pert_conf - orig_conf,
+    }
+
+
+def _dataset_image_paths(dataset) -> Optional[List[str]]:
+    """Best-effort paths for the project's manifest-backed CXR dataset."""
+    if dataset is None or not hasattr(dataset, "base_dataset") or not hasattr(dataset, "indices"):
+        return None
+    return [str(dataset.base_dataset.samples[dataset.indices[i]][0]) for i in range(len(dataset))]
 
 
 def evaluate_counterfactual_robustness(
@@ -130,6 +147,7 @@ def evaluate_counterfactual_robustness(
     seed: int = 42,
     arm_name: str = "",
     output_csv: Optional[Union[str, Path]] = None,
+    per_image_csv: Optional[Union[str, Path]] = None,
 ) -> pd.DataFrame:
     """Runs `counterfactual_stability` over an entire loader for each mode
     in `modes`; returns one row per mode with the mean stability and the
@@ -152,24 +170,49 @@ def evaluate_counterfactual_robustness(
     torch.manual_seed(seed)
 
     rows = []
+    per_image_rows = []
+    image_paths = _dataset_image_paths(getattr(loader, "dataset", None))
     for mode in modes:
         stabilities = []
         changed = []
-        for images, _labels, masks in loader:
+        confidence_changes = []
+        offset = 0
+        for images, labels, masks in loader:
+            batch_size = images.shape[0]
             images = images.to(device)
             masks = masks.to(device)
             result = counterfactual_stability(model, images, masks, mode=mode, noise_std=noise_std)
             stabilities.append(result["stability"].cpu())
             changed.append(result["pred_changed"].cpu())
+            confidence_changes.append(result["confidence_change"].abs().cpu())
+            if per_image_csv is not None:
+                for j in range(batch_size):
+                    pos = offset + j
+                    per_image_rows.append({
+                        "arm": arm_name,
+                        "image_path": image_paths[pos] if image_paths is not None else "",
+                        "true_label": int(labels[j].item()),
+                        "original_prediction": int(result["original_prediction"][j].cpu()),
+                        "perturbed_prediction": int(result["perturbed_prediction"][j].cpu()),
+                        "mode": mode,
+                        "stability": float(result["stability"][j].cpu()),
+                        "prediction_flipped": bool(result["pred_changed"][j].cpu()),
+                        "original_confidence": float(result["original_confidence"][j].cpu()),
+                        "perturbed_confidence": float(result["perturbed_confidence"][j].cpu()),
+                        "confidence_change": float(result["confidence_change"][j].cpu()),
+                    })
+            offset += batch_size
 
         stabilities_t = torch.cat(stabilities)
         changed_t = torch.cat(changed)
+        confidence_changes_t = torch.cat(confidence_changes)
         rows.append({
             "arm": arm_name,
             "mode": mode,
             "n_images": int(stabilities_t.numel()),
             "mean_stability": float(stabilities_t.mean()),
             "pred_flip_rate": float(changed_t.mean()),
+            "mean_abs_confidence_change": float(confidence_changes_t.mean()),
         })
 
     df = pd.DataFrame(rows)
@@ -179,5 +222,10 @@ def evaluate_counterfactual_robustness(
         if output_csv.exists():
             df = pd.concat([pd.read_csv(output_csv), df], ignore_index=True)
         df.to_csv(output_csv, index=False)
+
+    if per_image_csv is not None:
+        per_image_csv = Path(per_image_csv)
+        per_image_csv.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(per_image_rows).to_csv(per_image_csv, index=False)
 
     return df

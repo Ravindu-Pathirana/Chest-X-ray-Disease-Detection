@@ -1,0 +1,11 @@
+{
+  "lambda_att": 0.1,
+  "best_epoch": 6,
+  "best_val_loss": 0.4966751312763672,
+  "val_macro_f1": 0.8640271316641469,
+  "val_ilar": 0.4566027147938886,
+  "seed": 42,
+  "rule": "largest lambda_att whose validation macro-F1 is within 0.005 of lambda_att=0.0; tie-break higher validation ILAR",
+  "reference": "lambda_att=0.0",
+  "test_metrics_used_for_selection": false
+}
