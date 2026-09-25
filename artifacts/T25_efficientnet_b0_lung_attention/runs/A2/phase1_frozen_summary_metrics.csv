@@ -1,0 +1,2 @@
+accuracy,macro_f1,macro_recall,macro_precision,weighted_f1,weighted_recall,roc_auc_macro,attention_ilar,attention_dice,attention_iou,cam_eil_post,cam_eil_pre
+0.7833070866141733,0.7720391932493698,0.7952273986538764,0.7538207386877464,0.7841559242627347,0.7833070866141733,0.9345476868100827,0.4641517996788025,0.0,0.0,,
