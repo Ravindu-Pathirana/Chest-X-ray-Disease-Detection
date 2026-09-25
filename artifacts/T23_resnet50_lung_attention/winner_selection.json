@@ -1,0 +1,13 @@
+{
+  "reference_arm": "A0_vanilla",
+  "candidates": [
+    "A1_gate_only",
+    "A2_full",
+    "A3_multiply",
+    "A4_guidance_only",
+    "A5_cbam",
+    "A6_full_bg"
+  ],
+  "winner": "A3_multiply",
+  "rule": "candidate iff McNemar p>=0.05 AND Wilcoxon p<0.05 on EIL_post vs. A0; rank by mean EIL_post gain; efficiency breaks ties only."
+}

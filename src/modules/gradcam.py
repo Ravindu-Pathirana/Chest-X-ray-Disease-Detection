@@ -85,13 +85,32 @@ def cam_for(model: nn.Module, images: torch.Tensor, target_layer: nn.Module, dev
     return cam.unsqueeze(1), preds.cpu()
 
 
-def get_taps(model: nn.Module):
+_PRE_GATE_TAP = {
+    # backbone_name prefix -> callable(backbone) -> pre-gate tap module
+    "densenet": lambda bb: bb.features.norm5,
+    "resnet": lambda bb: bb.layer4[-1],  # T23: ResNet50 has no features.norm5
+}
+
+
+def get_taps(model: nn.Module, backbone_name: str = "densenet121"):
     """Returns (tap_post, tap_pre) target-layer modules for cam_for().
 
-    tap_post: model.post_attn (after the gate -- headline EIL_post).
-    tap_pre:  model.backbone.features.norm5 (before the gate -- EIL_pre, H3 check).
-    Only valid for DenseNet-family backbones; a ResNet50 build (T23) needs
-    its own pre-gate tap (e.g. backbone.layer4[-1]) since ResNet has no
-    features.norm5.
+    tap_post: model.post_attn (after the gate -- headline EIL_post), the
+    same module for every backbone family.
+
+    tap_pre: the last pre-gate feature-producing submodule -- family-specific,
+    since different timm backbones expose it under different names
+    (DenseNet's final norm layer vs. ResNet's final residual block). Looked
+    up via `_PRE_GATE_TAP` by `backbone_name` prefix, the same
+    family-registry pattern as `lung_attention.py`'s `_TAIL_MODULES`.
+    `backbone_name` defaults to "densenet121" for backward compatibility
+    with every existing T18 call site.
+
+    For arm A0 (no gate at all) both taps are the same layer in effect
+    (`post_attn` is `nn.Identity`), so EIL_post == EIL_pre there -- a useful
+    self-check that the harness is wired correctly, on any backbone.
     """
-    return model.post_attn, model.backbone.features.norm5
+    for prefix, tap_fn in _PRE_GATE_TAP.items():
+        if backbone_name.startswith(prefix):
+            return model.post_attn, tap_fn(model.backbone)
+    raise ValueError(f"No pre-gate Grad-CAM tap registered for backbone '{backbone_name}'. Add one to _PRE_GATE_TAP.")

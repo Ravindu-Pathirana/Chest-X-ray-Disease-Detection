@@ -1,0 +1,102 @@
+# T23 -- Lung-Region Attention Module (Candidate A) on ResNet50.
+#
+# Copied from baseline.yaml per configs/README.md (NOT from
+# densenet121_lung_attention.yaml -- ResNet50's hyperparameters are its own,
+# not inherited from DenseNet121's T18 config). The `training` block is
+# extended for two-phase transfer learning (phase1_* / phase2_*), same as
+# T18's config, since a single flat epochs/learning_rate pair can't express
+# the frozen -> fine-tune schedule this project uses everywhere.
+#
+# This file represents arm A2 (the full module: residual gate on, guidance
+# on, background-suppression off). Other T23 arms (A0/A1/A3/A4/A5/A6) are
+# produced from this file at run time via merge_overrides() -- see
+# notebooks/T23_resnet50_lung_attention.ipynb S1 and the design doc
+# (T23_ResNet50_Lung_Attention_Implementation.md section 5's arm table).
+# Do not fork a separate YAML per arm; that would let the arms drift out of
+# sync, which is exactly what the ablation must not do.
+#
+# Do NOT put API keys, tokens, or credentials in this file -- W&B
+# authentication is handled separately (see docs/wandb_setup.md).
+
+experiment:
+  name: T23_resnet50_lung_attention
+  seed: 42
+
+model:
+  name: resnet50
+  pretrained: true
+  num_classes: 4
+  # Section 4 audit (design doc): T14/T15's tuned ResNet50 baseline
+  # (notebooks/ResNet50_hyper-parameter_tunning.ipynb) builds the model via
+  # plain `timm.create_model("resnet50", pretrained=True, num_classes=...)`
+  # with no drop_rate override -- i.e. drop_rate=0.0, timm's own default --
+  # and never customizes forward_head()/pooling. build_model()'s own
+  # drop_rate default is also 0.0, so A0 and every attention arm already
+  # share "the same head, same pooling, same dropout" (module-card section
+  # 4.3's requirement) with zero changes needed. No mismatch found -> no
+  # drop_rate value to carry here beyond the shared default.
+  drop_rate: 0.0
+
+module:
+  # T23-specific block. Not present in baseline.yaml -- this is the module
+  # under study, reused unchanged from T18 (design doc section 2).
+  name: lung_region_attention
+  attention: lung # lung (ours) | cbam (arm A5)
+  use_attention: true # false selects arm A0 (vanilla control)
+  in_channels: 2048 # ResNet50 forward_features() channel count (vs. DenseNet121's 1024)
+  reduction: 8 # bottleneck ratio -> 256 hidden channels, 524,801 added params (+2.2% of ResNet50, design doc section 3) -- do NOT change to match EfficientNet-B0/ViT-Base's configs (design doc section 12)
+  gate_mode: residual # residual (ours, A2) | multiply (A3) | none (A4)
+  target_mode: soft # soft (area-pooled mask) | hard (thresholded)
+  lambda_att: 1.0 # placeholder -- overwritten by S9's lambda_att sweep selection (do not assume T18's DenseNet121 value transfers, design doc section 5a)
+  # Background-suppression loss weight -- A6 is a native part of THIS
+  # ablation (design doc section 13), unlike T18/DenseNet121 where it's a
+  # separate bolt-on follow-up notebook. Placeholder here; overwritten by
+  # S11's independent lambda_bg sweep (design doc section 5b) before A6 trains.
+  lambda_bg: 0.0
+
+dataset:
+  name: covid19_radiography
+  version: v1
+  image_size: 224
+  split_version: v1 # -> artifacts/splits/split_manifest_v1.csv (same committed manifest T18 used)
+  use_masks: true # loads (image, label, mask) triples via JointTransform + CXRWithMaskDataset
+
+training:
+  # Two-phase schedule (frozen backbone -> fine-tune final block), matching
+  # T14/T15's audited, already-tuned ResNet50 recipe exactly (design doc
+  # section 4/11: "ResNet50 already has a tuned baseline (T14/T15, 91.02%
+  # test accuracy)" -- notebooks/ResNet50_hyper-parameter_tunning.ipynb's
+  # winning config, retrained at full epoch budget: adamw / phase2_lr=5e-5 /
+  # weight_decay=1e-4 / cosine / unfreeze_blocks=1 / batch_size=32, beating
+  # the untuned phase2_lr=1e-5 default by val_acc 0.840 vs 0.797).
+  phase1_epochs: 15
+  phase1_lr: 0.001 # T14/T15 winner (phase 1 head-only warmup, held fixed across the HPO search)
+  phase2_epochs: 40
+  phase2_lr: 0.00005 # T14/T15 HPO winner (was 1e-5 before tuning)
+  unfreeze_blocks: 1 # layer4 only -- T14/T15 winner
+  batch_size: 32 # T14/T15 winner
+  optimizer: adamw # T14/T15 winner
+  weight_decay: 0.0001 # T14/T15 winner
+  patience: 5 # early stopping patience, monitored on val_loss
+
+scheduler:
+  name: cosine # T14/T15 winner
+
+augmentation:
+  # Same JointTransform pipeline as T18 (src/datasets/covid_cxr.py) -- image
+  # and mask share identical spatial augmentation.
+  version: joint_v1
+
+tracking:
+  provider: wandb
+  project: chest-xray-disease-classification
+  entity: null
+  mode: null # override at call time: "offline" or "disabled" for smoke tests
+
+checkpoint:
+  # val_loss early-stopping, matching every other team notebook (T12/T14/
+  # T16/T19) and T18's own config -- see T18's config comment for why this
+  # differs from baseline.yaml's val_f1/max.
+  monitor: val_loss
+  mode: min
+  dir: artifacts/T23_resnet50_lung_attention/runs
