@@ -1,0 +1,2 @@
+arm,gate,lambda,test_acc,test_macro_f1,test_auc_macro,ILAR,att_dice,EIL_post,EIL_pre,delta_macro_f1,delta_eil_post,delta_eil_pre
+A2_bg,residual,1.0,0.9492913385826771,0.9541051341410676,0.9933636859380317,0.6715460419654846,0.759213924407959,0.3586053567789495,0.29653097593598066,0.0,0.0,0.0

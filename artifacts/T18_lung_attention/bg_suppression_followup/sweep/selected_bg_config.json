@@ -1,0 +1,9 @@
+{
+  "lambda_bg": 1.0,
+  "lambda_att": 1.0,
+  "rule": "largest lambda_bg whose val macro-F1 is within 0.5pp of bg_0.0 (plain A2); ties -> higher val ILAR",
+  "reference_row": "bg_0.0",
+  "reference_val_macro_f1": 0.945651943281733,
+  "schedule": "short(4+6)",
+  "seed": 42
+}

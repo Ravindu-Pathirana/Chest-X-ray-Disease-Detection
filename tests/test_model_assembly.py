@@ -111,6 +111,26 @@ def test_resnet50_freeze_registry_exact_counts():
     assert logits.shape == (2, 4) and att.shape == (2, 1, 7, 7)
 
 
+def test_efficientnet_b0_reduction_16_contract_and_overhead():
+    plain = timm.create_model("efficientnet_b0", pretrained=False, num_classes=4)
+    model = build_model(
+        num_classes=4, use_attention=True, backbone_name="efficientnet_b0",
+        reduction=16, pretrained=False,
+    )
+    assert model.backbone.num_features == 1280
+    logits, att, att_logits = model(torch.randn(1, 3, 224, 224))
+    assert logits.shape == (1, 4)
+    assert att.shape == att_logits.shape == (1, 1, 7, 7)
+    plain_params = sum(p.numel() for p in plain.parameters())
+    added = sum(p.numel() for p in model.parameters()) - plain_params
+    assert added == 102_561
+    assert added / plain_params < 0.03
+
+    freeze_backbone(model)
+    unfreeze_final_blocks(model, 1)
+    assert any(name.startswith("blocks.6") and p.requires_grad for name, p in model.backbone.named_parameters())
+
+
 def test_cbam_forward_contract():
     """Arm A5: att_logits must be None -- CBAM is never mask-supervised."""
     model = build_model(num_classes=4, use_attention=True, attention="cbam", pretrained=False)
