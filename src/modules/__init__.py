@@ -31,6 +31,7 @@ from .comparison import (
     build_comparison_table,
     build_per_image_predictions,
     check_acceptance_criteria,
+    run_significance_tests,
     stratified_cam_subset,
     summarize_multiseed,
 )
@@ -84,6 +85,7 @@ __all__ = [
     "build_per_image_predictions",
     "build_comparison_table",
     "check_acceptance_criteria",
+    "run_significance_tests",
     "select_heatmap_images",
     "plot_heatmap_row",
     "plot_attention_grid",

@@ -85,27 +85,38 @@ def cam_for(model: nn.Module, images: torch.Tensor, target_layer: nn.Module, dev
     return cam.unsqueeze(1), preds.cpu()
 
 
-def get_taps(model: nn.Module):
+_PRE_GATE_TAP = {
+    # backbone_name prefix -> callable(backbone) -> pre-gate tap module
+    "densenet": lambda bb: bb.features.norm5,
+    "resnet": lambda bb: bb.layer4[-1],  # T23: ResNet50 has no features.norm5
+    "efficientnet": lambda bb: bb.bn2,  # T25: final conv_head norm before pooling
+}
+
+
+def get_taps(model: nn.Module, backbone_name: str | None = None):
     """Returns (tap_post, tap_pre) target-layer modules for cam_for().
 
-    tap_post: model.post_attn (after the gate -- headline EIL_post).
-    tap_pre: the final backbone feature module before the attention gate.
+    tap_post: model.post_attn (after the gate -- headline EIL_post), the
+    same module for every backbone family.
 
-    Keep this registry explicit: Grad-CAM must hook the module that produces
-    the tensor returned by ``forward_features`` for the selected backbone.
+    tap_pre: the last pre-gate feature-producing submodule -- family-specific,
+    since different timm backbones expose it under different names
+    (DenseNet's final norm layer vs. ResNet's final residual block vs.
+    EfficientNet's final bn2). Grad-CAM must hook the module that produces
+    the tensor returned by ``forward_features``. Looked up via
+    `_PRE_GATE_TAP` by `backbone_name` prefix, the same family-registry
+    pattern as `lung_attention.py`'s `_TAIL_MODULES`. `backbone_name`
+    defaults to the model's own `backbone_name` attribute (set by
+    `build_model`), falling back to the backbone's class name.
+
+    For arm A0 (no gate at all) both taps are the same layer in effect
+    (`post_attn` is `nn.Identity`), so EIL_post == EIL_pre there -- a useful
+    self-check that the harness is wired correctly, on any backbone.
     """
-    backbone = model.backbone
-    backbone_name = getattr(model, "backbone_name", backbone.__class__.__name__).lower()
-
-    if backbone_name.startswith("densenet"):
-        tap_pre = backbone.features.norm5
-    elif backbone_name.startswith("efficientnet"):
-        tap_pre = backbone.bn2
-    elif backbone_name.startswith("resnet"):
-        tap_pre = backbone.layer4[-1]
-    else:
-        raise ValueError(
-            f"No Grad-CAM pre-gate tap registered for backbone '{backbone_name}'. "
-            "Register the final feature-producing module explicitly."
-        )
-    return model.post_attn, tap_pre
+    if backbone_name is None:
+        backbone_name = getattr(model, "backbone_name", model.backbone.__class__.__name__)
+    backbone_name = backbone_name.lower()
+    for prefix, tap_fn in _PRE_GATE_TAP.items():
+        if backbone_name.startswith(prefix):
+            return model.post_attn, tap_fn(model.backbone)
+    raise ValueError(f"No pre-gate Grad-CAM tap registered for backbone '{backbone_name}'. Add one to _PRE_GATE_TAP.")

@@ -1,0 +1,19 @@
+{
+  "name": "lam_att_1.0",
+  "lambda_att": 1.0,
+  "phase1_lr": 0.001,
+  "phase2_lr": 5e-05,
+  "weight_decay": 0.0001,
+  "optimizer": "adamw",
+  "scheduler": "cosine",
+  "gate_mode": "residual",
+  "target_mode": "soft",
+  "reduction": 8,
+  "rule": "largest lambda_att whose val macro-F1 is within 0.5pp of lam_att_0.0; ties -> higher val ILAR",
+  "reference_row": "lam_att_0.0",
+  "reference_val_macro_f1": 0.8639672287031731,
+  "schedule": "short(4+6)",
+  "seed": 42,
+  "backbone": "resnet50",
+  "pipeline": "t23-ramcache-freshloader-v1"
+}

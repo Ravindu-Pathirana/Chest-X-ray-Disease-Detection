@@ -13,6 +13,7 @@ Three real dependencies this module has on prior work:
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -50,6 +51,7 @@ def build_per_image_predictions(
     device: torch.device,
     cam_subset: Optional[np.ndarray] = None,
     batch_size: int = 32,
+    backbone_name: Optional[str] = None,
 ) -> pd.DataFrame:
     """Per-image CSV, WBS section 6.5: image_path, true_label, pred_label,
     prob_0..prob_{K-1}, ilar, eil_post, eil_pre.
@@ -61,6 +63,11 @@ def build_per_image_predictions(
     that were simply never scored). Pass cam_subset=None to skip Grad-CAM
     entirely (e.g. a quick classification-only pass).
 
+    `backbone_name` selects the Grad-CAM pre-gate tap (see gradcam.py's
+    `get_taps`) -- defaults to None, which infers it from the model's own
+    `backbone_name` attribute, so DenseNet (T18), ResNet50 (T23) and
+    EfficientNet-B0 (T25) models all work without passing it.
+
     Model must have already been moved to `device` and loaded with the
     checkpoint being evaluated.
     """
@@ -69,7 +76,7 @@ def build_per_image_predictions(
     has_cam = cam_subset is not None and len(cam_subset) > 0
     tap_post = tap_pre = None
     if has_cam:
-        tap_post, tap_pre = get_taps(model)
+        tap_post, tap_pre = get_taps(model, backbone_name)
     cam_subset_set = set(int(i) for i in cam_subset) if has_cam else set()
 
     image_paths = [
@@ -273,3 +280,88 @@ def summarize_multiseed(
                 "seeds": seeds,
             }
     return summary
+
+
+def run_significance_tests(
+    arms_for_table: Dict[str, Dict[str, Any]],
+    reference_arm: str,
+    output_json=None,
+) -> Dict[str, Dict[str, Any]]:
+    """Paired significance tests for a winner-selection rule that requires
+    both "no detectable accuracy cost" AND "a real, non-noise faithfulness
+    gain" before an arm can even be considered a candidate winner (T23
+    cross-backbone design doc sections 6/8) -- a bigger mean EIL delta alone
+    is not enough, since with a small/noisy sample that delta could be
+    chance.
+
+    For every arm other than `reference_arm` (typically A0):
+    - McNemar's exact test (binomial test on the discordant pairs) on
+      per-image correctness, full test set -- p >= 0.05 means "no detectable
+      accuracy cost vs. reference" (WBS/design-doc gate (a)).
+    - Wilcoxon signed-rank test on paired per-image EIL_post, over the same
+      fixed Grad-CAM subsample both arms were scored on -- p < 0.05 means
+      "a real, non-noise evidence-relocation effect" (gate (b)).
+
+    Rows are matched by `image_path`, not row position, since two arms'
+    per_image_df may have been built independently. Requires each arm's
+    per_image_df to come from the SAME test dataset / cam_subset as
+    `reference_arm`'s, or the paired tests are meaningless.
+
+    Returns {arm_name: {..., "is_candidate_winner": bool}} -- a candidate
+    winner passes both gates; ranking candidates by mean EIL gain and
+    breaking ties by efficiency is the caller's job (design doc section 8,
+    steps 2-3), not this function's.
+    """
+    from scipy.stats import binomtest, wilcoxon
+
+    if reference_arm not in arms_for_table:
+        raise KeyError(f"reference_arm '{reference_arm}' not found in arms_for_table")
+
+    ref_df = arms_for_table[reference_arm]["per_image_df"].set_index("image_path")
+    results: Dict[str, Dict[str, Any]] = {}
+
+    for arm_name, a in arms_for_table.items():
+        if arm_name == reference_arm:
+            continue
+        df = a["per_image_df"].set_index("image_path")
+        common = ref_df.index.intersection(df.index)
+        if len(common) == 0:
+            raise ValueError(f"'{arm_name}' and '{reference_arm}' share no image_path values -- different test sets?")
+
+        ref_correct = ref_df.loc[common, "true_label"] == ref_df.loc[common, "pred_label"]
+        arm_correct = df.loc[common, "true_label"] == df.loc[common, "pred_label"]
+        b = int((ref_correct & ~arm_correct).sum())   # reference right, arm wrong
+        c = int((~ref_correct & arm_correct).sum())   # reference wrong, arm right
+        n_discordant = b + c
+        mcnemar_p = 1.0 if n_discordant == 0 else float(binomtest(min(b, c), n_discordant, p=0.5).pvalue)
+
+        ref_eil = ref_df.loc[common, "eil_post"].dropna()
+        arm_eil = df.loc[common, "eil_post"].dropna()
+        eil_common = ref_eil.index.intersection(arm_eil.index)
+        ref_vals, arm_vals = ref_eil.loc[eil_common], arm_eil.loc[eil_common]
+
+        if len(eil_common) >= 10 and not np.allclose(ref_vals, arm_vals):
+            wilcoxon_stat, wilcoxon_p = wilcoxon(arm_vals, ref_vals)
+            wilcoxon_stat, wilcoxon_p = float(wilcoxon_stat), float(wilcoxon_p)
+        else:
+            wilcoxon_stat, wilcoxon_p = float("nan"), float("nan")
+
+        mean_eil_gain = float((arm_vals - ref_vals).mean()) if len(eil_common) else float("nan")
+        mcnemar_pass = bool(mcnemar_p >= 0.05)
+        wilcoxon_pass = bool(not np.isnan(wilcoxon_p) and wilcoxon_p < 0.05)
+
+        results[arm_name] = {
+            "reference_arm": reference_arm,
+            "n_test_images_compared": int(len(common)),
+            "mcnemar_b": b, "mcnemar_c": c, "mcnemar_p": mcnemar_p,
+            "mcnemar_pass_no_accuracy_cost": mcnemar_pass,
+            "wilcoxon_n": int(len(eil_common)), "wilcoxon_stat": wilcoxon_stat, "wilcoxon_p": wilcoxon_p,
+            "wilcoxon_pass_real_eil_effect": wilcoxon_pass,
+            "mean_eil_post_gain": mean_eil_gain,
+            "is_candidate_winner": mcnemar_pass and wilcoxon_pass,
+        }
+
+    if output_json is not None:
+        with open(output_json, "w") as f:
+            json.dump(results, f, indent=2)
+    return results
