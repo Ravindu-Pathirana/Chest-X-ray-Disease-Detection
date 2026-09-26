@@ -1,0 +1,6 @@
+{
+  "num_features": 1280,
+  "plain_params": 4012672,
+  "guided_params": 4115233,
+  "parameter_overhead_fraction": 0.02555927820664136
+}

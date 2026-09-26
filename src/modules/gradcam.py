@@ -4,7 +4,7 @@ Computes the module-agnostic Energy-Inside-Lung (EIL) metric at two taps:
 
 - post-gate (``model.post_attn``): "where does the deployed model's
   evidence actually live?" -- the headline number.
-- pre-gate (``model.backbone.features.norm5``): answers H3 -- "did the
+- pre-gate (the final backbone feature module): answers H3 -- "did the
   backbone's own representation change, or did the module just multiply a
   lung-shaped map onto unchanged features?" For arm A0 (no gate at all)
   both taps are the same layer, so EIL_post == EIL_pre there -- a useful
@@ -114,3 +114,24 @@ def get_taps(model: nn.Module, backbone_name: str = "densenet121"):
         if backbone_name.startswith(prefix):
             return model.post_attn, tap_fn(model.backbone)
     raise ValueError(f"No pre-gate Grad-CAM tap registered for backbone '{backbone_name}'. Add one to _PRE_GATE_TAP.")
+    tap_post: model.post_attn (after the gate -- headline EIL_post).
+    tap_pre: the final backbone feature module before the attention gate.
+
+    Keep this registry explicit: Grad-CAM must hook the module that produces
+    the tensor returned by ``forward_features`` for the selected backbone.
+    """
+    backbone = model.backbone
+    backbone_name = getattr(model, "backbone_name", backbone.__class__.__name__).lower()
+
+    if backbone_name.startswith("densenet"):
+        tap_pre = backbone.features.norm5
+    elif backbone_name.startswith("efficientnet"):
+        tap_pre = backbone.bn2
+    elif backbone_name.startswith("resnet"):
+        tap_pre = backbone.layer4[-1]
+    else:
+        raise ValueError(
+            f"No Grad-CAM pre-gate tap registered for backbone '{backbone_name}'. "
+            "Register the final feature-producing module explicitly."
+        )
+    return model.post_attn, tap_pre

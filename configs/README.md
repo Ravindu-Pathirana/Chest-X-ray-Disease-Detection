@@ -7,6 +7,8 @@ hardcoded values scattered through notebooks or scripts.
 
 - `baseline.yaml` — the reference configuration. Treat it as read-only; don't
   edit it to run a one-off experiment.
+- `efficientnet_b0_lung_attention.yaml` — T25's EfficientNet-B0 A0-A6
+  ablation and validation-only lambda-sweep configuration.
 
 ## Adding a new experiment config
 
