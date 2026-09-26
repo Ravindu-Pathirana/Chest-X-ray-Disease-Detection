@@ -27,6 +27,7 @@ artifacts/DenseNet121-HPO/*
 !artifacts/vit_base/
 !artifacts/candidate_c_suppression/
 !artifacts/T21_ablation/
+!artifacts/vit_lung_attention/
 !artifacts/efficiency_results.csv
 
 !artifacts/T23_resnet50_lung_attention/
