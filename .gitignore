@@ -29,6 +29,20 @@ artifacts/DenseNet121-HPO/*
 !artifacts/T21_ablation/
 !artifacts/efficiency_results.csv
 
+!artifacts/T23_resnet50_lung_attention/
+# T23: keep metrics/histories/confusion matrices/predictions/figures/module
+# card, but never the ~92 MB ResNet-50 checkpoints (runs/ and runs_multiseed/)
+# or any other model-weight format that exceeds GitHub's file-size limit.
+artifacts/T23_resnet50_lung_attention/**/*.pt
+artifacts/T23_resnet50_lung_attention/**/*.pth
+artifacts/T23_resnet50_lung_attention/**/*.ckpt
+artifacts/T23_resnet50_lung_attention/**/*.bin
+artifacts/T23_resnet50_lung_attention/**/*.safetensors
+artifacts/T23_resnet50_lung_attention/**/*.onnx
+artifacts/T23_resnet50_lung_attention/**/*.h5
+artifacts/T23_resnet50_lung_attention/**/*.npz
+
+
 # Kaggle-generated notebook metadata and rendered output images
 /artifacts/**/__huggingface_repos__.json
 /artifacts/**/__results___files/

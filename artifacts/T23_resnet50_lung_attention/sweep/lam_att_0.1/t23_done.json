@@ -1,0 +1,18 @@
+{
+  "pipeline": "t23-ramcache-freshloader-v1",
+  "row": {
+    "name": "lam_att_0.1",
+    "lambda_att": 0.1,
+    "lambda_bg": 0.0,
+    "phase1_lr": 0.001,
+    "phase2_lr": 5e-05,
+    "weight_decay": 0.0001,
+    "optimizer": "adamw",
+    "scheduler": "cosine",
+    "best_epoch": 5,
+    "best_val_loss": 0.443288315910054,
+    "val_acc_at_best_loss": 0.855748031496063,
+    "val_macro_f1_at_best": 0.8583256240584414,
+    "val_ilar_at_best": 0.4409028742632528
+  }
+}
