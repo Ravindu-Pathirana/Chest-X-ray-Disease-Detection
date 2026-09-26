@@ -51,7 +51,7 @@ def build_per_image_predictions(
     device: torch.device,
     cam_subset: Optional[np.ndarray] = None,
     batch_size: int = 32,
-    backbone_name: str = "densenet121",
+    backbone_name: Optional[str] = None,
 ) -> pd.DataFrame:
     """Per-image CSV, WBS section 6.5: image_path, true_label, pred_label,
     prob_0..prob_{K-1}, ilar, eil_post, eil_pre.
@@ -64,8 +64,9 @@ def build_per_image_predictions(
     entirely (e.g. a quick classification-only pass).
 
     `backbone_name` selects the Grad-CAM pre-gate tap (see gradcam.py's
-    `get_taps`) -- defaults to "densenet121" for backward compatibility
-    with every existing T18 call site; pass "resnet50" for T23.
+    `get_taps`) -- defaults to None, which infers it from the model's own
+    `backbone_name` attribute, so DenseNet (T18), ResNet50 (T23) and
+    EfficientNet-B0 (T25) models all work without passing it.
 
     Model must have already been moved to `device` and loaded with the
     checkpoint being evaluated.
