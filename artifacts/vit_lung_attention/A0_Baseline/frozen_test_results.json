@@ -1,76 +1,71 @@
 {
   "classification_report": {
     "COVID": {
-      "precision": 0.7728,
-      "recall": 0.8911439114391144,
-      "f1-score": 0.8277634961439588,
+      "precision": 0.781,
+      "recall": 0.8819,
+      "f1-score": 0.8284,
       "support": 542.0
     },
     "Lung_Opacity": {
-      "precision": 0.896551724137931,
-      "recall": 0.8070953436807096,
-      "f1-score": 0.8494749124854143,
+      "precision": 0.8933,
+      "recall": 0.8171,
+      "f1-score": 0.8535,
       "support": 902.0
     },
     "Normal": {
-      "precision": 0.908,
-      "recall": 0.8907782864617397,
-      "f1-score": 0.8993067018818092,
+      "precision": 0.9116,
+      "recall": 0.8901,
+      "f1-score": 0.9007,
       "support": 1529.0
     },
     "Viral Pneumonia": {
-      "precision": 0.819327731092437,
-      "recall": 0.9653465346534653,
-      "f1-score": 0.8863636363636364,
+      "precision": 0.8041,
+      "recall": 0.9752,
+      "f1-score": 0.8814,
       "support": 202.0
     },
-    "accuracy": 0.8718110236220472,
+    "accuracy": 0.8734,
     "macro avg": {
-      "precision": 0.849169863807592,
-      "recall": 0.8885910190587573,
-      "f1-score": 0.8657271867187046,
+      "precision": 0.8475,
+      "recall": 0.8911,
+      "f1-score": 0.866,
       "support": 3175.0
     },
     "weighted avg": {
-      "precision": 0.8760262856230192,
-      "recall": 0.8718110236220472,
-      "f1-score": 0.8721132559668063,
+      "precision": 0.8773,
+      "recall": 0.8734,
+      "f1-score": 0.8737,
       "support": 3175.0
     }
   },
   "confusion_matrix": [
     [
-      483,
-      19,
-      34,
-      6
+      478,
+      22,
+      35,
+      7
     ],
     [
-      76,
-      728,
-      98,
-      0
+      71,
+      737,
+      93,
+      1
     ],
     [
-      65,
-      65,
-      1362,
-      37
+      62,
+      66,
+      1361,
+      40
     ],
     [
       1,
       0,
-      6,
-      195
+      4,
+      197
     ]
   ],
-  "roc_auc_macro": 0.9747974984034227,
-  "roc_auc_per_class": [
-    0.9776467570980305,
-    0.9609998019749825,
-    0.9632992600727767,
-    0.9972441744679009
-  ],
+  "roc_auc_macro": 0.9746,
+  "roc_auc_per_class": null,
   "class_names": [
     "COVID",
     "Lung_Opacity",
