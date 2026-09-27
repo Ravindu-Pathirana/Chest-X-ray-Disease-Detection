@@ -1,0 +1,15 @@
+{
+  "model_name": "EfficientNet-B0-A0",
+  "n_bins": 15,
+  "temperature": 1.1145368814468384,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.025219939649105072,
+    "brier": 0.13155540823936462
+  },
+  "after_scaling": {
+    "ece": 0.01754050888121128,
+    "brier": 0.130619615316391
+  }
+}

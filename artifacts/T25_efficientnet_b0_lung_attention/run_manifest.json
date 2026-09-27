@@ -1,0 +1,17 @@
+{
+  "seed": 42,
+  "arms": [
+    "A0",
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6"
+  ],
+  "winner": null,
+  "lambda_att": 0.1,
+  "lambda_bg": 1.0,
+  "split_manifest": "artifacts/splits/split_manifest_v1.csv",
+  "test_used_for_selection": false
+}

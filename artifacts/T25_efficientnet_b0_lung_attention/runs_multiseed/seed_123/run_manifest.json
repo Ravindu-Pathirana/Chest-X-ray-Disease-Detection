@@ -1,0 +1,12 @@
+{
+  "seed": 123,
+  "arms": [
+    "A0",
+    "A3"
+  ],
+  "winner": "A3",
+  "lambda_att": 0.1,
+  "lambda_bg": 1.0,
+  "split_manifest": "artifacts/splits/split_manifest_v1.csv",
+  "test_used_for_selection": false
+}
