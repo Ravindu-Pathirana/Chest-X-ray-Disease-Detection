@@ -47,6 +47,20 @@ A3 passes both gates and has the largest EIL-post gain (+0.1428). Its accuracy i
 
 Exact results, including both two-sided and directional p-values, are in `significance_tests_vs_A0.json`; the decision is in `winner_selection.json`.
 
+## Multi-seed confirmation
+
+A0 and the selected A3 arm were evaluated at seeds 42, 123, and 2026.
+
+| Metric | A0 mean +/- SD | A3 mean +/- SD | Paired A3-A0 mean +/- SD |
+|---|---:|---:|---:|
+| Accuracy | 0.9125 +/- 0.0015 | 0.9201 +/- 0.0007 | +0.0076 +/- 0.0008 |
+| Macro-F1 | 0.9183 +/- 0.0013 | 0.9255 +/- 0.0020 | +0.0072 +/- 0.0011 |
+| EIL post | 0.3204 +/- 0.0362 | 0.4338 +/- 0.0624 | +0.1133 +/- 0.0262 |
+
+A3 improves accuracy, macro-F1, and EIL post in all three matched seeds. Its per-seed EIL gains are +0.1428, +0.0931, and +0.1040. The one-sided Wilcoxon EIL-gain p-values are below 6e-144 for every seed, while the one-sided exact McNemar p-values for A3 being worse are 0.9933, 0.9861, and 0.9900. This confirms A3 rather than indicating an accuracy trade-off.
+
+Machine-readable aggregates are in `runs_multiseed/multiseed_summary.json`.
+
 ## Counterfactual result
 
 Background perturbation was evaluated for all seven arms. A3 has the largest EIL improvement but is also more sensitive to background perturbation than A0, so localization improvement must not be described as demonstrated background robustness.
