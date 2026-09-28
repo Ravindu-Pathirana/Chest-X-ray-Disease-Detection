@@ -1,0 +1,8 @@
+{
+  "pipeline": "t23-ramcache-freshloader-v1",
+  "checks": [
+    "smoke_run",
+    "overfit",
+    "lambda_sensitivity"
+  ]
+}

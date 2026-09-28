@@ -16,11 +16,14 @@ from PIL import Image
 from torchvision.datasets import ImageFolder
 
 from src.datasets import (
+    CachedCXRWithMaskDataset,
     CXRWithMaskDataset,
     JointTransform,
     compute_class_weights,
     load_split_indices_from_manifest,
+    make_train_loader,
     only_images_folder,
+    preload_resized_cache,
 )
 
 
@@ -169,6 +172,67 @@ def test_cxr_with_mask_dataset_raises_on_missing_mask(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# preload_resized_cache / CachedCXRWithMaskDataset / make_train_loader
+# ---------------------------------------------------------------------------
+
+def _write_realistic_dataset(root: Path, classes=("COVID", "Normal"), n_per_class=3):
+    """Real-dataset shapes: 299x299 grayscale images, 256x256 RGB masks, noisy content
+    (so a resize that isn't bit-exact would actually show up as a mismatch)."""
+    rng = np.random.default_rng(0)
+    for cls in classes:
+        (root / cls / "images").mkdir(parents=True, exist_ok=True)
+        (root / cls / "masks").mkdir(parents=True, exist_ok=True)
+        for i in range(n_per_class):
+            Image.fromarray(rng.integers(0, 256, (299, 299), dtype=np.uint8)).save(root / cls / "images" / f"{cls}-{i}.png")
+            m = np.zeros((256, 256, 3), dtype=np.uint8)
+            m[40:200, 30 + i * 10 : 120 + i * 10] = 255
+            Image.fromarray(m).save(root / cls / "masks" / f"{cls}-{i}.png")
+
+
+@pytest.mark.parametrize("train", [False, True])
+def test_cached_dataset_is_bit_identical_to_disk_dataset(tmp_path, train):
+    _write_realistic_dataset(tmp_path)
+    base = ImageFolder(root=str(tmp_path), is_valid_file=only_images_folder)
+    idx = np.arange(len(base))
+    tf = JointTransform(img_size=224, train=train)
+    images, masks = preload_resized_cache(base, img_size=224, num_threads=2)
+
+    disk = CXRWithMaskDataset(base, idx, tf)
+    cached = CachedCXRWithMaskDataset(base, idx, tf, images, masks)
+
+    for k in range(len(idx)):
+        random.seed(k); torch.manual_seed(k)
+        d_img, d_label, d_mask = disk[k]
+        random.seed(k); torch.manual_seed(k)
+        c_img, c_label, c_mask = cached[k]
+        assert d_label == c_label
+        assert torch.equal(d_img, c_img)
+        assert torch.equal(d_mask, c_mask)
+
+
+def test_preload_resized_cache_raises_on_missing_mask(tmp_path):
+    _write_realistic_dataset(tmp_path)
+    (tmp_path / "COVID" / "masks" / "COVID-0.png").unlink()
+    base = ImageFolder(root=str(tmp_path), is_valid_file=only_images_folder)
+    with pytest.raises(FileNotFoundError):
+        preload_resized_cache(base, img_size=224, num_threads=2)
+
+
+def test_make_train_loader_order_depends_only_on_seed():
+    ds = torch.utils.data.TensorDataset(torch.arange(64))
+    first = [b[0].tolist() for b in make_train_loader(ds, batch_size=8, seed=42, num_workers=0)]
+
+    # Consuming a different loader first must not change a fresh loader's order.
+    for _ in make_train_loader(ds, batch_size=8, seed=7, num_workers=0):
+        pass
+    second = [b[0].tolist() for b in make_train_loader(ds, batch_size=8, seed=42, num_workers=0)]
+    assert first == second
+
+    other = [b[0].tolist() for b in make_train_loader(ds, batch_size=8, seed=123, num_workers=0)]
+    assert first != other
+
+
+# ---------------------------------------------------------------------------
 # load_split_indices_from_manifest
 # ---------------------------------------------------------------------------
 
@@ -178,7 +242,7 @@ def test_load_split_indices_from_manifest(tmp_path):
 
     rows = []
     for path, target in base.samples:
-        rel = str(Path(path).relative_to(tmp_path))
+        rel = Path(path).relative_to(tmp_path).as_posix()
         split = "train" if "COVID-0" in rel or "Normal-0" in rel else "val"
         rows.append({"image_path": rel, "patient_id": "", "split": split, "label": base.classes[target]})
     manifest_path = tmp_path / "manifest.csv"
@@ -199,7 +263,7 @@ def test_load_split_indices_from_manifest_raises_on_missing_sample(tmp_path):
 
     # Manifest only covers one sample -- the rest are "missing".
     path, target = base.samples[0]
-    rel = str(Path(path).relative_to(tmp_path))
+    rel = Path(path).relative_to(tmp_path).as_posix()
     manifest_path = tmp_path / "manifest.csv"
     pd.DataFrame([{"image_path": rel, "patient_id": "", "split": "train", "label": base.classes[target]}]).to_csv(
         manifest_path, index=False
