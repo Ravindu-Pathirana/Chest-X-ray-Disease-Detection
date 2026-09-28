@@ -1,0 +1,2 @@
+accuracy,macro_f1,macro_recall,macro_precision,weighted_f1,weighted_recall,roc_auc_macro
+0.8756,0.8697,0.888,0.8558,0.8758,0.8756,0.9752

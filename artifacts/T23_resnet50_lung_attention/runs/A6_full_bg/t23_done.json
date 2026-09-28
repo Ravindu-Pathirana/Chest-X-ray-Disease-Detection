@@ -1,0 +1,10 @@
+{
+  "pipeline": "t23-ramcache-freshloader-v1",
+  "arm": "A6_full_bg",
+  "seed": 42,
+  "use_attention": true,
+  "attention": "lung",
+  "gate_mode": "residual",
+  "lambda_att": 1.0,
+  "lambda_bg": 1.0
+}

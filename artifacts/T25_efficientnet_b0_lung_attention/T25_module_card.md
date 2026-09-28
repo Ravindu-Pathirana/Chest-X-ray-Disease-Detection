@@ -72,4 +72,4 @@ Background perturbation was evaluated for all seven arms. A3 has the largest EIL
 - Classification comparisons use all 3,175 test images matched by `image_path`.
 - Hyperparameter selection files are under `sweeps/lambda_att/` and `sweeps/lambda_bg/`.
 - Per-image predictions are under `runs/<arm>/per_image_predictions.csv`.
-- Multi-seed runs are stored under `runs_multiseed/seed_123/` and `runs_multiseed/seed_2026/`; seed 42 is the root run.
+- Multi-seed confirmation is intentionally not claimed in this seed-42 branch; it is supplied by the `A0-vs-A3-EfficientNet-B0` follow-up branch.
