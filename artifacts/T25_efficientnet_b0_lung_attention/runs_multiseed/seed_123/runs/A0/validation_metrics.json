@@ -1,0 +1,19 @@
+{
+  "epoch": 38,
+  "train_loss": 0.14249726852230474,
+  "train_cls_loss": 0.14249726852230474,
+  "train_att_loss": 0.0,
+  "train_bg_loss": 0.0,
+  "train_acc": 0.9298008774890314,
+  "train_ilar": NaN,
+  "val_loss": 0.25411242712186427,
+  "val_cls_loss": 0.25411242712186427,
+  "val_att_loss": 0.0,
+  "val_bg_loss": 0.0,
+  "val_acc": 0.9133858267716536,
+  "val_ilar": NaN,
+  "val_precision": 0.9205949251975188,
+  "val_recall": 0.9234507662111433,
+  "val_f1": 0.9218037768703244,
+  "val_auroc": null
+}
