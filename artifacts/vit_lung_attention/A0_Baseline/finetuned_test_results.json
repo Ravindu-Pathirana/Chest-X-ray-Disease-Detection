@@ -1,0 +1,75 @@
+{
+  "classification_report": {
+    "COVID": {
+      "precision": 0.9342,
+      "recall": 0.9686,
+      "f1-score": 0.9511,
+      "support": 542.0
+    },
+    "Lung_Opacity": {
+      "precision": 0.8915,
+      "recall": 0.8747,
+      "f1-score": 0.883,
+      "support": 902.0
+    },
+    "Normal": {
+      "precision": 0.9298,
+      "recall": 0.9182,
+      "f1-score": 0.924,
+      "support": 1529.0
+    },
+    "Viral Pneumonia": {
+      "precision": 0.9037,
+      "recall": 0.9752,
+      "f1-score": 0.9381,
+      "support": 202.0
+    },
+    "accuracy": 0.9181,
+    "macro avg": {
+      "precision": 0.9148,
+      "recall": 0.9342,
+      "f1-score": 0.9241,
+      "support": 3175.0
+    },
+    "weighted avg": {
+      "precision": 0.918,
+      "recall": 0.9181,
+      "f1-score": 0.9179,
+      "support": 3175.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      525,
+      9,
+      6,
+      2
+    ],
+    [
+      17,
+      789,
+      95,
+      1
+    ],
+    [
+      20,
+      87,
+      1404,
+      18
+    ],
+    [
+      0,
+      0,
+      5,
+      197
+    ]
+  ],
+  "roc_auc_macro": 0.9883,
+  "roc_auc_per_class": null,
+  "class_names": [
+    "COVID",
+    "Lung_Opacity",
+    "Normal",
+    "Viral Pneumonia"
+  ]
+}
