@@ -1,0 +1,14 @@
+{
+  "reference_arm": "A0",
+  "candidates": [
+    "A3",
+    "A4",
+    "A5",
+    "A6"
+  ],
+  "winner": "A3",
+  "rule": "candidate iff the one-sided exact McNemar test finds no statistically detectable accuracy degradation (p>=0.05), the one-sided paired Wilcoxon test supports a positive EIL_post gain (p<0.05), and mean EIL_post gain is positive; rank candidates by mean EIL_post gain; efficiency breaks ties only",
+  "accuracy_gate_direction": "b > c, where b=A0 correct/arm wrong and c=A0 wrong/arm correct",
+  "decision_note": "The two-sided McNemar p-value is also reported for transparency but is not the no-degradation gate: a significant accuracy improvement must not disqualify an arm as an accuracy cost.",
+  "selected_mean_eil_post_gain": 0.14284741207025944
+}
