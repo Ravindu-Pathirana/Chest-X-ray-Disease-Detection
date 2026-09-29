@@ -1,0 +1,263 @@
+{
+  "expected_test_rows_per_file": 3175,
+  "files": [
+    {
+      "file": "artifacts/T18_lung_attention/runs/A0_vanilla/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.365060595670542e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T18_lung_attention/runs/A2_full/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.4017697580470667e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T18_lung_attention/runs_multiseed/A0_vanilla_seed123/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.327742154000333e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T18_lung_attention/runs_multiseed/A2_full_seed123/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3992591885170214e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T18_lung_attention/runs_multiseed/A0_vanilla_seed2026/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3412350541308626e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T18_lung_attention/runs_multiseed/A2_full_seed2026/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3537646748051912e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T23_resnet50_lung_attention/runs/A0_vanilla/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.4225952327251434e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T23_resnet50_lung_attention/runs/A3_multiply/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.409007384101102e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T23_resnet50_lung_attention/runs_multiseed/A0_vanilla_seed123/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.352600520476699e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T23_resnet50_lung_attention/runs_multiseed/A3_multiply_seed123/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.424494372459506e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T23_resnet50_lung_attention/runs_multiseed/A0_vanilla_seed2026/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3412551436164932e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T23_resnet50_lung_attention/runs_multiseed/A3_multiply_seed2026/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3804401532979682e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T25_efficientnet_b0_lung_attention/runs/A0/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.4340897536158081e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T25_efficientnet_b0_lung_attention/runs/A3/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.338485163815406e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T25_efficientnet_b0_lung_attention/runs_multiseed/seed_123/runs/A0/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3620480165954518e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T25_efficientnet_b0_lung_attention/runs_multiseed/seed_123/runs/A3/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3783574104309082e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    },
+    {
+      "file": "artifacts/T25_efficientnet_b0_lung_attention/runs_multiseed/seed_2026/runs/A0/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3320277481021492e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 0
+    },
+    {
+      "file": "artifacts/T25_efficientnet_b0_lung_attention/runs_multiseed/seed_2026/runs/A3/per_image_predictions.csv",
+      "rows": 3175,
+      "unique_image_paths": 3175,
+      "duplicate_image_paths": 0,
+      "probability_sum_max_abs_error": 1.3444514490590365e-07,
+      "probabilities_in_unit_interval": true,
+      "eil_rows": 1000,
+      "ilar_rows": 3175
+    }
+  ],
+  "pair_checks": [
+    {
+      "backbone": "DenseNet121",
+      "seed": 42,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "DenseNet121",
+      "seed": 123,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "DenseNet121",
+      "seed": 2026,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "ResNet50",
+      "seed": 42,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "ResNet50",
+      "seed": 123,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "ResNet50",
+      "seed": 2026,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "EfficientNet-B0",
+      "seed": 42,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "EfficientNet-B0",
+      "seed": 123,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    },
+    {
+      "backbone": "EfficientNet-B0",
+      "seed": 2026,
+      "baseline_rows": 3175,
+      "selected_rows": 3175,
+      "common_paths": 3175,
+      "path_sets_identical": true
+    }
+  ],
+  "all_files_have_3175_rows": true,
+  "all_files_have_unique_paths": true,
+  "all_pairs_have_identical_paths": true,
+  "all_probability_rows_valid": true
+}
