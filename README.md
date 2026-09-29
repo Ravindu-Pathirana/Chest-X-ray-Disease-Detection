@@ -33,7 +33,7 @@ This project delivers a rigorous, reproducible comparison of four transfer-learn
 | 🛡️ **Robustness (OOD)** | Does it generalise to an unseen external dataset? |
 | ⚡ **Efficiency** | Is it deployable (params, FLOPs, latency, memory)? |
 
-> The project has two threads: **(1)** a unified benchmark across the five axes above, using explainability as an *audit tool* to expose shortcut learning on the popular COVID-19 Radiography dataset; and **(2)** a **proposed Lung-Region Attention module** that acts on that finding — a lightweight, mask-supervised attention gate that measurably relocates a classifier's evidence into the lungs. Thread (2) is currently the furthest advanced (see [Current Status](#-current-status)).
+> The project has two threads: **(1)** a unified benchmark across the five axes above, using explainability as an *audit tool* for shortcut learning on the popular COVID-19 Radiography dataset; and **(2)** a **Lung-Region Attention module** — a lightweight, mask-supervised attention gate that measurably relocates classifier evidence into the lungs. Our current emphasis is the distinction between **anatomical localisation**, **explanation faithfulness**, and **causal shortcut robustness**: a heatmap can become more lung-focused without proving that the classifier depends less on background information.
 
 ---
 
@@ -51,17 +51,31 @@ Our literature review (2023–2026) found that:
 
 ## ✨ Key Contributions
 
-1. A **Lung-Region Attention module** — a 131K-parameter (+1.89%), mask-supervised attention gate that raises Grad-CAM evidence-inside-lung by **+7.05 ± 0.86 pp** across three seeds with **no statistically detectable accuracy cost** (McNemar *p* ≥ 0.53), validated by a **controlled six-arm ablation**. ✅ *Done*
-2. A **unified, open-source benchmark** comparing three CNNs and a Vision Transformer under identical preprocessing and an identical, verified train/val/test split. ✅ *Accuracy axis done*
-3. Use of **Grad-CAM** as a **quantitative audit for shortcut learning**, via a lung-localisation faithfulness score (EIL / ILAR / attention-Dice). ✅ *Done for the module*
-4. A **five-axis trustworthiness comparison** (accuracy, calibration, explanation faithfulness, efficiency, cross-dataset robustness). 🚧 *Accuracy + faithfulness done; calibration harness built; efficiency partial; OOD pending*
-5. **Practical, reproducible deployment recommendations** depending on whether the priority is accuracy, trust, or compute budget. 🚧 *Pending*
+1. A **Lung-Region Attention module** — a 131K-parameter (+1.89%), mask-supervised attention gate that raises DenseNet121 Grad-CAM evidence-inside-lung by **+7.05 ± 0.60 pp** across three seeds, validated by a controlled ablation. ✅
+2. A **three-backbone CNN study** showing architecture-dependent effects: EIL improves by **+7.05 pp** for DenseNet121, **+29.90 pp** for ResNet50, and **+11.33 pp** for EfficientNet-B0 across three matched seeds. ✅
+3. A reproducible, quantitative **anatomical-localisation audit** using EIL, ILAR, attention-Dice/IoU, paired McNemar tests, and paired Wilcoxon tests. ✅
+4. Evidence that **localisation and robustness can diverge**: EfficientNet-B0 A3 improves EIL and macro-F1, yet is more sensitive than A0 to some background perturbations. ✅ *Completed case study; cross-backbone counterfactual evaluation pending*
+5. A **five-axis trustworthiness framework** spanning classification, calibration, localisation/faithfulness, efficiency, and external robustness. 🚧 *CNN classification/localisation/efficiency complete; EfficientNet calibration/counterfactual complete; external RSNA evaluation pending*
 
 ---
 
 ## ✅ Current Status
 
 All numbers below are real, committed results on the **same fixed 3,175-image test split** (the notebook split function was verified to reproduce `artifacts/splits/split_manifest_v1.csv` exactly — 21,165/21,165 images).
+
+### Three-CNN closeout (latest)
+
+The selected attention arm and its matched baseline were evaluated at seeds 42, 123, and 2026. The table reports the paired selected-minus-baseline mean and sample standard deviation across those seeds.
+
+| Backbone | Selected arm | Δ accuracy (pp) | Δ macro-F1 (pp) | Δ Grad-CAM EIL (pp) |
+|---|---|---:|---:|---:|
+| DenseNet121 | A2 residual + guidance | +0.02 ± 0.15 | −0.08 ± 0.39 | **+7.05 ± 0.60** |
+| ResNet50 | A3 multiplicative + guidance | −0.42 ± 0.05 | −0.52 ± 0.17 | **+29.90 ± 0.21** |
+| EfficientNet-B0 | A3 multiplicative + guidance | +0.76 ± 0.08 | +0.72 ± 0.11 | **+11.33 ± 2.62** |
+
+The reproducible aggregation, integrity audit, significance tests, per-class results, efficiency summary, and figures are under [`artifacts/cnn_closeout/`](artifacts/cnn_closeout/). All 18 model/seed prediction files contain 3,175 unique test images, aligned baseline/attention pairs, valid probability vectors, and 1,000 Grad-CAM-scored cases per model.
+
+> **Interpretation boundary:** these results establish improved anatomical evidence localisation. They do not, by themselves, establish explanation faithfulness or reduced shortcut reliance. EfficientNet's completed background-counterfactual experiment is a concrete example of this distinction.
 
 ### Proposed module — Lung-Region Attention (T18)
 
@@ -77,7 +91,7 @@ Full detail: [`artifacts/T18_lung_attention/T18_module_card.md`](artifacts/T18_l
 | **A5** CBAM *(published comparator)* | multiply | 0 | 94.39 | 94.76 | 0.415 | – |
 | **A3** multiply-gate | multiply | 1.0 | 94.24 | 94.46 | 0.840 | – |
 
-**Headline (A2 vs A0, 3 seeds):** EIL **+7.05 ± 0.86 pp** (paired Wilcoxon *p* < 10⁻¹⁴⁰, 92% of images improve) · macro-F1 **−0.08 pp**, *statistically indistinguishable from zero* (McNemar exact *p* = 1.000 / 0.526 / 0.826) · **+131,329 params (+1.89%)**, +0.22% GFLOPs, CPU latency unchanged.
+**Headline (A2 vs A0, 3 seeds):** EIL **+7.05 ± 0.60 pp** (paired Wilcoxon *p* < 10⁻¹⁴⁰, 92% of images improve) · macro-F1 **−0.08 ± 0.39 pp** · **+131,329 params (+1.89%)**, +0.22% GFLOPs, CPU latency unchanged.
 
 **Key ablation finding:** mask supervision produces *localisation* (A4: Dice 0.840) but barely moves *evidence* (+2.10 pp EIL); the residual gate converts localisation into evidence (A2: +7.73 pp). **Neither component alone reproduces the result.**
 
@@ -103,7 +117,7 @@ DenseNet121 was selected as the module's host backbone on this evidence.
 
 > ⚠️ Candidates (b) and (c) were trained under **different protocols** from (a), so their accuracy deltas are **not** attributable to the method. A protocol-matched head-to-head (P12 winner selection) is pending.
 
-> **Design (not yet implemented):** the full P12 winner-selection + P13 cross-architecture plan — including the ViT-Base architecture adaptation (ViT's classifier reads only the CLS token by default, which the attention gate can't influence; the plan is to switch to average-pooling over patch tokens so the gate has an actual effect) — is written up in [`Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`](../Claude%20Working%20Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md).
+> **Cross-architecture status:** the CNN transfer is complete for ResNet50 and EfficientNet-B0, including selected-arm three-seed repeats. ViT A0–A6 classification artifacts are committed, but its patch-token/CLS-token explanation path still requires a dedicated comparability audit before it is included in the main cross-backbone explainability claim.
 
 ### Lung masks
 
@@ -180,10 +194,21 @@ flowchart TD
 ## 📊 Evaluation Metrics
 
 - **Classification:** Accuracy, Precision, Recall, F1, ROC-AUC (per-class + macro), confusion matrix, **McNemar's exact test** on paired per-image correctness ✅
-- **Explainability / faithfulness:** Grad-CAM **evidence-inside-lung (EIL)** at pre- and post-gate taps, **inside-lung attention ratio (ILAR)**, attention-mask **Dice/IoU**, **Wilcoxon signed-rank** test on paired per-image EIL ✅
-- **Efficiency:** parameters, FLOPs (`fvcore`), model size, CPU/GPU inference latency ✅ *(module measured; cross-architecture table partial)*
-- **Calibration:** Expected Calibration Error (ECE), Brier score, reliability diagrams, temperature scaling — 🚧 *harness implemented + tested (`src/modules/calibration.py`), not yet run on checkpoints*
-- **Robustness:** background-perturbation counterfactual stability (`src/modules/counterfactual.py`, implemented + tested) and internal-vs-external AUROC drop on RSNA — 🚧 *pending*
+- **Anatomical localisation:** Grad-CAM **evidence-inside-lung (EIL)** at pre- and post-gate taps, **inside-lung attention ratio (ILAR)**, attention-mask **Dice/IoU**, and paired **Wilcoxon signed-rank** tests ✅ *three CNNs, three seeds*
+- **Explanation faithfulness:** intervention-based lung-versus-background occlusion and comparison with localisation metrics — 🚧 *planned; requires checkpoints*
+- **Efficiency:** parameters, FLOPs (`fvcore`), model size, CPU/GPU inference latency ✅ *three-CNN closeout complete*
+- **Calibration:** Expected Calibration Error (ECE), Brier score, reliability diagrams, and validation-fitted temperature scaling ✅ *complete for EfficientNet; uncalibrated ECE/Brier reconstructed for all three CNNs; full DenseNet/ResNet scaling requires checkpoints or saved validation logits*
+- **Robustness:** background-perturbation counterfactual stability (`src/modules/counterfactual.py`) ✅ *complete for EfficientNet*; 🚧 *DenseNet/ResNet and external RSNA evaluation pending*
+
+### Explainability strategy
+
+The project now separates three questions that are often incorrectly treated as equivalent:
+
+1. **Localisation:** does the explanation fall inside the lungs? Measured with EIL, ILAR, attention-Dice/IoU, and qualitative heatmaps.
+2. **Faithfulness:** do the highlighted lung regions actually control the prediction? Planned evaluation uses lung-versus-background occlusion and true-class probability change.
+3. **Shortcut robustness:** does the prediction remain stable when only background content is zeroed, shuffled, or noised? Measured with distribution stability, prediction-flip rate, and confidence change.
+
+The central research question is whether improved anatomical localisation predicts genuine faithfulness and reduced shortcut dependence across architectures. Current EfficientNet results show that these properties can diverge.
 
 ---
 
@@ -202,10 +227,13 @@ Chest-X-ray-Disease-Detection/
 ├── configs/               # YAML experiment configs
 ├── artifacts/             # ⭐ committed run outputs (results, figures, split manifest)
 │   ├── splits/            #   fixed train/val/test manifest
-│   ├── T18_lung_attention/#   proposed module: 6 arms, 3 seeds, figures, module card
-│   ├── {vit_base, efficientnet_b0, densenet121_auxseg, candidate_c_suppression}/
+│   ├── T18_lung_attention/#   DenseNet module: ablations, 3 seeds, figures
+│   ├── T23_resnet50_lung_attention/     # ResNet50 transfer + 3-seed results
+│   ├── T25_efficientnet_b0_lung_attention/ # EfficientNet ablation, calibration, counterfactuals
+│   ├── cnn_closeout/       #   cross-backbone tables, statistics, audits, figures
+│   ├── {vit_base, vit_lung_attention, densenet121_auxseg, candidate_c_suppression}/
 │   └── segmentation/      #   lung-mask verification report
-├── tests/                 # 160 tests (pytest, run in CI)
+├── tests/                 # automated pytest suite, run in CI
 └── docs/                  # experiment policy, W&B setup, paper draft
 ```
 
@@ -278,20 +306,26 @@ logits, attention, attention_logits = model(images)   # 3-tuple
 
 ## 📈 Results
 
-Master comparison — same fixed test split (*n* = 3,175) for every row.
-Faithfulness = Grad-CAM evidence-inside-lung (EIL). ECE and OOD Δ are pending.
+Three-seed CNN closeout — same fixed test split (*n* = 3,175) and fixed 1,000-image Grad-CAM subset for each matched comparison. EIL is reported as an **anatomical-localisation metric**, not as standalone proof of causal faithfulness.
 
-| Model | Accuracy | F1 (macro) | AUROC | Faithfulness ↑ | ECE ↓ | OOD Δ ↓ | Params |
-|-------|----------|-----------|-------|----------------|-------|---------|--------|
-| ResNet50 (tuned) | 91.02% | 91.21% | 0.9850 | – | pending | pending | 25.6 M |
-| DenseNet121 (HPO) | 94.83% | 95.05% | 0.9928 | – | pending | pending | 7.0 M |
-| DenseNet121 **A0** *(module baseline)* | 94.68% | 95.11% | 0.9932 | 0.296 | pending | pending | 7.0 M |
-| DenseNet121 **+ Lung-Region Attention (A2)** ✨ | **94.65%** | **95.08%** | 0.9929 | **0.374** | pending | pending | **7.1 M** |
-| EfficientNet-B0 | 90.87% | 91.47% | 0.9841 | – | pending | pending | 4.0 M |
-| ViT-Base/16 | 91.91% | 92.25% | 0.9883 | – | pending | pending | 86 M |
+| Backbone | Arm | Accuracy, mean % | Macro-F1, mean % | EIL, mean | Params |
+|---|---|---:|---:|---:|---:|
+| DenseNet121 | A0 baseline | 94.68 | 95.12 | 0.300 | 6.96 M |
+| DenseNet121 | **A2 selected** | **94.70** | 95.03 | **0.370** | 7.09 M |
+| ResNet50 | A0 baseline | **91.87** | **92.06** | 0.357 | 23.52 M |
+| ResNet50 | **A3 selected** | 91.45 | 91.54 | **0.656** | 24.04 M |
+| EfficientNet-B0 | A0 baseline | 91.25 | 91.83 | 0.320 | 4.01 M |
+| EfficientNet-B0 | **A3 selected** | **92.01** | **92.55** | **0.434** | 4.12 M |
 
-The proposed module trades **−0.03 pp macro-F1** (not statistically distinguishable from zero)
-for **+7.7 pp evidence-inside-lung**, at **+1.89% parameters** and **+0.22% GFLOPs**.
+### EfficientNet counterfactual case study
+
+EfficientNet A3 improves accuracy, macro-F1, and EIL across all three seeds. However, at seed 42 it is more sensitive than A0 to background shuffling and noise. For example, the background-shuffle prediction-flip rate increases from approximately **63.7% (A0)** to **78.6% (A3)**. This result prevents us from equating higher EIL with demonstrated shortcut suppression.
+
+### Calibration
+
+For EfficientNet seed 42, A3 improves uncalibrated ECE from **0.0252** to **0.0113**; after validation-fitted temperature scaling, ECE is **0.0175** for A0 and **0.0093** for A3. The closeout package also reconstructs uncalibrated ECE and Brier scores for all three CNNs and all three seeds from committed test probabilities.
+
+See [`artifacts/cnn_closeout/CNN_CLOSEOUT_REPORT.md`](artifacts/cnn_closeout/CNN_CLOSEOUT_REPORT.md) for the consolidated report and [`artifacts/cnn_closeout/cnn_master_results.csv`](artifacts/cnn_closeout/cnn_master_results.csv) for the machine-readable results.
 
 ---
 
@@ -326,14 +360,15 @@ A five-member team where **everyone owns one deep-learning model end-to-end** (d
 - [x] Freeze shared data pipeline + fixed split manifest + lung-mask verification (M0)
 - [x] Train all four classification models under the shared protocol (M1)
 - [x] **Propose, implement and ablate the Lung-Region Attention module** — 6 arms, 3 seeds, significance-tested (M2)
-- [x] Explainability + faithfulness (Grad-CAM EIL / ILAR / attention-Dice) for the module (M2)
-- [x] Efficiency benchmark for the module (params / FLOPs / latency) (M3)
-- [ ] Run the counterfactual background-perturbation robustness test on trained checkpoints
-- [x] Run the background-suppression loss follow-up (new arm "A2_bg", `lambda_bg > 0`) — notebook ready: [`notebooks/T18_A2bg_background_suppression_followup.ipynb`](notebooks/T18_A2bg_background_suppression_followup.ipynb), not yet executed — result: ILAR up, but Grad-CAM EIL 0.374→0.359 (not an improvement); see module card §10
-- [ ] Calibration (ECE / Brier / temperature scaling) across models
+- [x] Three-seed anatomical-localisation analysis (Grad-CAM EIL / ILAR / attention-Dice) for DenseNet121, ResNet50, and EfficientNet-B0
+- [x] Three-CNN efficiency benchmark and reproducible closeout package (params / FLOPs / latency / paired statistics)
+- [x] Run EfficientNet background-counterfactual evaluation; [ ] repeat the identical protocol for DenseNet and ResNet when checkpoints are recovered
+- [x] Run the DenseNet background-suppression loss follow-up — ILAR increased, but Grad-CAM EIL fell from 0.374 to 0.359, so the arm was not selected
+- [x] EfficientNet calibration; [ ] validation-fitted temperature scaling for DenseNet and ResNet
+- [ ] Run lung-versus-background occlusion to test explanation faithfulness directly
 - [ ] Train our own lung-segmentation model and re-run T18 with self-generated masks
 - [ ] Protocol-matched comparison of candidates (a) / (b) / (c), then winner selection
-- [ ] Transfer the winning module to ResNet50, EfficientNet-B0 and ViT-Base — full design in [`Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`](../Claude%20Working%20Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md) (ViT needs an architecture adaptation, not just a config copy)
+- [x] Transfer and evaluate the module on ResNet50 and EfficientNet-B0; [ ] complete the ViT explanation-path comparability audit
 - [ ] External RSNA robustness + consolidated Pareto analysis (M3–M4)
 - [ ] Optional: NIH ChestX-ray14 generalisation check
 
