@@ -61,6 +61,12 @@ from .lung_attention import (
 )
 from .training import best_history_row, build_optimizer, build_scheduler, evaluate, run_epoch, run_full_arm, train_phase
 from .xai_statistics import holm_adjust, paired_eil
+from .xai_dependence import (
+    area_matched_background_mask,
+    build_swap_pairs,
+    evaluate_xai_dependence,
+    total_variation_distance,
+)
 
 __all__ = [
     "LungRegionAttention",
@@ -118,4 +124,8 @@ __all__ = [
     "calibration_report",
     "paired_eil",
     "holm_adjust",
+    "area_matched_background_mask",
+    "build_swap_pairs",
+    "evaluate_xai_dependence",
+    "total_variation_distance",
 ]

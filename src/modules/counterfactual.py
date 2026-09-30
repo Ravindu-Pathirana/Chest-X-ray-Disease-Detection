@@ -34,6 +34,9 @@ def perturb_background(
     masks: torch.Tensor,
     mode: str = "zero",
     noise_std: float = 0.5,
+    blur_kernel: int = 15,
+    donor_images: Optional[torch.Tensor] = None,
+    area_mask: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """Returns a copy of `images` with the background (mask <= 0.5) replaced;
     lung pixels (mask > 0.5) are left EXACTLY unchanged in every mode.
@@ -59,12 +62,30 @@ def perturb_background(
     if lung.shape[-2:] != images.shape[-2:]:
         lung = F.interpolate(lung, size=images.shape[-2:], mode="nearest")
     bg = 1.0 - lung
+    if area_mask is not None:
+        if area_mask.ndim == 3:
+            area_mask = area_mask.unsqueeze(1)
+        if area_mask.shape != bg.shape:
+            raise ValueError("area_mask must match the resized image mask")
+        if bool(((area_mask > 0.5) & (lung > 0.5)).any()):
+            raise ValueError("area_mask must contain only background pixels")
+        bg = (area_mask > 0.5).to(dtype=images.dtype)
+    keep = 1.0 - bg
 
     if mode == "zero":
-        return images * lung
+        return images * keep
     if mode == "noise":
         noise = torch.randn_like(images) * noise_std
-        return images * lung + (images + noise) * bg
+        return images * keep + (images + noise) * bg
+    if mode == "blur":
+        if blur_kernel < 3 or blur_kernel % 2 != 1:
+            raise ValueError("blur_kernel must be odd and at least 3")
+        blurred = F.avg_pool2d(images, blur_kernel, stride=1, padding=blur_kernel // 2)
+        return images * keep + blurred * bg
+    if mode == "swap":
+        if donor_images is None or donor_images.shape != images.shape:
+            raise ValueError("swap requires donor_images with the same shape as images")
+        return images * keep + donor_images * bg
     if mode == "shuffle":
         out = images.clone()
         batch, channels = images.shape[:2]
@@ -85,6 +106,7 @@ def perturb_lung(
     masks: torch.Tensor,
     mode: str = "zero",
     blur_kernel: int = 15,
+    donor_images: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """Replace lung pixels while leaving background pixels exactly unchanged.
 
@@ -108,6 +130,10 @@ def perturb_lung(
         if blur_kernel < 3 or blur_kernel % 2 != 1:
             raise ValueError("blur_kernel must be odd and at least 3")
         replacement = F.avg_pool2d(images, blur_kernel, stride=1, padding=blur_kernel // 2)
+    elif mode == "swap":
+        if donor_images is None or donor_images.shape != images.shape:
+            raise ValueError("swap requires donor_images with the same shape as images")
+        replacement = donor_images
     else:
         raise ValueError(f"unknown lung perturbation mode: {mode}")
     return images * (1.0 - lung) + replacement * lung
