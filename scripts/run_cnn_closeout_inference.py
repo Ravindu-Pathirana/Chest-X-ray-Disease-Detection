@@ -71,6 +71,12 @@ def arm_settings(backbone: str, arm: str) -> dict:
     }
 
 
+def canonical_checkpoint_arm(arm: str, seed: int) -> str:
+    """Training stored repeat-run DenseNet arms as ``A2_full_seed123``."""
+    suffix = f"_seed{seed}"
+    return arm[:-len(suffix)] if arm.endswith(suffix) else arm
+
+
 def load_cam_positions(backbone: str, seed: int, test_size: int) -> list[int]:
     base = ROOT / "artifacts" / SPECS[backbone]["artifact"]
     # Seed-42 files are identical across all three backbones; reuse those
@@ -102,7 +108,9 @@ def load_model(checkpoint: Path, cfg: dict, backbone: str, arm: str, seed: int):
     checkpoint_data = torch.load(checkpoint, map_location="cpu", weights_only=True)
     if not isinstance(checkpoint_data, dict):
         raise TypeError("checkpoint must be a dictionary")
-    if "arm" in checkpoint_data and checkpoint_data["arm"] != arm:
+    if "arm" in checkpoint_data and canonical_checkpoint_arm(
+        str(checkpoint_data["arm"]), seed
+    ) != arm:
         raise ValueError(f"checkpoint arm {checkpoint_data['arm']} does not match {arm}")
     if "seed" in checkpoint_data and int(checkpoint_data["seed"]) != seed:
         raise ValueError(f"checkpoint seed {checkpoint_data['seed']} does not match {seed}")
