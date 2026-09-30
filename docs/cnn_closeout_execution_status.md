@@ -24,6 +24,11 @@ local environment.
   slots, config paths, dataset manifest counts, candidate checkpoint files,
   and the execution environment. Its output is
   `artifacts/cnn_closeout/run_readiness_manifest.json`.
+- `scripts/run_cnn_closeout_inference.py` now connects the trained-checkpoint
+  loader to calibration, counterfactual, occlusion, CAM, and efficiency runs.
+  `scripts/run_rsna_external.py` performs optional external inference after
+  the team explicitly declares a binary class mapping. See the
+  [inference runbook](cnn_inference_runbook.md).
 
 ## Blocked inference
 
