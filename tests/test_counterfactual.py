@@ -15,7 +15,10 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.modules import counterfactual_stability, evaluate_counterfactual_robustness, perturb_background
+from src.modules import (
+    counterfactual_stability, evaluate_counterfactual_robustness,
+    evaluate_region_occlusion, perturb_background, perturb_lung,
+)
 
 
 class _RegionMeanModel(nn.Module):
@@ -228,3 +231,31 @@ def test_evaluate_counterfactual_robustness_writes_per_image_csv(tmp_path):
         "image_path", "true_label", "original_prediction", "perturbed_prediction",
         "stability", "prediction_flipped", "confidence_change",
     }
+
+
+@pytest.mark.parametrize("mode", ["zero", "blur"])
+def test_lung_occlusion_preserves_background_and_changes_lung(mode):
+    images = torch.ones(2, 3, 32, 32)
+    images[:, :, :, :16] = 3.0
+    masks = torch.zeros(2, 1, 32, 32)
+    masks[:, :, :, :16] = 1.0
+    result = perturb_lung(images, masks, mode=mode, blur_kernel=5)
+    torch.testing.assert_close(result[:, :, :, 16:], images[:, :, :, 16:])
+    assert not torch.equal(result[:, :, :, :16], images[:, :, :, :16])
+
+
+def test_region_occlusion_detects_which_region_model_uses(tmp_path):
+    images = torch.zeros(2, 3, 32, 32)
+    images[:, :, :, :16] = 2.0
+    masks = torch.zeros(2, 1, 32, 32)
+    masks[:, :, :, :16] = 1.0
+    loader = [(images, torch.ones(2, dtype=torch.long), masks)]
+    model = _RegionMeanModel(slice(0, 32), slice(0, 16))
+    path = tmp_path / "occlusion.csv"
+    summary = evaluate_region_occlusion(
+        model, loader, torch.device("cpu"), lung_modes=("zero",),
+        background_modes=("zero",), per_image_csv=path,
+    ).set_index("region")
+    assert summary.loc["lung", "mean_probability_drop"] > 0.4
+    assert summary.loc["background", "mean_probability_drop"] == pytest.approx(0.0)
+    assert len(pd.read_csv(path)) == 4

@@ -80,6 +80,110 @@ def perturb_background(
     raise ValueError(f"unknown perturbation mode: {mode}")
 
 
+def perturb_lung(
+    images: torch.Tensor,
+    masks: torch.Tensor,
+    mode: str = "zero",
+    blur_kernel: int = 15,
+) -> torch.Tensor:
+    """Replace lung pixels while leaving background pixels exactly unchanged.
+
+    Inputs are normalized tensors. ``zero`` fills with the channel mean in
+    normalized space; ``blur`` uses a local average of the original image.
+    Both interventions can create out-of-distribution images, so their
+    probability drops should be interpreted as sensitivity, not causality.
+    """
+    if images.ndim != 4 or masks.ndim not in (3, 4):
+        raise ValueError("expected images [N,C,H,W] and masks [N,H,W] or [N,1,H,W]")
+    if masks.ndim == 3:
+        masks = masks.unsqueeze(1)
+    if masks.shape[0] != images.shape[0] or masks.shape[1] != 1:
+        raise ValueError("mask batch size must match images and have one channel")
+    lung = (masks > 0.5).to(dtype=images.dtype)
+    if lung.shape[-2:] != images.shape[-2:]:
+        lung = F.interpolate(lung, size=images.shape[-2:], mode="nearest")
+    if mode == "zero":
+        replacement = torch.zeros_like(images)
+    elif mode == "blur":
+        if blur_kernel < 3 or blur_kernel % 2 != 1:
+            raise ValueError("blur_kernel must be odd and at least 3")
+        replacement = F.avg_pool2d(images, blur_kernel, stride=1, padding=blur_kernel // 2)
+    else:
+        raise ValueError(f"unknown lung perturbation mode: {mode}")
+    return images * (1.0 - lung) + replacement * lung
+
+
+@torch.no_grad()
+def evaluate_region_occlusion(
+    model: nn.Module,
+    loader,
+    device: torch.device,
+    *,
+    lung_modes: Sequence[str] = ("zero", "blur"),
+    background_modes: Sequence[str] = ("zero",),
+    arm_name: str = "",
+    per_image_csv: Optional[Union[str, Path]] = None,
+) -> pd.DataFrame:
+    """Evaluate matched lung/background interventions on each image.
+
+    ``probability_drop`` is original probability of the original predicted
+    class minus its probability after occlusion. The returned summary is one
+    row per region and mode; optional per-image CSV keeps paired observations.
+    The loader must be deterministic and yield (images, labels, masks).
+    """
+    model.eval()
+    paths = _dataset_image_paths(getattr(loader, "dataset", None))
+    interventions = [("lung", mode) for mode in lung_modes] + [
+        ("background", mode) for mode in background_modes
+    ]
+    if not interventions:
+        raise ValueError("at least one occlusion mode is required")
+    rows = []
+    per_image_rows = []
+    offset = 0
+    for images, labels, masks in loader:
+        images, masks = images.to(device), masks.to(device)
+        original = torch.softmax(_as_logits(model(images)), dim=1)
+        original_pred = original.argmax(dim=1)
+        original_prob = original.gather(1, original_pred[:, None]).squeeze(1)
+        for region, mode in interventions:
+            occluded = (perturb_lung(images, masks, mode=mode) if region == "lung"
+                        else perturb_background(images, masks, mode=mode))
+            altered = torch.softmax(_as_logits(model(occluded)), dim=1)
+            altered_pred = altered.argmax(dim=1)
+            altered_prob = altered.gather(1, original_pred[:, None]).squeeze(1)
+            for i in range(len(images)):
+                per_image_rows.append({
+                    "arm": arm_name,
+                    "image_path": paths[offset + i] if paths is not None else "",
+                    "true_label": int(labels[i]),
+                    "region": region,
+                    "mode": mode,
+                    "original_prediction": int(original_pred[i]),
+                    "occluded_prediction": int(altered_pred[i]),
+                    "original_class_probability": float(original_prob[i]),
+                    "occluded_original_class_probability": float(altered_prob[i]),
+                    "probability_drop": float(original_prob[i] - altered_prob[i]),
+                    "prediction_flipped": bool(original_pred[i] != altered_pred[i]),
+                })
+        offset += len(images)
+    if not per_image_rows:
+        raise ValueError("occlusion loader is empty")
+    per_image = pd.DataFrame(per_image_rows)
+    for (region, mode), group in per_image.groupby(["region", "mode"], sort=False):
+        rows.append({
+            "arm": arm_name, "region": region, "mode": mode,
+            "n_images": len(group),
+            "mean_probability_drop": group["probability_drop"].mean(),
+            "pred_flip_rate": group["prediction_flipped"].mean(),
+        })
+    if per_image_csv is not None:
+        path = Path(per_image_csv)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        per_image.to_csv(path, index=False)
+    return pd.DataFrame(rows)
+
+
 def _as_logits(model_output: Union[torch.Tensor, tuple]) -> torch.Tensor:
     """Accepts either a plain logits tensor or this repo's 3-tuple model
     output (logits, attention, attention_logits) -- so a caller can pass

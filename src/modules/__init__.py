@@ -35,7 +35,10 @@ from .comparison import (
     stratified_cam_subset,
     summarize_multiseed,
 )
-from .counterfactual import counterfactual_stability, evaluate_counterfactual_robustness, perturb_background
+from .counterfactual import (
+    counterfactual_stability, evaluate_counterfactual_robustness,
+    evaluate_region_occlusion, perturb_background, perturb_lung,
+)
 from .efficiency_check import check_module_efficiency
 from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
 from .gradcam import cam_for, get_taps
@@ -94,6 +97,8 @@ __all__ = [
     "perturb_background",
     "counterfactual_stability",
     "evaluate_counterfactual_robustness",
+    "evaluate_region_occlusion",
+    "perturb_lung",
     "TemperatureScaler",
     "collect_logits",
     "expected_calibration_error",
