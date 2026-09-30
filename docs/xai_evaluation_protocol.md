@@ -14,8 +14,8 @@ before the original results were viewed.
    are available. This says *where* heatmap energy lies, not *what* feature
    drove the decision.
 3. **Input dependence:** perturb lung and background regions and measure how
-   the original-class probability changes, with matched interventions and
-   per-image paired outputs. This is still missing for the cross-CNN study.
+   the full predicted-class distribution changes, with matched interventions
+   and per-image paired outputs. This is still missing for the cross-CNN study.
 4. **External transfer:** evaluate the frozen classifier on a separately
    prepared external dataset under a predeclared label mapping. No RSNA
    performance claim is currently supported by repository outputs.
@@ -72,19 +72,31 @@ coverage report, without extracting checkpoints into the repository.
 
 | Decision | Working proposal | Status |
 |---|---|---|
-| Primary input-dependence metric | Difference in mean original-class probability drop under lung versus background intervention, paired by image and arm | Pending |
-| Intervention realism | Include blur and an area-matched background control; report zero/shuffle/noise separately as stress tests | Pending implementation and review |
-| Perturbation randomness | Fixed seed and, for swap, saved donor-image pairs reused across arms | Pending |
+| Primary input-dependence metric | For each image and intervention, total-variation distance `dP = 0.5 × sum_c abs(p_original,c - p_perturbed,c)`. Per-image `LRG = dP_lung - dP_background`, calculated separately for blur and swap. Original-predicted-class probability drop is secondary, not LRG. | Proposed; team sign-off pending |
+| Intervention realism | Lung and background blur and different-class donor swap are the primary matched modes. A randomly selected background region with the same pixel count as the lung mask is the area control for each mode; zero/shuffle/noise remain stress tests. If no equal-sized background region exists, stop and agree an exclusion rule before inference. | Code implemented; inference pending |
+| Perturbation randomness | Use seed 42; freeze `artifacts/explainable_ai/swap_pairs_seed42.csv` from the fixed test manifest. Reuse the same donor pair and area-matched pixel selection for every arm/backbone. | Pair generation implemented; team sign-off pending |
 | Multiple comparisons | Define comparison family before testing new arms; report adjusted p-values with CIs and effect sizes | Pending |
 | RSNA binary mapping | Specify which primary classes are scored positive before external predictions are viewed | Team decision required |
 | ViT explanation target | Audit average-pool/patch-token path and comparability before inclusion in a CNN-versus-ViT claim | Pending |
 | Qualitative examples | Freeze image identifiers and selection categories before producing new panels | Pending |
 
-The existing `run_cnn_closeout_inference.py` covers zero/blur lung occlusion
-and zero/shuffle/noise background counterfactuals. It does not yet implement
-area-matched background blur or fixed donor swaps. Those methods need
-implementation and verification before the proposed primary dependence
-analysis is run.
+The legacy `run_cnn_closeout_inference.py` still covers zero/blur lung
+occlusion and zero/shuffle/noise background counterfactuals. Its probability
+drop output is not TV-based LRG. The new `xai_dependence.py` path adds matched
+blur/swap and area controls without changing those legacy artifacts. Before
+new inference, verify the checkpoint against fixed-test accuracy and review
+this protocol with the study team. Existing results remain retrospective;
+this amendment is not a claim of preregistration for them.
+
+The donor manifest can be regenerated without image files using
+`python scripts/build_xai_swap_pairs.py`. Once images, masks and a verified
+checkpoint are available, use `scripts/run_cnn_closeout_inference.py` with
+`--tasks dependence`, the correct `--backbone`, `--arm`, `--seed`,
+`--checkpoint`, `--data-dir` and a dedicated `--output-dir`. That task runs
+the 100-image smoke test, compares full-test accuracy with the committed
+per-image predictions (tolerance 0.0001), and stops on a mismatch before
+writing new dependence results. It then writes `dependence_per_image.csv`
+and `dependence_summary.csv`; no result is claimed until that run succeeds.
 
 ## Claim boundary
 
