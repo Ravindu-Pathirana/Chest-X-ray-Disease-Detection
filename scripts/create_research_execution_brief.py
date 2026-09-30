@@ -64,7 +64,7 @@ def table(headers: list[str], rows: list[list[str]], widths: list[int]) -> str:
     return "".join(out)
 
 
-def build_document() -> str:
+def build_original_document() -> str:
     body: list[str] = []
     body.append(paragraph("High-Priority Research Execution Brief", style="Title", after=80))
     body.append(paragraph("Chest X-ray Disease Detection — computational completion plan", style="Subtitle", after=180))
@@ -177,6 +177,88 @@ def build_document() -> str:
     body.append(paragraph("Go/no-go conclusion", style="Heading1"))
     body.append(paragraph(
         "GO if all six CNN checkpoints can be loaded on Day 1 and at least two GPU workers are available. The repository already contains most of the necessary evaluation code. CONDITIONAL GO for RSNA because the final label mapping and evaluation runner must be fixed. NO-GO for making full ViT explainability a mandatory deliverable within the same deadline unless its current implementation passes an immediate architectural audit."
+    ))
+
+    body.append(
+        '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'
+        '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" '
+        'w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>'
+    )
+    return (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        f"<w:body>{''.join(body)}</w:body></w:document>"
+    )
+
+
+def build_document() -> str:
+    """Current status-based brief; the original proposal above is retained for provenance."""
+    body: list[str] = []
+    body.append(paragraph("High-Priority Research Execution Brief", style="Title", after=80))
+    body.append(paragraph("Chest X-ray Disease Detection — updated CNN closeout status", style="Subtitle", after=180))
+    body.append(paragraph("Repository: Ravindu-Pathirana/Chest-X-ray-Disease-Detection, cnn-closeout branch", size=18, after=40))
+    body.append(paragraph("Updated: 30 September 2026", size=18, after=180))
+
+    body.append(paragraph("Decision summary", style="Heading1"))
+    body.append(paragraph(
+        "The core three-CNN classification and anatomical-localization study is complete from committed result artifacts. "
+        "DenseNet121, ResNet50 and EfficientNet-B0 have matched baseline/selected-arm results across seeds 42, 123 and 2026. "
+        "The broader intervention-based question—whether improved localization corresponds to reduced background shortcut reliance—remains open for DenseNet and ResNet. "
+        "Previously completed experiments do not need to be rerun solely because trained .pt files were not committed."
+    ))
+    body.append(paragraph(
+        "Paper-level claim supported now: lung-supervised attention improves anatomical evidence localization across the three CNN backbones. "
+        "Do not claim reduced shortcut reliance across all backbones until the missing interventions are run."
+    ))
+
+    body.append(paragraph("Verified completed work", style="Heading1"))
+    for item in [
+        "Fixed primary split: 14,815 train, 3,175 validation and 3,175 test images; test predictions are saved for all 18 backbone/arm/seed combinations.",
+        "Three-seed classification, Grad-CAM Energy-Inside-Lung (EIL), paired image-level significance tests and a reproducible cross-backbone master table are committed.",
+        "All 18 saved prediction files have 3,175 unique test image paths and valid probabilities; paired baseline/selected files align. EIL uses a fixed 1,000-image subset.",
+        "EfficientNet-B0 A0/A3 calibration and background-counterfactual outputs are committed for seeds 42, 123 and 2026.",
+        "Existing parameter, FLOP and latency results, qualitative Grad-CAM figures, evaluation modules, automated tests and checkpoint-only runners are committed.",
+        "The RSNA external manifest contains 26,684 patient entries, but external performance has not been measured in the current closeout.",
+    ]:
+        body.append(bullet(item))
+
+    body.append(paragraph("What still needs completion", style="Heading1"))
+    body.append(table(
+        ["Work item", "Current state", "Next action", "Dependency"],
+        [
+            ["DenseNet/ResNet background counterfactuals", "No per-image modified-image results found in this repository.", "Run A0 and selected arms on the fixed test split with zero, shuffle and noise interventions; save per-image outputs and paired statistics.", "Four matching checkpoints, primary images and lung masks."],
+            ["DenseNet/ResNet calibration", "Uncalibrated ECE/Brier exists; validation-fitted scaling results are absent here.", "Fit temperature on validation logits only, evaluate on test and save summaries for A0/selected arms.", "Four checkpoints or saved validation logits/probabilities, plus test predictions."],
+            ["Lung/background occlusion", "Evaluator and tests exist; no real-model output is committed.", "Run lung zero/blur and matched background occlusion for all six seed-42 CNN arms; save original-class probability drops per image.", "Six checkpoints, primary images and masks."],
+            ["Efficiency harmonization", "Prior efficiency results exist; identical hardware across final pairs has not been verified.", "Benchmark all six models under one hardware/software protocol if making direct latency comparisons.", "Compatible environment and checkpoints."],
+            ["RSNA external evaluation", "Manifest prepared; no external predictions or agreed four-to-two-class mapping.", "Predeclare positive-class score and primary metric, then run external inference and preserve per-patient probabilities.", "RSNA PNGs, six checkpoints and team mapping decision. Conditional study item."],
+            ["Final evidence audit", "Core aggregation and integrity checks pass.", "Verify new aggregates against per-image outputs; archive configs, checkpoint hashes/locations, environment and qualitative perturbation examples.", "Outputs from whichever extended runs are included."],
+        ],
+        [1900, 2500, 3300, 1700],
+    ))
+
+    body.append(paragraph("Inputs and execution", style="Heading1"))
+    body.append(paragraph(
+        "The Git repository intentionally excludes trained .pt/.pth weights and the image datasets. Their absence from Git does not invalidate the saved results. "
+        "New inference requires access to the correct trained weights and pixels, whether stored locally, on Kaggle or in an experiment artifact store. "
+        "At minimum, the six seed-42 checkpoints are DenseNet A0/A2, ResNet A0/A3 and EfficientNet A0/A3. "
+        "Additional seed-123/2026 checkpoints are needed only if those new interventions must be repeated across all three seeds. "
+        "A GPU is recommended for speed, not logically required."
+    ))
+    for item in [
+        "Locate each checkpoint outside Git, record its backbone/arm/seed and immutable location, and strictly load it. Run a 100-image smoke test before a full job.",
+        "Use scripts/audit_cnn_closeout_readiness.py for the input inventory and scripts/run_cnn_closeout_inference.py for missing primary-dataset evaluations; repeat for each required model.",
+        "Use scripts/summarize_cnn_inference.py after six comparable runs to validate image pairing and calculate paired intervention summaries and confidence intervals.",
+        "For RSNA, choose and record the binary mapping before inspecting external predictions, then use scripts/run_rsna_external.py with the prepared PNGs.",
+        "Keep the committed classification/EIL master table as the core result. Extend it with new calibration, counterfactual and occlusion findings only after their source files pass verification.",
+    ]:
+        body.append(bullet(item))
+
+    body.append(paragraph("Scope and stopping rule", style="Heading1"))
+    body.append(paragraph(
+        "If the deliverable is the three-CNN classification and anatomical-localization comparison, the core closeout is complete. "
+        "If the deliverable also claims reduced background shortcut reliance or covers all axes in the earlier brief, the remaining inference above is required. "
+        "ViT explainability is conditional and should be evaluated separately; it does not block the CNN core result. "
+        "After the chosen scope is verified, freeze experiments and rerun only to correct genuine errors."
     ))
 
     body.append(
