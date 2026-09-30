@@ -327,7 +327,7 @@ For EfficientNet seed 42, A3 improves uncalibrated ECE from **0.0252** to **0.01
 
 See [`artifacts/cnn_closeout/CNN_CLOSEOUT_REPORT.md`](artifacts/cnn_closeout/CNN_CLOSEOUT_REPORT.md) for the consolidated report and [`artifacts/cnn_closeout/cnn_master_results.csv`](artifacts/cnn_closeout/cnn_master_results.csv) for the machine-readable results.
 
-The [CNN closeout execution status](docs/cnn_closeout_execution_status.md) records which follow-up inference runs still require checkpoints and image data. Run `py -3.13 scripts/audit_cnn_closeout_readiness.py --checkpoint-root <weights-directory> --data-root <dataset-directory>` to regenerate the input inventory in a prepared environment.
+The core three-CNN classification and anatomical-localisation closeout is complete from saved outputs. The [CNN closeout execution status](docs/cnn_closeout_execution_status.md) distinguishes that result from extended, checkpoint-dependent inference. Run `py -3.13 scripts/audit_cnn_closeout_readiness.py --checkpoint-root <weights-directory> --data-root <dataset-directory>` to regenerate the input inventory in a prepared environment.
 
 Once checkpoints and images are available, use the [CNN inference runbook](docs/cnn_inference_runbook.md) for checkpoint-only calibration, counterfactual, occlusion, CAM, efficiency, and optional RSNA evaluation.
 
