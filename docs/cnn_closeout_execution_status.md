@@ -3,7 +3,9 @@
 Audited on 30 September 2026 on branch `cnn-closeout`, starting from commit
 `45e5bf2431413a109acae36d3dd8d3fafe73fc03`. The research brief is a
 planning input; the results below are based on repository artifacts and the
-local environment.
+local environment. The core three-CNN classification and anatomical
+localization closeout is complete from saved outputs. The broader
+intervention-based research question remains open.
 
 ## Completed from committed evidence
 
@@ -13,9 +15,10 @@ local environment.
   summary. The builder's integrity audit checks all 18 files for 3,175
   unique test images, valid probability vectors, and matched arm image paths.
 - The package includes per-image EIL/predictions, uncalibrated ECE and Brier,
-  paired image tests, and prior efficiency results. The EfficientNet seed-42
-  calibration and background counterfactual outputs are already committed
-  under `artifacts/T25_efficientnet_b0_lung_attention/runs/`.
+  paired image tests, and prior efficiency results. EfficientNet A0/A3
+  calibration and background counterfactual outputs are also committed for
+  seeds 42, 123, and 2026 under
+  `artifacts/T25_efficientnet_b0_lung_attention/`.
 - `evaluate_region_occlusion` now supports zero/blur lung occlusion and zero
   background occlusion with per-image original-class probability drops. It
   can be run with the same deterministic mask-aware loader used for the
@@ -30,7 +33,7 @@ local environment.
   the team explicitly declares a binary class mapping. See the
   [inference runbook](cnn_inference_runbook.md).
 
-## Blocked inference
+## Extended inference that cannot run in this checkout
 
 The local checkout contains zero `.pt`, `.pth`, `.ckpt`, or `.safetensors`
 checkpoint candidates under `artifacts/` and no `data/` image directory.
@@ -40,16 +43,19 @@ but its image paths point to `/kaggle/working/rsna_png/`, which is not here.
 The current local PyTorch build is CPU only. Therefore no 100-image checkpoint
 smoke test or new image inference was possible in this environment.
 
-To finish the requested inference results, provide the trained weights for
+To finish the extended inference results, provide the trained weights for
 DenseNet A0/A2, ResNet A0/A3, and EfficientNet A0/A3 at least for seed 42,
 with their arm/seed identity, plus the primary images, lung masks, and RSNA
 images in a GPU-capable environment. Three-seed inference requires the other
 12 checkpoints too. Run the readiness inventory again with
 `--checkpoint-root <weights-directory> --data-root <dataset-directory>`;
 each candidate still needs a strict model load and 100-image smoke test.
-Then run matched counterfactual, occlusion, validation-fitted calibration,
-Grad-CAM verification, and controlled efficiency measurements. Store per-image
-outputs with image identifiers before aggregating.
+Then run the *missing* DenseNet/ResNet counterfactual and validation-fitted
+calibration evaluations, lung/background occlusion, and RSNA evaluation if
+included in the study. Existing EfficientNet calibration/counterfactual and
+three-CNN classification/EIL results do not need to be repeated without a
+specific reproducibility reason. Store new per-image outputs with image
+identifiers before aggregating.
 
 RSNA labels are `Normal` (20,672) and `Pneumonia` (6,012); the primary model
 has four classes (`COVID`, `Lung_Opacity`, `Normal`, `Viral Pneumonia`). A
