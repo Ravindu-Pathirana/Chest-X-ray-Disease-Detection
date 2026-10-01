@@ -128,16 +128,21 @@ Import from `src.modules`, not the submodules directly. Full design rationale, f
 and the acceptance-criteria targets: `Claude Working Files/T18_Lung_Region_Attention_WBS.md` and
 `artifacts/T18_lung_attention/T18_module_card.md`.
 
-**Planned, not yet built:** applying the T18 module (and its full 6-arm ablation) to ResNet50,
-EfficientNet-B0 and ViT-Base (P13 cross-architecture generalization). ResNet50/EfficientNet-B0 are
-mechanically compatible with the existing `build_model(backbone_name=...)` as-is. ViT-Base is not —
-its default classifier reads only the CLS token, which the attention gate (inserted after
-`forward_features()`, mirroring the CNN insertion point) never reaches, so the gate would be a
-functional no-op there. The design (a `ViTLungAttention` wrapper that reshapes the 196 patch tokens
-into a 14×14 grid and switches the head to average-pooling so the gate actually affects the
-classifier) is fully written up in
-`Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md` — read that before writing any
-ViT-adjacent code in this directory.
+**Cross-backbone transfer (P13):** `build_model(backbone_name=...)` covers all four backbones.
+ResNet50 (T23) and EfficientNet-B0 (T25) use `DenseNetLungAttention` unchanged. ViT-Base (T26) gets
+`ViTLungAttention`, selected automatically for `backbone_name` starting with `vit`: timm's default
+ViT head reads only the CLS token, which a spatial gate over the patch tokens never reaches, so the
+wrapper reshapes the 196 patch tokens to a 14×14 map, gates it and **average-pools** into the head.
+Arm A0 uses the same avg-pool head, so it is the control for A1–A6 and is not T17's CLS-token
+baseline. The wrapper exposes `pre_attn`/`post_attn` identity modules as Grad-CAM taps
+(`gradcam.py::get_taps` returns them for ViT, since the token→grid reshape happens in the wrapper,
+not in a backbone submodule). Config: `configs/vit_base_lung_attention.yaml`; tests:
+`tests/test_vit_lung_attention.py`; Kaggle notebook: `notebooks/T26_vit_base_lung_attention.ipynb`
+(generated from the T23 notebook, same resumable structure and outputs).
+`notebooks/T_26_Vit_Base_Model.ipynb` is the T26 owner's earlier self-contained notebook (own model
+class, batch 8, early stopping on val macro-F1); its results are in `artifacts/vit_lung_attention/`
+and are not comparable with the T26 protocol above. Design background:
+`Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`.
 
 ### `artifacts/` — committed, reproducible run outputs
 
