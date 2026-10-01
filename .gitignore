@@ -33,6 +33,7 @@ artifacts/DenseNet121-HPO/*
 !artifacts/T23_resnet50_lung_attention/
 !artifacts/cnn_closeout/
 !artifacts/explainable_ai/
+!artifacts/T35_efficiency/
 # T23: keep metrics/histories/confusion matrices/predictions/figures/module
 # card, but never the ~92 MB ResNet-50 checkpoints (runs/ and runs_multiseed/)
 # or any other model-weight format that exceeds GitHub's file-size limit.
