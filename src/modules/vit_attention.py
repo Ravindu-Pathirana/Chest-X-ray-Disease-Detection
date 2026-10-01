@@ -3,6 +3,18 @@
 This architecture is available for tests and architecture-only efficiency
 measurement. It must be strict-loaded against a supplied T26 checkpoint before
 any ViT prediction or explanation is reported.
+
+NOTE: not exported from ``src.modules``. ``src.modules.ViTLungAttention`` (and
+``build_model(backbone_name="vit_...")``) is ``lung_attention.ViTLungAttention``,
+which is what the T26 notebooks train. This class differs from it in one way
+that matters: ``global_pool="avg"`` makes timm apply the final LayerNorm as
+``fc_norm`` AFTER pooling (and therefore after the gate), whereas the T26
+architecture applies ``norm`` to the tokens BEFORE the gate. The state-dict
+keys differ accordingly (``backbone.fc_norm.*`` here, ``backbone.norm.*`` in
+T26 checkpoints), so a T26 checkpoint does not strict-load into this class.
+Parameter counts are identical, so architecture-only efficiency numbers are
+unaffected. Kept for its own test; use the exported class for anything that
+loads a checkpoint.
 """
 from __future__ import annotations
 
