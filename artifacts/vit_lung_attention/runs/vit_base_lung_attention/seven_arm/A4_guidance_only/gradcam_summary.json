@@ -1,0 +1,15 @@
+{
+  "arm": "A4_guidance_only",
+  "target_class": "predicted",
+  "taps_identical": true,
+  "n_images": 200,
+  "lung_area_fraction": 0.234524668417871,
+  "eil_pre_mean": 0.22989446569234132,
+  "eil_pre_ci_low": 0.21316203215392307,
+  "eil_pre_ci_high": 0.24760866422625258,
+  "eil_post_mean": 0.22989446569234132,
+  "eil_post_ci_low": 0.21316203215392307,
+  "eil_post_ci_high": 0.24760866422625258,
+  "accuracy_on_subsample": 0.92,
+  "elapsed_minutes": 0.1035400390625
+}
