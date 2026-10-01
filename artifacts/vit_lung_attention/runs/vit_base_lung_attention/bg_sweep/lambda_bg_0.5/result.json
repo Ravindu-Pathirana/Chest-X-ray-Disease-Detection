@@ -1,0 +1,15 @@
+{
+  "name": "lambda_bg_0.5",
+  "lambda_att": 1.0,
+  "lambda_bg": 0.5,
+  "phase1_epochs": 4,
+  "phase2_epochs": 6,
+  "best_epoch": 6,
+  "val_macro_f1_at_best": 0.9270900700469015,
+  "val_acc_at_best": 0.9162204724409448,
+  "val_ilar_at_best": 0.7616725379333689,
+  "val_dice_at_best": 0.7647560087199176,
+  "val_background_attention_at_best": 0.23832746262964735,
+  "val_cls_loss_at_best": 0.19512007664449102,
+  "elapsed_minutes": 57.3932568748792
+}

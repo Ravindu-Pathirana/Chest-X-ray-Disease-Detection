@@ -1,0 +1,20 @@
+[
+  {
+    "epoch": 1,
+    "phase": "phase1_frozen",
+    "lr": 0.001,
+    "train_loss": 1.8904440800348918,
+    "train_cls_loss": 1.6565543313821156,
+    "train_att_loss": 0.7796324441830317,
+    "train_accuracy": 0.32916666666666666,
+    "val_loss": 1.6735296845436096,
+    "val_cls_loss": 1.5532969057559967,
+    "val_att_loss": 0.4007758229970932,
+    "val_accuracy": 0.175,
+    "val_macro_f1": 0.22724025311288018,
+    "val_macro_roc_auc": 0.7709862268646495,
+    "val_ilar": 0.48756609857082367,
+    "val_dice": 0.19697404652833939,
+    "epoch_seconds": 38.481152296066284
+  }
+]
