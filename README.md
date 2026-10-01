@@ -117,7 +117,7 @@ DenseNet121 was selected as the module's host backbone on this evidence.
 
 > ⚠️ Candidates (b) and (c) were trained under **different protocols** from (a), so their accuracy deltas are **not** attributable to the method. A protocol-matched head-to-head (P12 winner selection) is pending.
 
-> **Cross-architecture status:** the CNN transfer is complete for ResNet50 and EfficientNet-B0, including selected-arm three-seed repeats. ViT A0–A6 classification artifacts are committed, but its patch-token/CLS-token explanation path still requires a dedicated comparability audit before it is included in the main cross-backbone explainability claim.
+> **Cross-architecture status:** the CNN transfer is complete for ResNet50 and EfficientNet-B0, including selected-arm three-seed repeats. ViT A0–A6 was re-run on 2026-10-01 (λ_att = 1.0, λ_bg = 2.0, seed 42; see [`artifacts/vit_lung_attention/README.md`](artifacts/vit_lung_attention/README.md)). It has classification metrics, attention-Dice and bootstrap CIs, but no checkpoints, no Grad-CAM EIL and no winner yet, so it is not part of the main cross-backbone explainability claim.
 
 ### Lung masks
 

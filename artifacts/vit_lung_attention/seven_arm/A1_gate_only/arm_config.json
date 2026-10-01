@@ -1,0 +1,16 @@
+{
+  "arm": "A1_gate_only",
+  "use_attention": true,
+  "attention": "lung",
+  "gate_mode": "residual",
+  "lambda_att": 0.0,
+  "target_mode": "soft",
+  "phase1_epochs": 15,
+  "phase2_epochs": 40,
+  "phase1_lr": 0.001,
+  "phase2_lr": 1e-05,
+  "weight_decay": 0.0001,
+  "patience": 5,
+  "unfreeze_blocks": 2,
+  "seed": 42
+}

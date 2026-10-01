@@ -460,6 +460,7 @@ def run_full_arm(
     output_dir,
     backbone_name: str = "densenet121",
     wandb_enabled: bool = True,
+    experiment_tag: str = "T18",
 ) -> Dict[str, Any]:
     """Runs one T18 arm's complete two-phase schedule: build model -> freeze
     -> phase1 train_phase -> evaluate -> unfreeze -> phase2 train_phase ->
@@ -486,7 +487,13 @@ def run_full_arm(
 
     set_seed(seed)
     if wandb_enabled:
-        initialize_wandb(arm_cfg, run_name=generate_run_name(backbone_name, f"T18-{arm_name}", seed))
+        # `experiment_tag` names the task in the W&B run name and tags (T18 by default, so
+        # existing callers' run names are unchanged; T26 passes "T26").
+        initialize_wandb(
+            arm_cfg,
+            run_name=generate_run_name(backbone_name, f"{experiment_tag}-{arm_name}", seed),
+            tags=[experiment_tag, backbone_name, arm_name.split("_seed")[0], f"seed{seed}"],
+        )
 
     try:
         model = build_model(
@@ -521,6 +528,18 @@ def run_full_arm(
             output_dir=output_dir, lambda_att=lambda_att, lambda_bg=lambda_bg, wandb_enabled=wandb_enabled,
         )
         results = evaluate(model, test_loader, class_names, device, output_dir, "phase2_finetune")
+        if wandb_enabled:
+            # Final test numbers in the run summary, so arms can be compared in the W&B table.
+            report = results.get("classification_report", {})
+            log_summary_metrics({
+                "test_accuracy": report.get("accuracy"),
+                "test_macro_f1": report.get("macro avg", {}).get("f1-score"),
+                "test_roc_auc_macro": results.get("roc_auc_macro"),
+                "test_attention_ilar": results.get("attention_ilar"),
+                "test_attention_dice": results.get("attention_dice"),
+                "lambda_att": lambda_att,
+                "lambda_bg": lambda_bg,
+            })
 
         torch.save(
             {
