@@ -1,0 +1,40 @@
+{
+  "strict_model_load_performed": true,
+  "checkpoint_entries": 23,
+  "verified_entries": 22,
+  "core_runs_verified": 12,
+  "core_runs_expected": 18,
+  "missing_core_runs": [
+    {
+      "backbone": "resnet50",
+      "arm": "A0_vanilla",
+      "seed": 42
+    },
+    {
+      "backbone": "resnet50",
+      "arm": "A0_vanilla",
+      "seed": 123
+    },
+    {
+      "backbone": "resnet50",
+      "arm": "A0_vanilla",
+      "seed": 2026
+    },
+    {
+      "backbone": "resnet50",
+      "arm": "A3_multiply",
+      "seed": 42
+    },
+    {
+      "backbone": "resnet50",
+      "arm": "A3_multiply",
+      "seed": 123
+    },
+    {
+      "backbone": "resnet50",
+      "arm": "A3_multiply",
+      "seed": 2026
+    }
+  ],
+  "note": "Checkpoint availability does not imply image data or masks are available for inference."
+}

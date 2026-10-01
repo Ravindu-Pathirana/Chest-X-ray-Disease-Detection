@@ -16,7 +16,11 @@ from src.modules import (
     attention_iou,
     background_attention,
     energy_inside_lung,
+    eil_excess,
+    eil_lift,
     ilar,
+    lung_fraction,
+    pointing_game,
 )
 
 RECT = (slice(64, 160), slice(48, 176))  # a 96x128 rectangle inside a 224x224 canvas
@@ -26,6 +30,37 @@ def _rect_mask(batch: int = 1) -> torch.Tensor:
     m = torch.zeros(batch, 1, 224, 224)
     m[:, :, RECT[0], RECT[1]] = 1.0
     return m
+
+
+def test_chance_corrected_eil_on_uniform_and_localized_maps():
+    mask = _rect_mask()
+    uniform = torch.ones_like(mask)
+    fraction = 96 * 128 / (224 * 224)
+    assert abs(lung_fraction(mask).item() - fraction) < 1e-6
+    assert abs(eil_excess(uniform, mask).item()) < 1e-6
+    assert abs(eil_lift(uniform, mask).item() - 1.0) < 1e-6
+    assert abs(energy_inside_lung(mask, mask).item() - 1.0) < 1e-6
+    assert eil_excess(mask, mask).item() > 0.7
+
+
+def test_pointing_game_and_empty_mask_edge_cases():
+    mask = _rect_mask()
+    inside = torch.zeros_like(mask)
+    inside[:, :, 100, 100] = 1.0
+    outside = torch.zeros_like(mask)
+    outside[:, :, 10, 10] = 1.0
+    assert pointing_game(inside, mask).item() == 1.0
+    assert pointing_game(outside, mask).item() == 0.0
+    assert torch.isnan(pointing_game(torch.ones_like(mask), mask)).all()
+    assert torch.isnan(eil_lift(inside, torch.zeros_like(mask))).all()
+
+
+def test_pointing_game_averages_upsampled_tied_peaks():
+    cam = torch.zeros(1, 1, 7, 7)
+    cam[:, :, 3, 3] = 1.0
+    mask = torch.zeros(1, 1, 224, 224)
+    mask[:, :, 80:144, 80:144] = 1.0
+    assert pointing_game(cam, mask).item() == 1.0
 
 
 # ---------------------------------------------------------------------------

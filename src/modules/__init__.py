@@ -15,7 +15,11 @@ from .attention_metrics import (
     attention_iou,
     background_attention,
     energy_inside_lung,
+    eil_excess,
+    eil_lift,
     ilar,
+    lung_fraction,
+    pointing_game,
 )
 from .calibration import (
     TemperatureScaler,
@@ -57,6 +61,14 @@ from .lung_attention import (
     unfreeze_final_blocks,
 )
 from .training import best_history_row, build_optimizer, build_scheduler, evaluate, run_epoch, run_full_arm, train_phase
+from .xai_statistics import holm_adjust, paired_eil
+from .vit_attention import ViTLungAttention
+from .xai_dependence import (
+    area_matched_background_mask,
+    build_swap_pairs,
+    evaluate_xai_dependence,
+    total_variation_distance,
+)
 
 __all__ = [
     "LungRegionAttention",
@@ -77,6 +89,10 @@ __all__ = [
     "attention_entropy",
     "background_attention",
     "energy_inside_lung",
+    "lung_fraction",
+    "eil_excess",
+    "eil_lift",
+    "pointing_game",
     "cam_for",
     "get_taps",
     "run_epoch",
@@ -109,4 +125,11 @@ __all__ = [
     "fit_temperature",
     "plot_reliability_diagram",
     "calibration_report",
+    "paired_eil",
+    "holm_adjust",
+    "ViTLungAttention",
+    "area_matched_background_mask",
+    "build_swap_pairs",
+    "evaluate_xai_dependence",
+    "total_variation_distance",
 ]
