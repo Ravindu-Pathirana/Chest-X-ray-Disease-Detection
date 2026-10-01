@@ -1,0 +1,15 @@
+{
+  "arm": "A6_full_bg",
+  "target_class": "predicted",
+  "taps_identical": false,
+  "n_images": 200,
+  "lung_area_fraction": 0.234524668417871,
+  "eil_pre_mean": 0.264287430383265,
+  "eil_pre_ci_low": 0.2458150429544039,
+  "eil_pre_ci_high": 0.28303779228311027,
+  "eil_post_mean": 0.336085395431146,
+  "eil_post_ci_low": 0.31471899230009875,
+  "eil_post_ci_high": 0.35862777059292417,
+  "accuracy_on_subsample": 0.925,
+  "elapsed_minutes": 0.10342669089635213
+}

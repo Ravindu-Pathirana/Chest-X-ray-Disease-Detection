@@ -1,0 +1,15 @@
+{
+  "arm": "A3_multiply_gate",
+  "target_class": "predicted",
+  "taps_identical": false,
+  "n_images": 200,
+  "lung_area_fraction": 0.234524668417871,
+  "eil_pre_mean": 0.4110799537599087,
+  "eil_pre_ci_low": 0.394492705469951,
+  "eil_pre_ci_high": 0.4288123388104141,
+  "eil_post_mean": 0.7728974840044975,
+  "eil_post_ci_low": 0.7631490688845516,
+  "eil_post_ci_high": 0.7822206057086587,
+  "accuracy_on_subsample": 0.925,
+  "elapsed_minutes": 0.103410275777181
+}
