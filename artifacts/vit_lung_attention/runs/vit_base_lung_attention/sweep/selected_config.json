@@ -1,0 +1,23 @@
+{
+  "name": "lam_1.0",
+  "lambda_att": 1.0,
+  "phase1_lr": 0.001,
+  "phase2_lr": 1e-05,
+  "weight_decay": 0.0001,
+  "optimizer": "adamw",
+  "scheduler": "cosine",
+  "gate_mode": "residual",
+  "attention_reduction": 8,
+  "attention_target_mode": "soft",
+  "unfreeze_blocks": 2,
+  "seed": 42,
+  "selection_rule": "highest val ILAR among lambdas with val macro-F1 >= lam_0.0 - 0.005",
+  "reference_name": "lam_0.0",
+  "reference_val_macro_f1": 0.9282619004289052,
+  "selected_val_macro_f1": 0.9276120140472077,
+  "selected_val_ilar": 0.7406233756307992,
+  "sweep_schedule": {
+    "phase1_epochs": 4,
+    "phase2_epochs": 6
+  }
+}
