@@ -1,0 +1,71 @@
+# T26: Lung-Region Attention Module on ViT-Base/16 (avg-pool head), seven arms (A0-A6).
+#
+# Copied from configs/resnet50_lung_attention.yaml (itself from baseline.yaml -- read-only
+# reference, never edited in place). This file is arm A2's config; the notebook derives the
+# other arms with merge_overrides().
+#
+# The model is src/modules/lung_attention.py::ViTLungAttention: patch tokens reshaped to a
+# 14x14 map, gated, then average-pooled into the head. Arm A0 uses the same avg-pool head, so
+# it is NOT T17's CLS-token baseline (artifacts/vit_base/).
+#
+# Protocol is aligned with T18/T23 so the four backbones are comparable: batch_size 32,
+# early stopping + best checkpoint on val_loss, attention initialised at 0.5, spatial-only
+# CBAM comparator. phase1_lr / phase2_lr / unfreeze_blocks are the values the T26 owner used
+# in the 2026-10-01 local run (which used batch_size 8 and val-macro-F1 early stopping; see
+# artifacts/vit_lung_attention/README.md). No ViT HPO sweep exists, so these are not tuned.
+
+experiment:
+  name: T26_vit_base_lung_attention
+  seed: 42
+
+model:
+  name: vit_base_patch16_224
+  pretrained: true
+  num_classes: 4
+  drop_rate: 0.0
+
+module:
+  name: lung_region_attention
+  attention: lung # lung (ours) | cbam (arm A5)
+  use_attention: true # false selects arm A0 (vanilla avg-pool control)
+  in_channels: 768 # ViT-Base token width; the attention map is 14x14 (196 patch tokens)
+  reduction: 8 # 96 hidden channels -> 73,921 added params (+0.086% of ViT-Base's 85,801,732)
+  gate_mode: residual # residual (ours, A2) | multiply (A3) | none (A4)
+  target_mode: soft # soft (area-pooled mask) | hard (thresholded)
+  lambda_att: 1.0 # placeholder -- overwritten by the notebook's lambda_att sweep selection
+  lambda_bg: 0.0
+
+dataset:
+  name: covid19_radiography
+  version: v1
+  image_size: 224
+  split_version: v1 # -> artifacts/splits/split_manifest_v1.csv (same committed manifest as T18/T23/T25)
+  use_masks: true
+
+training:
+  phase1_epochs: 15
+  phase1_lr: 0.001
+  phase2_epochs: 40
+  phase2_lr: 0.00001
+  unfreeze_blocks: 2 # last two transformer blocks + the final norm
+  batch_size: 32
+  optimizer: adamw
+  weight_decay: 0.0001
+  patience: 5 # early stopping patience, monitored on val_loss
+
+scheduler:
+  name: cosine
+
+augmentation:
+  version: joint_v1
+
+tracking:
+  provider: wandb
+  project: chest-xray-disease-classification
+  entity: null
+  mode: null
+
+checkpoint:
+  monitor: val_loss
+  mode: min
+  dir: artifacts/T26_vit_base_lung_attention/runs

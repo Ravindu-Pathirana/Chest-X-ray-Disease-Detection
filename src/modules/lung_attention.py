@@ -225,6 +225,83 @@ class DenseNetLungAttention(nn.Module):
         return logits, att, att_logits
 
 
+class ViTLungAttention(nn.Module):
+    """ViT backbone + LungRegionAttention (or CBAM, arm A5) -- T26/T48.
+
+    Same contract as ``DenseNetLungAttention`` (returns ``(logits, att,
+    att_logits)``, exposes ``backbone``/``backbone_name``/``attn``/
+    ``post_attn``), so ``run_full_arm``, the freeze registry, the metrics and
+    the Grad-CAM harness need no ViT-specific branching. Two differences:
+
+    - The CNN insertion point doesn't carry over. timm's default ViT head
+      reads only the CLS token, which a spatial gate over the patch tokens
+      never reaches, so the gate would be a no-op. Here the 196 patch tokens
+      (after the final ``norm``) are reshaped to a [B,768,14,14] map, gated,
+      and **average-pooled** into the head. Arm A0 uses the same avg-pool
+      head, so it is a valid control for A1-A6 (it is NOT T17's CLS-token
+      baseline).
+    - ``pre_attn`` is an explicit Grad-CAM tap. The token->grid reshape
+      happens here in the wrapper, not inside ``backbone``, so there is no
+      backbone submodule whose output is the pre-gate feature map (see
+      gradcam.py::get_taps).
+
+    The attention map is 14x14 (16-px cells), not 7x7 as on the CNNs; the
+    guidance/background losses pool the mask to the map's own size.
+    """
+
+    def __init__(
+        self,
+        num_classes: int = 4,
+        pretrained: bool = True,
+        use_attention: bool = True,
+        reduction: int = 8,
+        gate_mode: str = "residual",
+        backbone_name: str = "vit_base_patch16_224",
+        attention: str = "lung",          # "lung" (ours) | "cbam" (arm A5)
+        drop_rate: float = 0.0,
+    ) -> None:
+        super().__init__()
+        self.backbone = timm.create_model(
+            backbone_name, pretrained=pretrained, num_classes=num_classes,
+            global_pool="token", drop_rate=drop_rate,
+        )
+        self.backbone_name = backbone_name       # read by _family() and get_taps()
+        self.use_attention = use_attention
+        self.attention_kind = attention
+        self.num_prefix_tokens = getattr(self.backbone, "num_prefix_tokens", 1)
+        c = self.backbone.num_features           # 768 for ViT-Base
+        if not use_attention:
+            self.attn = None
+        elif attention == "lung":
+            self.attn = LungRegionAttention(c, reduction=reduction, gate_mode=gate_mode)
+        elif attention == "cbam":
+            self.attn = CBAMSpatialAttention()
+        else:
+            raise ValueError(f"unknown attention: {attention}")
+        self.pre_attn = nn.Identity()            # Grad-CAM tap: patch-token map entering the gate
+        self.post_attn = nn.Identity()           # Grad-CAM tap: map entering the head
+
+    def forward(self, x: torch.Tensor):
+        tokens = self.backbone.forward_features(x)             # [B,1+196,C], final norm applied
+        patches = tokens[:, self.num_prefix_tokens:]
+        b, n, c = patches.shape
+        side = int(n ** 0.5)
+        if side * side != n:
+            raise ValueError(f"patch tokens do not form a square grid: {n}")
+        # .contiguous(): a no-op on CPU/CUDA; MPS's conv2d rejects the reshaped map without it
+        f = patches.transpose(1, 2).reshape(b, c, side, side).contiguous()  # [B,C,14,14]
+        f = self.pre_attn(f)
+        if self.attn is not None:
+            f, att, att_logits = self.attn(f)
+        else:
+            att, att_logits = None, None
+        f = self.post_attn(f)
+        pooled = f.mean(dim=(2, 3))                            # avg-pool over patch positions
+        pooled = self.backbone.fc_norm(pooled)                 # Identity for global_pool="token"
+        logits = self.backbone.head(self.backbone.head_drop(pooled))
+        return logits, att, att_logits
+
+
 def build_model(
     num_classes: int = 4,
     use_attention: bool = True,
@@ -234,14 +311,19 @@ def build_model(
     pretrained: bool = True,
     attention: str = "lung",
     drop_rate: float = 0.0,
-) -> DenseNetLungAttention:
+) -> nn.Module:
     """`drop_rate` (timm's head dropout) defaults to 0.0 for backwards compatibility
     with every existing call site/test, but should be set to Member 2's tuned value
     (T13, DenseNet121 HPO) for real arm runs -- WBS section 4.3's whole point is that
     A0 and A2 must share "the same head, same pooling, same dropout" as the vanilla
     baseline, or the comparison has a confound. Dropout adds no parameters, so this
-    doesn't change any of the module's cost/param-count acceptance criteria (A6)."""
-    return DenseNetLungAttention(
+    doesn't change any of the module's cost/param-count acceptance criteria (A6).
+
+    ViT backbones (``backbone_name`` starting with "vit") get ``ViTLungAttention``
+    -- the CNN wrapper's insertion point would leave the gate unable to reach
+    ViT's CLS-token head."""
+    wrapper = ViTLungAttention if backbone_name.startswith("vit") else DenseNetLungAttention
+    return wrapper(
         num_classes, pretrained, use_attention, reduction, gate_mode, backbone_name, attention, drop_rate
     )
 
