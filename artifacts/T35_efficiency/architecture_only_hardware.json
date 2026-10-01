@@ -1,0 +1,20 @@
+{
+  "scope": "architecture-only; random initialisation, no checkpoint or dataset",
+  "python": "3.13.7",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "torch": "2.14.0+cpu",
+  "cuda_available": false,
+  "cuda_device": null,
+  "input_shape": [
+    1,
+    3,
+    224,
+    224
+  ],
+  "cpu_runs": 20,
+  "gpu_runs": 50,
+  "warmup": 5,
+  "model_count": 8,
+  "warning": "Do not combine latency values from different hardware sessions or claim trained-model inference accuracy. fvcore reported unsupported operators, especially fused ViT attention, so GFLOPs are partial estimates rather than complete operation counts."
+}

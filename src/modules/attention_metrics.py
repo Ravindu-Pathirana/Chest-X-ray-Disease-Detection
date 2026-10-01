@@ -101,3 +101,44 @@ def energy_inside_lung(cam: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     """
     c, m = _prep(cam, mask)
     return (c * m).flatten(1).sum(1) / (c.flatten(1).sum(1) + EPS)
+
+
+def lung_fraction(mask: torch.Tensor, size: int = 224) -> torch.Tensor:
+    """Fraction of image pixels inside the binary lung mask, per image."""
+    if mask.ndim == 3:
+        mask = mask.unsqueeze(1)
+    if mask.ndim != 4 or mask.shape[1] != 1:
+        raise ValueError("mask must have shape [N,H,W] or [N,1,H,W]")
+    binary = (mask.float() > 0.5).float()
+    if binary.shape[-2:] != (size, size):
+        binary = F.interpolate(binary, size=(size, size), mode="nearest")
+    return binary.flatten(1).mean(1)
+
+
+def eil_excess(cam: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """EIL above the uniform-map chance level (the image's lung fraction)."""
+    return energy_inside_lung(cam, mask) - lung_fraction(mask)
+
+
+def eil_lift(cam: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """EIL divided by lung fraction; NaN where the lung mask is empty."""
+    fraction = lung_fraction(mask)
+    ratio = energy_inside_lung(cam, mask) / fraction.clamp_min(EPS)
+    return torch.where(fraction > 0, ratio, torch.full_like(ratio, float("nan")))
+
+
+def pointing_game(cam: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    """Lung hit at the CAM maximum; average ties, NaN for a flat CAM.
+
+    Bilinear upsampling of an even-sized pixel block can create tied maxima.
+    Averaging the mask at all tied peaks avoids an arbitrary top-left choice.
+    """
+    c, m = _prep(cam, mask)
+    if c.shape[1] != 1:
+        raise ValueError("pointing_game expects a single-channel CAM")
+    flat = c.flatten(1)
+    maxima = flat.amax(dim=1, keepdim=True)
+    peaks = flat == maxima
+    flat_map = (maxima.squeeze(1) - flat.amin(dim=1)) <= EPS
+    points = (m.flatten(1) * peaks).sum(dim=1) / peaks.sum(dim=1)
+    return torch.where(~flat_map, points, torch.full_like(points, float("nan")))

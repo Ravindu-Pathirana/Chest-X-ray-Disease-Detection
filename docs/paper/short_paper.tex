@@ -170,6 +170,12 @@ The target $\tilde{m}$ is obtained by reducing the original lung mask to the $7\
 
 The lung mask is used only to calculate $\mathcal{L}_{att}$ during training. During inference, the attention map is generated directly from the backbone features. The trained classifier therefore receives only the CXR image and does not require an additional segmentation stage.
 
+\subsection{Alternative Candidates and Selection Boundary}
+\label{sec:candidate-selection}
+Three lung-guided candidates were studied on the DenseNet121 host backbone. Candidate A is the residual attention gate described above. Candidate B adds a lightweight auxiliary decoder to the final feature map to predict a full-resolution lung mask. Its training objective combines class-weighted cross-entropy with a segmentation term, $\mathcal{L}_{B}=\mathrm{CE}_{w}+\lambda_{seg}(\mathrm{BCE}+\mathrm{DiceLoss})/2$. The tuned run used $\lambda_{seg}=0.1$; the segmentation head is an auxiliary output, not an attention gate. Candidate C keeps the classifier architecture unchanged but adds a background-activation penalty during fine-tuning: $\mathcal{L}_{C}=\mathrm{CE}_{w}+\lambda_{C}\,\operatorname{mean}[\operatorname{ReLU}(f)\odot(1-\tilde m)]$, with $\lambda_C=0.5$ in the recorded run. Although the T20 notebook is named ``Grad-CAM shortcut-suppression loss,'' its implemented training penalty uses feature activations, not a Grad-CAM attribution; we therefore describe it as a background-activation penalty.
+
+The committed T21 ablation gives test accuracy/macro-F1 of 0.9468/0.9511 for vanilla DenseNet121, 0.9465/0.9508 for Candidate A, 0.9436/0.9493 for the tuned Candidate B, and 0.9553/0.9594 for Candidate C. Candidate C leads this classification comparison, while Candidate A has the measured post-gate Grad-CAM lung-localization gain used in this paper. The latter was carried forward as the lightweight transferable module for the CNN experiments; this is a scope choice, not evidence that Candidate A is globally superior. The candidates were not all trained under identical optimization schedules, and comparable EIL and intervention results for B/C are missing. Consequently the test-set table must not be treated as a prospectively validated multi-axis winner selection. Across the subsequent CNN ablations the selected arm also varies by backbone (DenseNet A2; ResNet and EfficientNet A3), so replication is evaluated by backbone rather than assumed from DenseNet alone.
+
 \section{Experimental Setup}
 
 \subsection{Dataset and Split}

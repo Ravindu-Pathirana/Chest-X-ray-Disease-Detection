@@ -36,7 +36,7 @@ SPECS = {
         "arms": ("A0", "A3"), "artifact": "T25_efficientnet_b0_lung_attention",
     },
 }
-TASKS = ("calibration", "counterfactual", "occlusion", "cam", "efficiency")
+TASKS = ("calibration", "counterfactual", "occlusion", "cam", "efficiency", "dependence")
 CLASS_NAMES = ("COVID", "Lung_Opacity", "Normal", "Viral Pneumonia")
 
 
@@ -71,6 +71,12 @@ def arm_settings(backbone: str, arm: str) -> dict:
     }
 
 
+def canonical_checkpoint_arm(arm: str, seed: int) -> str:
+    """Training stored repeat-run DenseNet arms as ``A2_full_seed123``."""
+    suffix = f"_seed{seed}"
+    return arm[:-len(suffix)] if arm.endswith(suffix) else arm
+
+
 def load_cam_positions(backbone: str, seed: int, test_size: int) -> list[int]:
     base = ROOT / "artifacts" / SPECS[backbone]["artifact"]
     # Seed-42 files are identical across all three backbones; reuse those
@@ -102,7 +108,9 @@ def load_model(checkpoint: Path, cfg: dict, backbone: str, arm: str, seed: int):
     checkpoint_data = torch.load(checkpoint, map_location="cpu", weights_only=True)
     if not isinstance(checkpoint_data, dict):
         raise TypeError("checkpoint must be a dictionary")
-    if "arm" in checkpoint_data and checkpoint_data["arm"] != arm:
+    if "arm" in checkpoint_data and canonical_checkpoint_arm(
+        str(checkpoint_data["arm"]), seed
+    ) != arm:
         raise ValueError(f"checkpoint arm {checkpoint_data['arm']} does not match {arm}")
     if "seed" in checkpoint_data and int(checkpoint_data["seed"]) != seed:
         raise ValueError(f"checkpoint seed {checkpoint_data['seed']} does not match {seed}")
@@ -144,6 +152,52 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def verify_test_accuracy(model, loader, device, class_names, expected_csv: Path,
+                         *, tolerance: float = 1e-4, expected_n: int = 3175) -> dict:
+    """Stop new XAI inference if fixed-test accuracy differs from saved output."""
+    import pandas as pd
+    import torch
+
+    from src.modules.counterfactual import _as_logits, _dataset_image_paths
+    from src.modules.xai_dependence import image_key
+
+    expected = pd.read_csv(expected_csv)
+    required = {"image_path", "true_label", "pred_label"}
+    if not required.issubset(expected.columns) or len(expected) != expected_n:
+        raise ValueError(f"committed predictions must have {expected_n} rows and label/path columns")
+    expected["key"] = expected["image_path"].map(image_key)
+    if expected["key"].duplicated().any():
+        raise ValueError("committed predictions contain duplicate images")
+    paths = _dataset_image_paths(getattr(loader, "dataset", None))
+    if paths is None or len(paths) != len(expected):
+        raise ValueError("test loader paths do not match committed predictions")
+    rows = []
+    offset = 0
+    model.eval()
+    with torch.no_grad():
+        for images, labels, _masks in loader:
+            pred = _as_logits(model(images.to(device))).argmax(1).cpu().tolist()
+            for j, p in enumerate(pred):
+                rows.append((image_key(paths[offset + j]), class_names[int(labels[j])], class_names[p]))
+            offset += len(images)
+    observed = pd.DataFrame(rows, columns=["key", "true_label", "pred_label"])
+    if observed["key"].duplicated().any() or set(observed["key"]) != set(expected["key"]):
+        raise ValueError("evaluated image set differs from committed predictions")
+    compared = observed.merge(expected[["key", "true_label", "pred_label"]],
+                              on="key", suffixes=("_observed", "_committed"),
+                              validate="one_to_one")
+    if not (compared["true_label_observed"] == compared["true_label_committed"]).all():
+        raise ValueError("test labels differ from committed predictions")
+    accuracy = float((compared["true_label_observed"] == compared["pred_label_observed"]).mean())
+    expected_accuracy = float((compared["true_label_committed"] == compared["pred_label_committed"]).mean())
+    if abs(accuracy - expected_accuracy) > tolerance:
+        raise ValueError(f"checkpoint accuracy {accuracy:.6f} does not match committed "
+                         f"{expected_accuracy:.6f} within {tolerance}")
+    return {"accuracy": accuracy, "committed_accuracy": expected_accuracy,
+            "tolerance": tolerance, "images": len(compared),
+            "committed_predictions": str(expected_csv)}
+
+
 def run(args) -> Path:
     if not args.checkpoint.is_file():
         raise FileNotFoundError(f"checkpoint not found: {args.checkpoint}")
@@ -180,6 +234,16 @@ def run(args) -> Path:
         raise ValueError("fixed split must have 3,175 validation and 3,175 test images")
     model = load_model(args.checkpoint, cfg, args.backbone, args.arm, args.seed).to(device)
     n_smoke = smoke_test(model, test_loader, device, args.smoke_images, len(class_names))
+    tasks = [] if args.smoke_only else selected_tasks(args.tasks)
+    accuracy_verification = None
+    if "dependence" in tasks:
+        from scripts.build_cnn_closeout import SPECS as CLOSEOUT_SPECS, prediction_dir
+
+        closeout_spec = next(s for s in CLOSEOUT_SPECS if s.backbone == spec["name"])
+        expected_csv = prediction_dir(closeout_spec, args.seed,
+                                      args.arm == closeout_spec.selected_arm) / "per_image_predictions.csv"
+        accuracy_verification = verify_test_accuracy(
+            model, test_loader, device, class_names, expected_csv)
     output = args.output_dir or (ROOT / "artifacts/cnn_closeout/inference" /
                                  args.backbone / args.arm / f"seed_{args.seed}")
     output.mkdir(parents=True, exist_ok=True)
@@ -192,13 +256,12 @@ def run(args) -> Path:
         "data_dir": str(args.data_dir.resolve()), "val_images": len(datasets["val"]),
         "test_images": len(datasets["test"]), "smoke_images": n_smoke,
         "device": str(device), "python": platform.python_version(), "torch": torch.__version__,
-        "tasks": [] if args.smoke_only else selected_tasks(args.tasks),
+        "tasks": tasks, "accuracy_verification": accuracy_verification,
     }
     (output / "run_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     if args.smoke_only:
         return output
 
-    tasks = selected_tasks(args.tasks)
     if "calibration" in tasks:
         calibration_report(LogitsOnly(model), val_loader, test_loader, class_names,
                            device, output / "calibration", model_name=f"{spec['name']}-{args.arm}")
@@ -227,6 +290,17 @@ def run(args) -> Path:
                                            cfg["dataset"]["image_size"]),
                               cpu_runs=20, gpu_runs=50)
         pd.DataFrame([row]).to_csv(output / "efficiency.csv", index=False)
+    if "dependence" in tasks:
+        from src.modules.xai_dependence import evaluate_xai_dependence
+
+        pairs_path = ROOT / "artifacts/explainable_ai/swap_pairs_seed42.csv"
+        per_image, summary = evaluate_xai_dependence(
+            model, test_loader, class_names, pd.read_csv(pairs_path), device,
+            arm=args.arm, seed=args.seed, pairing_seed=42,
+        )
+        per_image.to_csv(output / "dependence_per_image.csv", index=False)
+        summary.insert(0, "backbone", args.backbone)
+        summary.to_csv(output / "dependence_summary.csv", index=False)
     return output
 
 
