@@ -116,6 +116,12 @@ def get_taps(model: nn.Module, backbone_name: str | None = None):
     if backbone_name is None:
         backbone_name = getattr(model, "backbone_name", model.backbone.__class__.__name__)
     backbone_name = backbone_name.lower()
+    if backbone_name.startswith("vit"):
+        # T26: the pre-gate map is built in ViTLungAttention.forward (patch tokens
+        # reshaped to [B,C,14,14]), not by a backbone submodule, so the wrapper
+        # exposes its own tap. Both taps output a 4D map, so cam_for() needs no
+        # token reshape_transform.
+        return model.post_attn, model.pre_attn
     for prefix, tap_fn in _PRE_GATE_TAP.items():
         if backbone_name.startswith(prefix):
             return model.post_attn, tap_fn(model.backbone)
