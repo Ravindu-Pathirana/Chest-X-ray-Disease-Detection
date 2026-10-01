@@ -137,9 +137,9 @@ Arm A0 uses the same avg-pool head, so it is the control for A1–A6 and is not 
 baseline. The wrapper exposes `pre_attn`/`post_attn` identity modules as Grad-CAM taps
 (`gradcam.py::get_taps` returns them for ViT, since the token→grid reshape happens in the wrapper,
 not in a backbone submodule). Config: `configs/vit_base_lung_attention.yaml`; tests:
-`tests/test_vit_lung_attention.py`; Kaggle notebook: `notebooks/T26_vit_base_lung_attention.ipynb`
+`tests/test_vit_lung_attention.py`; Kaggle notebook: `notebooks/T_26_Vit_Base_Model.ipynb`
 (generated from the T23 notebook, same resumable structure and outputs).
-`notebooks/T_26_Vit_Base_Model.ipynb` is the T26 owner's earlier self-contained notebook (own model
+`notebooks/archive/T_26_Vit_Base_Model_local_run_2026-10-01.ipynb` is the T26 owner's earlier self-contained notebook (own model
 class, batch 8, early stopping on val macro-F1); its results are in `artifacts/vit_lung_attention/`
 and are not comparable with the T26 protocol above. Design background:
 `Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`.

@@ -1,7 +1,7 @@
 # T26: ViT-Base (avg-pool) Lung-Region Attention, seven-arm ablation
 
 **Source:** delivered by the T26 owner on 2026-10-01 as `vit_base_lung_attention/` plus
-`notebooks/T_26_Vit_Base_Model.ipynb`. Trained on a local Windows GPU, not on Kaggle; the predictions
+`notebooks/archive/T_26_Vit_Base_Model_local_run_2026-10-01.ipynb`. Trained on a local Windows GPU, not on Kaggle; the predictions
 carry `C:\Users\USER\Desktop\Dnn_1\...` paths. Seed 42 only.
 
 This run **supersedes** the 2026-09-27 run (λ_att = 0.3, λ_bg = 1.0), which is kept unchanged in
@@ -64,7 +64,7 @@ This run **supersedes** the 2026-09-27 run (λ_att = 0.3, λ_bg = 1.0), which is
 
 ## Replacement run
 
-`notebooks/T26_vit_base_lung_attention.ipynb` re-runs T26 on Kaggle with the shared `src/modules`
+`notebooks/T_26_Vit_Base_Model.ipynb` re-runs T26 on Kaggle with the shared `src/modules`
 pipeline (same protocol and outputs as T23). It fixes the gaps listed above: checkpoints with their
 config, per-image Grad-CAM EIL, the full winner rule, a 3-seed repeat, efficiency and a module card.
 Its results go to `artifacts/T26_vit_base_lung_attention/` and will supersede this folder.

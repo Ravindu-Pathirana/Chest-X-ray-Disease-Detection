@@ -1,4 +1,4 @@
-"""Generate notebooks/T26_vit_base_lung_attention.ipynb from the T23 (ResNet50) notebook.
+"""Generate notebooks/T_26_Vit_Base_Model.ipynb from the T23 (ResNet50) notebook.
 
 Global renames first, then full rewrites of the cells whose content is backbone-specific.
 Every rewrite is keyed by cell index AND asserts on a marker in the original cell, so a
@@ -7,7 +7,7 @@ changed T23 notebook fails loudly instead of producing a silently wrong T26 note
 import copy, json, sys
 
 SRC = "notebooks/T23_resnet50_lung_attention.ipynb"
-DST = "notebooks/T26_vit_base_lung_attention.ipynb"
+DST = "notebooks/T_26_Vit_Base_Model.ipynb"
 CHECK = json.load(open(sys.argv[1])) if len(sys.argv) > 1 else {}
 OVERFIT_LR = CHECK.get("overfit_lr", 1e-4)
 SENS_LR = CHECK.get("sens_lr", 1e-4)
@@ -69,8 +69,8 @@ are reshaped to a 14x14 map, gated, and **average-pooled** into the head. timm's
 reads only the CLS token, which a spatial gate never reaches. Arm A0 uses the same avg-pool head, so
 it is the control for A1-A6 -- it is not T17's CLS-token baseline.
 
-**Relation to the 2026-10-01 local run** (`artifacts/vit_lung_attention/`,
-`notebooks/T_26_Vit_Base_Model.ipynb`): this notebook replaces it. Deliberate protocol changes, all
+**Relation to the 2026-10-01 local run** (`artifacts/vit_lung_attention/`; that notebook is kept as
+`notebooks/archive/T_26_Vit_Base_Model_local_run_2026-10-01.ipynb`): this notebook replaces it. Deliberate protocol changes, all
 to match T18/T23: batch size 32 (was 8), early stopping and best checkpoint on validation **loss**
 (was validation macro-F1), attention initialised at 0.5 (was ~0.0025), spatial-only CBAM for A5
 (was channel+spatial), attention metrics at 224x224 (were at 14x14), fp32 test evaluation, the
@@ -170,6 +170,7 @@ except Exception as e:
 s = src(10)
 assert 'print("Loaded config for experiment:"' in s
 s = s.replace('print("Loaded config for experiment:"',
+              'try:\n    from IPython.display import display\nexcept ImportError:  # plain Python, outside Jupyter\n    display = print\n'
               'BACKBONE = cfg["model"]["name"]          # "vit_base_patch16_224"\n'
               'if WANDB_ENTITY:\n    cfg = merge_overrides(cfg, {"tracking.entity": WANDB_ENTITY})\n'
               'print("W&B:", "online" if WANDB_ONLINE else "offline", "| project:", cfg["tracking"]["project"],\n'
@@ -311,6 +312,9 @@ assert a in s
 s = s.replace(a, '    assert _att_loss_history[-1] < _att_loss_history[0], "att_loss did not decrease -- check lambda/logits wiring"\n'
                  '    if _att_loss_history[-1] > _att_loss_history[0] - 0.2:\n'
                  '        print(f"NOTE: att_loss fell only {_att_loss_history[0] - _att_loss_history[-1]:.3f} in 100 steps (T23 expected > 0.2).")\n')
+a = "    del _of_model\n"
+assert a in s
+s = s.replace(a, "    del _of_model, _of_optimizer, _loss, _class_logits, _att, _att_logits\n    gc.collect(); torch.cuda.empty_cache()\n")
 put(29, s)
 
 s = src(30)
