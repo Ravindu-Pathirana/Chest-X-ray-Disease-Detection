@@ -1,0 +1,201 @@
+test_position,image_path,label,class_name,used_in_figures
+206,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2711.png,0,COVID,True
+223,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1193.png,0,COVID,True
+245,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-407.png,0,COVID,True
+257,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3533.png,0,COVID,False
+273,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3563.png,0,COVID,False
+286,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1200.png,0,COVID,False
+364,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2602.png,0,COVID,False
+458,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-851.png,0,COVID,False
+493,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3321.png,0,COVID,False
+543,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-121.png,0,COVID,False
+666,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2298.png,0,COVID,False
+830,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-395.png,0,COVID,False
+1133,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2442.png,0,COVID,False
+1241,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3616.png,0,COVID,False
+1270,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1768.png,0,COVID,False
+1289,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2020.png,0,COVID,False
+1351,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2842.png,0,COVID,False
+1355,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-599.png,0,COVID,False
+1397,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3097.png,0,COVID,False
+1416,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-955.png,0,COVID,False
+1549,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2295.png,0,COVID,False
+1581,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1105.png,0,COVID,False
+1591,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1184.png,0,COVID,False
+1728,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3100.png,0,COVID,False
+1785,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2524.png,0,COVID,False
+1966,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1490.png,0,COVID,False
+2035,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3557.png,0,COVID,False
+2049,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-3265.png,0,COVID,False
+2107,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2070.png,0,COVID,False
+2166,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2687.png,0,COVID,False
+2194,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2992.png,0,COVID,False
+2239,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-251.png,0,COVID,False
+2249,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1219.png,0,COVID,False
+2281,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-467.png,0,COVID,False
+2321,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-132.png,0,COVID,False
+2412,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2412.png,0,COVID,False
+2444,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-452.png,0,COVID,False
+2537,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1685.png,0,COVID,False
+2592,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1749.png,0,COVID,False
+2620,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-602.png,0,COVID,False
+2654,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-598.png,0,COVID,False
+2732,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-2163.png,0,COVID,False
+2784,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-106.png,0,COVID,False
+2876,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1586.png,0,COVID,False
+2907,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-333.png,0,COVID,False
+2928,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-490.png,0,COVID,False
+3060,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-1043.png,0,COVID,False
+3073,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-382.png,0,COVID,False
+3128,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-579.png,0,COVID,False
+3139,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\COVID\images\COVID-241.png,0,COVID,False
+19,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4416.png,1,Lung_Opacity,True
+85,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1439.png,1,Lung_Opacity,True
+95,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1989.png,1,Lung_Opacity,True
+97,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1892.png,1,Lung_Opacity,False
+222,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-201.png,1,Lung_Opacity,False
+263,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-2025.png,1,Lung_Opacity,False
+331,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3521.png,1,Lung_Opacity,False
+410,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3110.png,1,Lung_Opacity,False
+416,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3327.png,1,Lung_Opacity,False
+584,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1826.png,1,Lung_Opacity,False
+669,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-5825.png,1,Lung_Opacity,False
+727,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4888.png,1,Lung_Opacity,False
+738,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4610.png,1,Lung_Opacity,False
+835,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-599.png,1,Lung_Opacity,False
+870,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4868.png,1,Lung_Opacity,False
+959,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3899.png,1,Lung_Opacity,False
+1095,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-2717.png,1,Lung_Opacity,False
+1317,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-5104.png,1,Lung_Opacity,False
+1386,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-5649.png,1,Lung_Opacity,False
+1396,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4082.png,1,Lung_Opacity,False
+1423,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-5553.png,1,Lung_Opacity,False
+1446,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-2932.png,1,Lung_Opacity,False
+1469,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-5421.png,1,Lung_Opacity,False
+1559,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-338.png,1,Lung_Opacity,False
+1701,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3534.png,1,Lung_Opacity,False
+1722,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4717.png,1,Lung_Opacity,False
+1750,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3488.png,1,Lung_Opacity,False
+1755,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-2672.png,1,Lung_Opacity,False
+1765,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1913.png,1,Lung_Opacity,False
+1783,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3528.png,1,Lung_Opacity,False
+1896,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-269.png,1,Lung_Opacity,False
+2015,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3103.png,1,Lung_Opacity,False
+2041,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1981.png,1,Lung_Opacity,False
+2042,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-419.png,1,Lung_Opacity,False
+2069,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-859.png,1,Lung_Opacity,False
+2155,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-566.png,1,Lung_Opacity,False
+2368,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-2748.png,1,Lung_Opacity,False
+2373,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4241.png,1,Lung_Opacity,False
+2378,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1637.png,1,Lung_Opacity,False
+2411,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4487.png,1,Lung_Opacity,False
+2428,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-1163.png,1,Lung_Opacity,False
+2473,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4259.png,1,Lung_Opacity,False
+2494,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4329.png,1,Lung_Opacity,False
+2625,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3604.png,1,Lung_Opacity,False
+2661,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-4697.png,1,Lung_Opacity,False
+2715,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-2186.png,1,Lung_Opacity,False
+3037,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3544.png,1,Lung_Opacity,False
+3070,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3504.png,1,Lung_Opacity,False
+3101,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-3556.png,1,Lung_Opacity,False
+3134,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Lung_Opacity\images\Lung_Opacity-363.png,1,Lung_Opacity,False
+66,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-8081.png,2,Normal,True
+250,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-1643.png,2,Normal,True
+274,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-1074.png,2,Normal,True
+308,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-5097.png,2,Normal,False
+412,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2482.png,2,Normal,False
+473,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-9959.png,2,Normal,False
+592,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-9097.png,2,Normal,False
+657,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-7052.png,2,Normal,False
+825,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-8827.png,2,Normal,False
+831,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-4643.png,2,Normal,False
+838,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-9240.png,2,Normal,False
+859,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-3737.png,2,Normal,False
+956,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-3391.png,2,Normal,False
+981,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-8371.png,2,Normal,False
+1037,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-6914.png,2,Normal,False
+1117,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-8678.png,2,Normal,False
+1306,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2548.png,2,Normal,False
+1358,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2784.png,2,Normal,False
+1378,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-4473.png,2,Normal,False
+1380,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-9943.png,2,Normal,False
+1402,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-529.png,2,Normal,False
+1415,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-520.png,2,Normal,False
+1452,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-10059.png,2,Normal,False
+1505,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-10164.png,2,Normal,False
+1529,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-10063.png,2,Normal,False
+1691,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-9188.png,2,Normal,False
+1793,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-8614.png,2,Normal,False
+1821,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-1675.png,2,Normal,False
+1942,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-3206.png,2,Normal,False
+1950,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-3971.png,2,Normal,False
+2007,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-600.png,2,Normal,False
+2044,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-756.png,2,Normal,False
+2117,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-3085.png,2,Normal,False
+2162,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-6163.png,2,Normal,False
+2186,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-3388.png,2,Normal,False
+2212,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-4535.png,2,Normal,False
+2227,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-620.png,2,Normal,False
+2256,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-5181.png,2,Normal,False
+2322,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-6761.png,2,Normal,False
+2346,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2089.png,2,Normal,False
+2361,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-4112.png,2,Normal,False
+2374,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-5886.png,2,Normal,False
+2404,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-5185.png,2,Normal,False
+2500,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-63.png,2,Normal,False
+2640,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-6838.png,2,Normal,False
+2752,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2992.png,2,Normal,False
+2770,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2604.png,2,Normal,False
+2936,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-2120.png,2,Normal,False
+2969,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-5061.png,2,Normal,False
+3162,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Normal\images\Normal-4171.png,2,Normal,False
+26,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-525.png,3,Viral Pneumonia,True
+94,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-792.png,3,Viral Pneumonia,True
+126,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1309.png,3,Viral Pneumonia,True
+329,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1286.png,3,Viral Pneumonia,False
+335,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1254.png,3,Viral Pneumonia,False
+375,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1242.png,3,Viral Pneumonia,False
+424,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-118.png,3,Viral Pneumonia,False
+561,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-169.png,3,Viral Pneumonia,False
+590,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-263.png,3,Viral Pneumonia,False
+633,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-250.png,3,Viral Pneumonia,False
+682,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1022.png,3,Viral Pneumonia,False
+705,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1281.png,3,Viral Pneumonia,False
+806,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-629.png,3,Viral Pneumonia,False
+890,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-652.png,3,Viral Pneumonia,False
+900,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-367.png,3,Viral Pneumonia,False
+958,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-93.png,3,Viral Pneumonia,False
+976,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-939.png,3,Viral Pneumonia,False
+1014,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-503.png,3,Viral Pneumonia,False
+1041,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-92.png,3,Viral Pneumonia,False
+1301,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-833.png,3,Viral Pneumonia,False
+1307,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-262.png,3,Viral Pneumonia,False
+1330,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-391.png,3,Viral Pneumonia,False
+1562,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-109.png,3,Viral Pneumonia,False
+1582,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-370.png,3,Viral Pneumonia,False
+1723,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-612.png,3,Viral Pneumonia,False
+1731,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-9.png,3,Viral Pneumonia,False
+1764,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-602.png,3,Viral Pneumonia,False
+1933,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-283.png,3,Viral Pneumonia,False
+1947,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1134.png,3,Viral Pneumonia,False
+1974,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-847.png,3,Viral Pneumonia,False
+2030,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-749.png,3,Viral Pneumonia,False
+2214,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-222.png,3,Viral Pneumonia,False
+2333,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1318.png,3,Viral Pneumonia,False
+2485,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1337.png,3,Viral Pneumonia,False
+2541,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-369.png,3,Viral Pneumonia,False
+2635,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-192.png,3,Viral Pneumonia,False
+2759,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1122.png,3,Viral Pneumonia,False
+2776,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-166.png,3,Viral Pneumonia,False
+2808,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-929.png,3,Viral Pneumonia,False
+2810,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-998.png,3,Viral Pneumonia,False
+2828,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-504.png,3,Viral Pneumonia,False
+2847,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-12.png,3,Viral Pneumonia,False
+2848,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-838.png,3,Viral Pneumonia,False
+2854,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-110.png,3,Viral Pneumonia,False
+2924,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-693.png,3,Viral Pneumonia,False
+2990,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1237.png,3,Viral Pneumonia,False
+3158,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1310.png,3,Viral Pneumonia,False
+3166,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-724.png,3,Viral Pneumonia,False
+3168,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-1064.png,3,Viral Pneumonia,False
+3171,C:\Users\USER\Desktop\Dnn_1\COVID-19_Radiography_Dataset\Viral Pneumonia\images\Viral Pneumonia-777.png,3,Viral Pneumonia,False

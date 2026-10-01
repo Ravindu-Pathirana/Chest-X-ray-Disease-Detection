@@ -1,0 +1,20 @@
+{
+  "name": "lam_0.3",
+  "lambda_att": 0.3,
+  "phase1_lr": 0.001,
+  "phase2_lr": 1e-05,
+  "weight_decay": 0.0001,
+  "optimizer": "adamw",
+  "scheduler": "cosine",
+  "gate_mode": "residual",
+  "phase1_epochs": 4,
+  "phase2_epochs": 6,
+  "best_epoch": 6,
+  "best_val_loss": 0.2515911395390203,
+  "best_val_cls_loss": 0.20163094734259712,
+  "val_acc_at_best_loss": 0.9190551181102362,
+  "val_macro_f1_at_best": 0.9271439397814955,
+  "val_ilar_at_best": 0.7285118059487427,
+  "val_dice_at_best": 0.761717136470737,
+  "elapsed_minutes": 43.10704547961553
+}
