@@ -69,3 +69,4 @@ venv/
 # Data (never commit dataset files)
 data/
 !artifacts/segmentation/
+!artifacts/T30_eil_definition/

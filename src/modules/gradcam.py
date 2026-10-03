@@ -14,10 +14,12 @@ Requires `pip install grad-cam` (the `pytorch_grad_cam` package) -- already
 used successfully on Kaggle by the Candidate C notebook
 (notebooks/candidate-c-grad-cam-shortcut-suppression-loss.ipynb).
 
-WARNING: the exact EIL definition (ReLU + min-max normalisation here) has
-not yet been confirmed against Member 5's T30 definition (see WBS section
-6.3) -- swap the normalisation in `_normalize_cam` if theirs differs.
-Cross-candidate numbers must be computed with one shared definition.
+EIL definition (confirmed, T30): ReLU + per-image min-max normalisation to
+[0,1] (see `_normalize_cam` below), scored by `energy_inside_lung` in
+attention_metrics.py. This is the single definition used consistently
+across every backbone evaluated so far -- DenseNet121 (T18), ResNet50
+(T23), EfficientNet-B0 (T25), and ViT-Base (T26) -- so no cross-candidate
+numbers need to be recomputed.
 """
 from __future__ import annotations
 
