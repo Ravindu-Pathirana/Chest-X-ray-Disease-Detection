@@ -57,12 +57,14 @@ would score. Sources: `runs/vit_base_lung_attention/{seven_arm,sweep,bg_sweep,ev
 | Winner selection (McNemar + Wilcoxon on EIL), 3-seed repeat | T26 close-out | Not done |
 | Efficiency (GFLOPs, latency), module card | T35, hand-off | Not done |
 
-## Replacement run
+## Replacement run (done)
 
-`notebooks/T_26_Vit_Base_Model.ipynb` re-runs T26 on Kaggle with the shared `src/modules` pipeline,
-on the same protocol and with the same outputs as T23: checkpoints that carry their config, per-image
-EIL on the 1,000-image subset, the full winner rule, a 3-seed repeat, efficiency and a module card.
-Its results go to `artifacts/T26_vit_base_lung_attention/` and will supersede this folder.
+T26 was re-run on Kaggle on 2026-10-02 with `notebooks/T_26_Vit_Base_Model.ipynb`: the shared
+`src/modules` pipeline, the same protocol and the same outputs as T23. Its results are in
+`artifacts/T26_vit_base_lung_attention/` and **supersede this folder** for every reported ViT number:
+winner A3_multiply, confirmed over 3 seeds; A2 passes all four acceptance criteria. See
+`artifacts/T26_vit_base_lung_attention/T26_module_card.md`. This folder is kept as the record of the
+earlier local run.
 
 ## Derived files (not part of the delivery)
 
