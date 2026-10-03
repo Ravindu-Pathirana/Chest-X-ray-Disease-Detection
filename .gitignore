@@ -70,3 +70,4 @@ venv/
 data/
 !artifacts/segmentation/
 !artifacts/calibration/
+!artifacts/T30_eil_definition/
