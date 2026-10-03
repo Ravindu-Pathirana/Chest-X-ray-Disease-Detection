@@ -138,10 +138,12 @@ baseline. The wrapper exposes `pre_attn`/`post_attn` identity modules as Grad-CA
 (`gradcam.py::get_taps` returns them for ViT, since the token→grid reshape happens in the wrapper,
 not in a backbone submodule). Config: `configs/vit_base_lung_attention.yaml`; tests:
 `tests/test_vit_lung_attention.py`; Kaggle notebook: `notebooks/T_26_Vit_Base_Model.ipynb`
-(generated from the T23 notebook, same resumable structure and outputs).
+(generated from the T23 notebook, same resumable structure and outputs). It was run on Kaggle on
+2026-10-02; results, the executed notebook and a reviewed module card are in
+`artifacts/T26_vit_base_lung_attention/` (winner A3_multiply; the 11 checkpoints are not committed).
 `notebooks/archive/T_26_Vit_Base_Model_local_run_2026-10-01.ipynb` is the T26 owner's earlier self-contained notebook (own model
-class, batch 8, early stopping on val macro-F1); its results are in `artifacts/vit_lung_attention/`
-and are not comparable with the T26 protocol above. Design background:
+class, batch 8, early stopping on val macro-F1); its results are in `artifacts/vit_lung_attention/`,
+are not comparable with the T26 protocol above, and are superseded by the Kaggle run. Design background:
 `Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`.
 
 ### `artifacts/` — committed, reproducible run outputs
