@@ -1,0 +1,10 @@
+{
+  "A6_module_is_cheap": {
+    "target": "params delta <= 3.0%, GFLOPs delta <= 2.0%",
+    "params_delta_absolute": 73921,
+    "params_delta_pct": 0.08615327252368285,
+    "gflops_delta_absolute": 0.01446950400000091,
+    "gflops_delta_pct": 0.08578766904196515,
+    "pass": true
+  }
+}
