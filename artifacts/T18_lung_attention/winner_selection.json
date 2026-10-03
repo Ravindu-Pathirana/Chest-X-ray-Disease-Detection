@@ -1,0 +1,12 @@
+{
+  "reference_arm": "A0_vanilla",
+  "candidates": [
+    "A2_full",
+    "A4_guidance_only",
+    "A3_multiply",
+    "A5_cbam"
+  ],
+  "winner": "A3_multiply",
+  "rule": "candidate iff McNemar p>=0.05 AND Wilcoxon p<0.05 on EIL_post vs. A0 AND mean EIL_post gain > 0; rank by mean EIL_post gain.",
+  "note": "Computed 2026-10-03 after A3_multiply and A5_cbam were Grad-CAM-scored (seed 42 only). A3_multiply has no seed 123/2026 repeat; the three-seed DenseNet121 tables still use A2_full. A2_bg is a separate follow-up and is not a candidate here."
+}

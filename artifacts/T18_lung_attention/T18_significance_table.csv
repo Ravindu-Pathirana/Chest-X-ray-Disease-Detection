@@ -1,0 +1,6 @@
+,reference_arm,n_test_images_compared,mcnemar_b,mcnemar_c,mcnemar_p,mcnemar_pass_no_accuracy_cost,wilcoxon_n,wilcoxon_stat,wilcoxon_p,wilcoxon_pass_real_eil_effect,mean_eil_post_gain,is_candidate_winner,mcnemar_one_sided_arm_worse_p,candidate_two_sided_rule,candidate_one_sided_rule
+A1_gate_only,A0_vanilla,3175,35,30,0.6201447650813029,True,1000,168735.0,4.54526191640093e-19,True,-0.012114942613989115,True,0.31007238254065145,False,False
+A2_full,A0_vanilla,3175,40,39,1.0,True,1000,13841.0,1.1811225012796379e-147,True,0.07734852619096637,True,0.49999999999999867,True,True
+A4_guidance_only,A0_vanilla,3175,42,40,0.9121566075526029,True,1000,128678.0,2.0918861025090624e-40,True,0.02100475131906569,True,0.45607830377630143,True,True
+A3_multiply,A0_vanilla,3175,55,41,0.18428587288036516,True,1000,0.0,3.3258591189345135e-165,True,0.34779865802824494,True,0.09214293644018258,True,True
+A5_cbam,A0_vanilla,3175,44,35,0.3681876338306311,True,1000,53067.0,2.532202215355282e-103,True,0.04415375892166051,True,0.18409381691531554,True,True

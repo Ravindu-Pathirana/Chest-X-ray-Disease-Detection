@@ -35,6 +35,9 @@ artifacts/DenseNet121-HPO/*
 !artifacts/explainable_ai/
 !artifacts/T35_efficiency/
 !artifacts/T26_vit_base_lung_attention/
+!artifacts/T28_calibration/
+!artifacts/T31_dependence/
+!artifacts/T33_rsna_overlap/
 # T26: same rule as T23 -- results yes, ~340 MB ViT checkpoints never.
 artifacts/T26_vit_base_lung_attention/**/*.pt
 artifacts/T26_vit_base_lung_attention/**/*.pth
