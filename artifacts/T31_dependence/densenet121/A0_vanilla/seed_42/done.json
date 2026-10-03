@@ -1,0 +1,15 @@
+{
+  "backbone": "densenet121",
+  "arm": "A0_vanilla",
+  "seed": 42,
+  "role": "baseline",
+  "test_accuracy": 0.9467716535433071,
+  "committed_accuracy": 0.9467716535433071,
+  "pred_agreement": 1.0,
+  "max_abs_prob_diff": 7.11679458618164e-05,
+  "verified": "ok",
+  "checkpoint": "/Volumes/My Disk 2/My Projects/Chest Disease Detection/checkpoints/densenet121/A0_vanilla/densenet121_A0_vanilla.pt",
+  "checkpoint_sha256_12": "8fc1931123fa",
+  "repo_commit": "466bff1b7e7440fa8140b129075e7af68490c226",
+  "minutes": 5.33
+}

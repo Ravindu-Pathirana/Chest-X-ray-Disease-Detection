@@ -1,0 +1,5 @@
+rsna_class,test,train,val,never seen,total
+Lung Opacity,902,4208,902,0,6012
+Normal,1319,6209,1323,0,8851
+No Lung Opacity / Not Normal,0,0,0,11821,11821
+All,2221,10417,2225,11821,26684

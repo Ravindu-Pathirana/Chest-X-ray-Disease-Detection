@@ -1,0 +1,5 @@
+,seeds,comparisons,LRG_higher_with_CI,LRG_lower_with_CI,verdict
+densenet121,3,6,6,0,reduced background reliance SUPPORTED
+efficientnet_b0,3,6,6,0,reduced background reliance SUPPORTED
+resnet50,3,6,6,0,reduced background reliance SUPPORTED
+vit_base_patch16_224,3,6,6,0,reduced background reliance SUPPORTED
