@@ -1,0 +1,8 @@
+{
+  "pipeline": "t26-vit-avgpool-ramcache-v1",
+  "checks": [
+    "smoke_run",
+    "overfit",
+    "lambda_sensitivity"
+  ]
+}
