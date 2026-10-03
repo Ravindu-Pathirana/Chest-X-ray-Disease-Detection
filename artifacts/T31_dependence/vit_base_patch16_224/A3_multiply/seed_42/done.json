@@ -1,0 +1,15 @@
+{
+  "backbone": "vit_base_patch16_224",
+  "arm": "A3_multiply",
+  "seed": 42,
+  "role": "selected",
+  "test_accuracy": 0.9341732283464567,
+  "committed_accuracy": 0.9341732283464567,
+  "pred_agreement": 1.0,
+  "max_abs_prob_diff": 8.606910705566406e-05,
+  "verified": "ok",
+  "checkpoint": "/Volumes/My Disk 2/My Projects/Chest Disease Detection/checkpoints/vit_base/A3_multiply/vit_base_patch16_224_A3_multiply.pt",
+  "checkpoint_sha256_12": "7742fa14678a",
+  "repo_commit": "466bff1b7e7440fa8140b129075e7af68490c226",
+  "minutes": 11.86
+}

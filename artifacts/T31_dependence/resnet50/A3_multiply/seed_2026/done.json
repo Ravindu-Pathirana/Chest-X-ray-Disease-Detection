@@ -1,0 +1,15 @@
+{
+  "backbone": "resnet50",
+  "arm": "A3_multiply",
+  "seed": 2026,
+  "role": "selected",
+  "test_accuracy": 0.9159055118110236,
+  "committed_accuracy": 0.9159055118110236,
+  "pred_agreement": 1.0,
+  "max_abs_prob_diff": 0.00030517578125,
+  "verified": "ok",
+  "checkpoint": "/Volumes/My Disk 2/My Projects/Chest Disease Detection/checkpoints/resnet50/A3_multiply_seed2026/resnet50_A3_multiply_seed2026.pt",
+  "checkpoint_sha256_12": "a45306f6d90e",
+  "repo_commit": "466bff1b7e7440fa8140b129075e7af68490c226",
+  "minutes": 5.13
+}

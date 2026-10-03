@@ -1,0 +1,15 @@
+{
+  "backbone": "efficientnet_b0",
+  "arm": "A0",
+  "seed": 2026,
+  "role": "baseline",
+  "test_accuracy": 0.9130708661417323,
+  "committed_accuracy": 0.9130708661417323,
+  "pred_agreement": 1.0,
+  "max_abs_prob_diff": 2.54213809967041e-05,
+  "verified": "ok",
+  "checkpoint": "/Volumes/My Disk 2/My Projects/Chest Disease Detection/checkpoints/efficientnet_b0/seed_2026/A0/efficientnet_b0_A0.pt",
+  "checkpoint_sha256_12": "4931c756daf0",
+  "repo_commit": "466bff1b7e7440fa8140b129075e7af68490c226",
+  "minutes": 2.93
+}

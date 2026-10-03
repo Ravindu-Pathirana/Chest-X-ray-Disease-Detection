@@ -1,0 +1,15 @@
+{
+  "backbone": "densenet121",
+  "arm": "A3_multiply",
+  "seed": 42,
+  "role": "other",
+  "test_accuracy": 0.9423622047244095,
+  "committed_accuracy": 0.9423622047244095,
+  "pred_agreement": null,
+  "max_abs_prob_diff": null,
+  "verified": "ok",
+  "checkpoint": "/Volumes/My Disk 2/My Projects/Chest Disease Detection/checkpoints/densenet121/A3_multiply/densenet121_A3_multiply.pt",
+  "checkpoint_sha256_12": "f4a9ff398e02",
+  "repo_commit": "466bff1b7e7440fa8140b129075e7af68490c226",
+  "minutes": 5.03
+}

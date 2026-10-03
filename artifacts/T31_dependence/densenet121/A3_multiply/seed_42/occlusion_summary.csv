@@ -1,0 +1,4 @@
+arm,region,mode,n_images,mean_probability_drop,pred_flip_rate
+A3_multiply,lung,zero,3175,0.599153501311625,0.6075590551181103
+A3_multiply,lung,blur,3175,0.4324113744919694,0.44881889763779526
+A3_multiply,background,zero,3175,0.7722843586084411,0.8198425196850394
