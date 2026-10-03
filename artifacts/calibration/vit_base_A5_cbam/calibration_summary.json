@@ -1,0 +1,15 @@
+{
+  "model_name": "vit_base_A5_cbam",
+  "n_bins": 15,
+  "temperature": 1.0856300592422485,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.01442438643425703,
+    "brier": 0.10229656845331192
+  },
+  "after_scaling": {
+    "ece": 0.012339385226368904,
+    "brier": 0.10217732936143875
+  }
+}
