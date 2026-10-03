@@ -1,0 +1,15 @@
+{
+  "model_name": "resnet50_A2_full",
+  "n_bins": 15,
+  "temperature": 1.0372428894042969,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.010799766518175602,
+    "brier": 0.1242360919713974
+  },
+  "after_scaling": {
+    "ece": 0.008999315090477467,
+    "brier": 0.12418067455291748
+  }
+}

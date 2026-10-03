@@ -1,0 +1,15 @@
+{
+  "model_name": "resnet50_A4_guidance_only",
+  "n_bins": 15,
+  "temperature": 1.028359293937683,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.011307314038276672,
+    "brier": 0.12316238135099411
+  },
+  "after_scaling": {
+    "ece": 0.008508681319653988,
+    "brier": 0.12311570346355438
+  }
+}
