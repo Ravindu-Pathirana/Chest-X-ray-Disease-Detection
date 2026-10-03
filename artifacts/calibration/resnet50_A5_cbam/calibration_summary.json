@@ -1,0 +1,15 @@
+{
+  "model_name": "resnet50_A5_cbam",
+  "n_bins": 15,
+  "temperature": 1.030739188194275,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.013612321577966213,
+    "brier": 0.12741553783416748
+  },
+  "after_scaling": {
+    "ece": 0.011686098761856556,
+    "brier": 0.12741050124168396
+  }
+}
