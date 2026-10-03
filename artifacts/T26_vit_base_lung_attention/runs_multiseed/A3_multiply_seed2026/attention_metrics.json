@@ -1,0 +1,8 @@
+{
+  "attention_ilar": 0.7516027688980103,
+  "attention_dice": 0.9118291735649109,
+  "attention_iou": 0.8404068350791931,
+  "cam_eil_post_mean": 0.7619233460202813,
+  "cam_eil_pre_mean": 0.5641636061668396,
+  "cam_subset_n": 1000
+}
