@@ -1,0 +1,15 @@
+{
+  "model_name": "resnet50_A1_gate_only",
+  "n_bins": 15,
+  "temperature": 1.034972071647644,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.008303620852530003,
+    "brier": 0.12838779389858246
+  },
+  "after_scaling": {
+    "ece": 0.007846185006201267,
+    "brier": 0.12835654616355896
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "model_name": "vit_base_A6_full_bg",
+  "n_bins": 15,
+  "temperature": 1.0676158666610718,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.010660944506525993,
+    "brier": 0.1059563085436821
+  },
+  "after_scaling": {
+    "ece": 0.008940223604440689,
+    "brier": 0.10590602457523346
+  }
+}
