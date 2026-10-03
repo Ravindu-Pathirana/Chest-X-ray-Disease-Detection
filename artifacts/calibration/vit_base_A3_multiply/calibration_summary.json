@@ -1,0 +1,15 @@
+{
+  "model_name": "vit_base_A3_multiply",
+  "n_bins": 15,
+  "temperature": 1.0720512866973877,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.013476303778588772,
+    "brier": 0.09985259920358658
+  },
+  "after_scaling": {
+    "ece": 0.013273238204419613,
+    "brier": 0.09971395879983902
+  }
+}

@@ -117,7 +117,7 @@ DenseNet121 was selected as the module's host backbone on this evidence.
 
 > ⚠️ Candidates (b) and (c) were trained under **different protocols** from (a), so their accuracy deltas are **not** attributable to the method. A protocol-matched head-to-head (P12 winner selection) is pending.
 
-> **Cross-architecture status:** the CNN transfer is complete for ResNet50 and EfficientNet-B0, including selected-arm three-seed repeats. ViT A0–A6 was re-run on 2026-10-01 (λ_att = 1.0, λ_bg = 2.0, seed 42; see [`artifacts/vit_lung_attention/README.md`](artifacts/vit_lung_attention/README.md)). It has classification metrics, attention-Dice, bootstrap CIs and Grad-CAM EIL on a 200-image subsample, but no checkpoints and no winner, and it follows a different protocol from the CNN runs, so it is not part of the main cross-backbone explainability claim. A protocol-matched Kaggle re-run is set up in [`notebooks/T_26_Vit_Base_Model.ipynb`](notebooks/T_26_Vit_Base_Model.ipynb).
+> **Cross-architecture status:** the transfer is complete on all four backbones, each with its own seven-arm ablation, winner selection and a three-seed repeat of A0 and the selected arm. ViT-Base (T26) was run on Kaggle on 2026-10-02 on the same protocol as the CNN backbones: A2 passes all four acceptance criteria (attention-Dice 0.918, ΔEIL +0.098, no significant accuracy cost) and the selected arm is A3 (ΔEIL +0.570 ± 0.003 over three seeds); see [`artifacts/T26_vit_base_lung_attention/T26_module_card.md`](artifacts/T26_vit_base_lung_attention/T26_module_card.md). The ViT attention map is 14×14 against the CNNs' 7×7, and no perturbation test has been run on ViT yet, so read cross-family EIL comparisons with that in mind. The earlier local ViT run in [`artifacts/vit_lung_attention/`](artifacts/vit_lung_attention/README.md) is superseded.
 
 ### Lung masks
 
@@ -372,7 +372,7 @@ A five-member team where **everyone owns one deep-learning model end-to-end** (d
 - [ ] Run lung-versus-background occlusion to test explanation faithfulness directly
 - [ ] Train our own lung-segmentation model and re-run T18 with self-generated masks
 - [ ] Protocol-matched comparison of candidates (a) / (b) / (c), then winner selection
-- [x] Transfer and evaluate the module on ResNet50 and EfficientNet-B0; [ ] complete the ViT explanation-path comparability audit
+- [x] Transfer and evaluate the module on ResNet50, EfficientNet-B0 and ViT-Base (T26, 2026-10-02); [ ] perturbation (dependence) test on ViT
 - [ ] External RSNA robustness + consolidated Pareto analysis (M3–M4)
 - [ ] Optional: NIH ChestX-ray14 generalisation check
 

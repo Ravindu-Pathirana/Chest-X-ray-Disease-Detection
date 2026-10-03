@@ -1,0 +1,16 @@
+{
+  "match_threshold": 0.97,
+  "control_images_not_from_rsna": 6302,
+  "control_best_similarity_median": 0.8869585394859314,
+  "control_best_similarity_max": 0.9999969601631165,
+  "control_matched": 1341,
+  "rsna_sourced_primary_images": 14863,
+  "rsna_sourced_matched": 13522,
+  "rsna_sourced_matched_fraction": 0.9097759537105564,
+  "rsna_sourced_best_similarity_median": 0.999984622001648,
+  "label_agreement_among_matched": 1.0,
+  "distinct_rsna_images_matched": 13522,
+  "rsna_images_total": 26684,
+  "rsna_images_in_primary_training_split": 9488,
+  "rsna_images_never_seen": 13162
+}
