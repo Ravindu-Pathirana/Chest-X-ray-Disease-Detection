@@ -1,0 +1,15 @@
+{
+  "model_name": "vit_base_A4_guidance_only",
+  "n_bins": 15,
+  "temperature": 1.0742677450180054,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.011347462423145771,
+    "brier": 0.10092246532440186
+  },
+  "after_scaling": {
+    "ece": 0.014094378799200058,
+    "brier": 0.10087050497531891
+  }
+}

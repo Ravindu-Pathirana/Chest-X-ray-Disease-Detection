@@ -1,0 +1,15 @@
+{
+  "model_name": "densenet121_A3_multiply",
+  "n_bins": 15,
+  "temperature": 1.1893821954727173,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.029901225119829178,
+    "brier": 0.09138722717761993
+  },
+  "after_scaling": {
+    "ece": 0.022381935268640518,
+    "brier": 0.08939492702484131
+  }
+}

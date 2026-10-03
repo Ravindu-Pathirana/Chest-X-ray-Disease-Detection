@@ -1,0 +1,15 @@
+{
+  "model_name": "vit_base_A1_gate_only",
+  "n_bins": 15,
+  "temperature": 1.0854989290237427,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.017921997234225273,
+    "brier": 0.1070495992898941
+  },
+  "after_scaling": {
+    "ece": 0.018136240541934967,
+    "brier": 0.10679657012224197
+  }
+}
