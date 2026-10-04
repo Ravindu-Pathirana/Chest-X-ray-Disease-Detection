@@ -1,0 +1,9 @@
+backbone,role,arm,auroc_covid,internal_auroc_covid_vs_normal,auroc_drop_vs_internal,auroc_covid_excl_normal_pcr,auroc_any_abnormal,avg_precision_covid,sensitivity_pred_covid,specificity_pred_covid,auroc_normal_vs_neg,auroc_mild_vs_neg,auroc_moderate_vs_neg,auroc_severe_vs_neg,pos_pred_COVID,pos_pred_Lung_Opacity,pos_pred_Normal,pos_pred_Viral Pneumonia,neg_pred_COVID,neg_pred_Lung_Opacity,neg_pred_Normal,neg_pred_Viral Pneumonia
+densenet121,baseline,A0_vanilla,0.641,0.998,0.357,0.664,0.725,0.66,0.735,0.405,0.533,0.598,0.673,0.733,0.735,0.087,0.178,0.0,0.595,0.022,0.379,0.005
+densenet121,selected,A2_full,0.628,0.998,0.369,0.649,0.712,0.649,0.764,0.353,0.532,0.585,0.653,0.725,0.764,0.08,0.156,0.0,0.647,0.018,0.331,0.004
+efficientnet_b0,baseline,A0,0.649,0.995,0.346,0.676,0.74,0.646,0.646,0.562,0.521,0.632,0.667,0.759,0.646,0.121,0.232,0.001,0.438,0.03,0.525,0.007
+efficientnet_b0,selected,A3,0.651,0.996,0.345,0.68,0.74,0.653,0.632,0.579,0.517,0.626,0.672,0.775,0.632,0.123,0.243,0.002,0.421,0.02,0.554,0.005
+resnet50,baseline,A0_vanilla,0.648,0.991,0.343,0.671,0.716,0.641,0.671,0.567,0.542,0.615,0.677,0.729,0.671,0.078,0.251,0.0,0.433,0.02,0.543,0.005
+resnet50,selected,A3_multiply,0.65,0.991,0.34,0.673,0.717,0.642,0.69,0.52,0.545,0.609,0.687,0.724,0.69,0.072,0.238,0.0,0.48,0.016,0.502,0.002
+vit_base_patch16_224,baseline,A0_vanilla,0.638,0.997,0.36,0.662,0.699,0.643,0.764,0.419,0.524,0.579,0.668,0.756,0.764,0.057,0.179,0.0,0.581,0.016,0.398,0.005
+vit_base_patch16_224,selected,A3_multiply,0.613,0.997,0.385,0.634,0.681,0.582,0.752,0.42,0.516,0.549,0.651,0.705,0.752,0.065,0.183,0.0,0.58,0.016,0.4,0.005

@@ -1,0 +1,13 @@
+class_name,reason,image_key
+COVID,correctly_classified,COVID/images/COVID-91.png
+COVID,a0_wrong_a2_right,COVID/images/COVID-555.png
+COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,COVID/images/COVID-1450.png
+Lung_Opacity,correctly_classified,Lung_Opacity/images/Lung_Opacity-5758.png
+Lung_Opacity,a0_wrong_a2_right,Lung_Opacity/images/Lung_Opacity-1945.png
+Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,Lung_Opacity/images/Lung_Opacity-4750.png
+Normal,correctly_classified,Normal/images/Normal-1580.png
+Normal,a0_wrong_a2_right,Normal/images/Normal-168.png
+Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,Normal/images/Normal-2001.png
+Viral Pneumonia,correctly_classified,Viral Pneumonia/images/Viral Pneumonia-1263.png
+Viral Pneumonia,correctly_classified_fallback,Viral Pneumonia/images/Viral Pneumonia-1261.png
+Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,Viral Pneumonia/images/Viral Pneumonia-597.png
