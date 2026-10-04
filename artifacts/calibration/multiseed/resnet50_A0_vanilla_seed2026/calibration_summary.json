@@ -1,0 +1,15 @@
+{
+  "model_name": "resnet50_A0_vanilla_seed2026",
+  "n_bins": 15,
+  "temperature": 1.0304503440856934,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.01024557463824749,
+    "brier": 0.12449564784765244
+  },
+  "after_scaling": {
+    "ece": 0.010811733081936836,
+    "brier": 0.12452321499586105
+  }
+}

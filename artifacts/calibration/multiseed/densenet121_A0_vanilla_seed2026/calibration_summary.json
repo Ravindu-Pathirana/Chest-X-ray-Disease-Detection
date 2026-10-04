@@ -1,0 +1,15 @@
+{
+  "model_name": "densenet121_A0_vanilla_seed2026",
+  "n_bins": 15,
+  "temperature": 1.103258490562439,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.021936094388365746,
+    "brier": 0.08503644168376923
+  },
+  "after_scaling": {
+    "ece": 0.01760117895901203,
+    "brier": 0.08421144634485245
+  }
+}
