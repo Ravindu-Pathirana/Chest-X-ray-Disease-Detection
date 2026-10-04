@@ -248,8 +248,8 @@ A4 guidance & 94.61 & 94.99 & 0.840 & 0.317 & $-0.12$ & $+2.10$ \\
 \textbf{A2 full} & \textbf{94.65} & \textbf{95.08}
 & \textbf{0.839} & \textbf{0.374}
 & \textbf{$-0.03$} & \textbf{$+7.73$} \\
-A5 CBAM-S & 94.39 & 94.76 & 0.415 & n/a & $-0.35$ & n/a \\
-A3 multiply & 94.24 & 94.46 & 0.840 & n/a & $-0.65$ & n/a \\
+A5 CBAM-S & 94.39 & 94.76 & 0.415 & 0.340 & $-0.35$ & $+4.42$ \\
+A3 multiply & 94.24 & 94.46 & 0.840 & 0.644 & $-0.65$ & $+34.78$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -260,9 +260,9 @@ The baseline A0 obtained 94.68\% accuracy, 95.11\% macro-F1 and an EIL of 0.296.
 
 A4 received mask supervision without applying its attention map to the classifier features. It obtained an attention-mask Dice of 0.840, showing that the guidance loss was able to produce a lung-shaped attention map. Its EIL was 0.317, which is an improvement of 2.10 percentage points over A0.
 
-The full A2 model obtained an attention-mask Dice of 0.839 and an EIL of 0.374, corresponding to a 7.73 percentage-point improvement over A0. Its accuracy and macro-F1 were 94.65\% and 95.08\%, respectively. Among the arms for which EIL was measured, the combination of mask supervision and residual gating produced the largest observed improvement.
+The full A2 model obtained an attention-mask Dice of 0.839 and an EIL of 0.374, corresponding to a 7.73 percentage-point improvement over A0. Its accuracy and macro-F1 were 94.65\% and 95.08\%, respectively. Among the ungated and residual-gate arms (A1, A4 and A2), the combination of mask supervision and residual gating produced the largest improvement.
 
-A3 used purely multiplicative gating and obtained 94.24\% accuracy and 94.46\% macro-F1. A5 used the spatial-attention branch of CBAM~\cite{woo2018cbam} and obtained 94.39\% accuracy, 94.76\% macro-F1 and an attention-mask Dice of 0.415. A3 and A5 were evaluated only at seed 42, and EIL was not computed for these two arms. Their results are therefore treated as supporting single-seed comparisons.
+A3 used purely multiplicative gating and obtained 94.24\% accuracy and 94.46\% macro-F1. A5 used the spatial-attention branch of CBAM~\cite{woo2018cbam} and obtained 94.39\% accuracy, 94.76\% macro-F1 and an attention-mask Dice of 0.415. A5 reached an EIL of 0.340, 4.42 percentage points above A0. A3 reached an EIL of 0.644, 34.78 percentage points above A0 and the largest of any arm, with a pre-gate EIL of 0.394; its accuracy difference from A0 was not statistically significant (exact McNemar test, $p=0.18$). Part of A3's post-gate EIL follows directly from the gate: multiplying the feature map by a lung-shaped attention map removes background activations before Grad-CAM is computed, so this value is not directly comparable with the residual gate's. A3 and A5 were evaluated only at seed 42, and their results are treated as supporting single-seed comparisons.
 
 \subsection{Three-Seed Baseline Comparison}
 
@@ -306,7 +306,7 @@ Several limitations should be considered when interpreting the results. The data
 
 The attention map has a resolution of $7\times7$, with each cell representing an approximately $32\times32$ region of the input image. The soft mask targets provide some boundary information, but small abnormalities and detailed lung boundaries may not be represented precisely at this resolution.
 
-Only A0 and A2 were evaluated across three matched seeds. The complete six-arm ablation was conducted at seed 42, and EIL was not computed for A3 and A5. Further repeated evaluations would provide a more complete comparison of the attention variants.
+Only A0 and A2 were evaluated across three matched seeds. The other four arms (A1, A3, A4 and A5) were evaluated at seed 42 only. This matters most for A3, which shows the largest EIL gain in the ablation but has no repeated-seed confirmation. Further repeated evaluations would provide a more complete comparison of the attention variants.
 
 The current experiments measure where the model's Grad-CAM energy is located. Although EIL increased, this does not directly prove that the classifier depends less on background information~\cite{adebayo2018sanity}. Lung-preserving background perturbations are currently being investigated to measure this more directly. Future work will also include external validation, additional CNN backbones, adaptation to ViT feature representations and evaluation using independently generated lung masks. Multi-scale or pathology-adaptive attention targets may also be studied to better represent small findings and changes near the lung boundaries.
 

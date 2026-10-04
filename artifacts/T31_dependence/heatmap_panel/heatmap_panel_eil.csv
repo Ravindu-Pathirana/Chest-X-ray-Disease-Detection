@@ -1,0 +1,109 @@
+image_key,true_label,selection_reason,backbone,arm,pred_label,correct,eil_post
+COVID/images/COVID-91.png,COVID,correctly_classified,densenet121,A0_vanilla,COVID,True,0.48373621702194214
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,densenet121,A0_vanilla,Lung_Opacity,False,0.048581723123788834
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A0_vanilla,COVID,True,0.18242546916007996
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,densenet121,A0_vanilla,Lung_Opacity,True,0.30754682421684265
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,densenet121,A0_vanilla,Normal,False,0.24629734456539154
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A0_vanilla,Lung_Opacity,True,0.1388293355703354
+Normal/images/Normal-1580.png,Normal,correctly_classified,densenet121,A0_vanilla,Normal,True,0.34154924750328064
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,densenet121,A0_vanilla,Viral Pneumonia,False,0.3431704640388489
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A0_vanilla,Normal,True,0.14102405309677124
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,densenet121,A0_vanilla,Viral Pneumonia,True,0.4517100751399994
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,densenet121,A0_vanilla,Viral Pneumonia,True,0.3074539601802826
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A0_vanilla,Viral Pneumonia,True,0.16648830473423004
+COVID/images/COVID-91.png,COVID,correctly_classified,densenet121,A2_full,COVID,True,0.5108974575996399
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,densenet121,A2_full,COVID,True,0.45843440294265747
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A2_full,COVID,True,0.19624976813793182
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,densenet121,A2_full,Lung_Opacity,True,0.4754551351070404
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,densenet121,A2_full,Lung_Opacity,True,0.23727884888648987
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A2_full,Lung_Opacity,True,0.1437300741672516
+Normal/images/Normal-1580.png,Normal,correctly_classified,densenet121,A2_full,Normal,True,0.5010704398155212
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,densenet121,A2_full,Normal,True,0.24709662795066833
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A2_full,Normal,True,0.17915622889995575
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,densenet121,A2_full,Viral Pneumonia,True,0.458743691444397
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,densenet121,A2_full,Viral Pneumonia,True,0.35343074798583984
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A2_full,Viral Pneumonia,True,0.19145499169826508
+COVID/images/COVID-91.png,COVID,correctly_classified,densenet121,A3_multiply,COVID,True,0.6471977233886719
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,densenet121,A3_multiply,Lung_Opacity,False,0.4464486539363861
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A3_multiply,COVID,True,0.3719361424446106
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,densenet121,A3_multiply,Lung_Opacity,True,0.6494958400726318
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,densenet121,A3_multiply,Lung_Opacity,True,0.5982739925384521
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A3_multiply,Lung_Opacity,True,0.3970704972743988
+Normal/images/Normal-1580.png,Normal,correctly_classified,densenet121,A3_multiply,Normal,True,0.7450990676879883
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,densenet121,A3_multiply,Viral Pneumonia,False,0.5593527555465698
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A3_multiply,Normal,True,0.3217014670372009
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,densenet121,A3_multiply,Viral Pneumonia,True,0.6241085529327393
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,densenet121,A3_multiply,Viral Pneumonia,True,0.5837411284446716
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,densenet121,A3_multiply,Viral Pneumonia,True,0.4051189124584198
+COVID/images/COVID-91.png,COVID,correctly_classified,resnet50,A0_vanilla,Normal,False,0.5837574601173401
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,resnet50,A0_vanilla,COVID,True,0.4337949752807617
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A0_vanilla,COVID,True,0.1790803223848343
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,resnet50,A0_vanilla,Lung_Opacity,True,0.3055688142776489
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,resnet50,A0_vanilla,Normal,False,0.20556354522705078
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A0_vanilla,Lung_Opacity,True,0.09880437701940536
+Normal/images/Normal-1580.png,Normal,correctly_classified,resnet50,A0_vanilla,Normal,True,0.5224476456642151
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,resnet50,A0_vanilla,Normal,True,0.24257849156856537
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A0_vanilla,Lung_Opacity,False,0.02086278237402439
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,resnet50,A0_vanilla,Normal,False,0.2780528962612152
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,resnet50,A0_vanilla,Viral Pneumonia,True,0.4199163615703583
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A0_vanilla,Viral Pneumonia,True,0.17959855496883392
+COVID/images/COVID-91.png,COVID,correctly_classified,resnet50,A3_multiply,Normal,False,0.7725814580917358
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,resnet50,A3_multiply,COVID,True,0.6891148090362549
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A3_multiply,COVID,True,0.30445584654808044
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,resnet50,A3_multiply,Lung_Opacity,True,0.5221479535102844
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,resnet50,A3_multiply,Lung_Opacity,True,0.5717516541481018
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A3_multiply,Lung_Opacity,True,0.3767454922199249
+Normal/images/Normal-1580.png,Normal,correctly_classified,resnet50,A3_multiply,Normal,True,0.8168642520904541
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,resnet50,A3_multiply,Normal,True,0.6017731428146362
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A3_multiply,Normal,True,0.16160550713539124
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,resnet50,A3_multiply,Normal,False,0.6532531380653381
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,resnet50,A3_multiply,Viral Pneumonia,True,0.5961159467697144
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,resnet50,A3_multiply,Viral Pneumonia,True,0.2704014182090759
+COVID/images/COVID-91.png,COVID,correctly_classified,efficientnet_b0,A0,Normal,False,0.5760747790336609
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,efficientnet_b0,A0,COVID,True,0.40442317724227905
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A0,COVID,True,0.23639002442359924
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,efficientnet_b0,A0,Lung_Opacity,True,0.4342275559902191
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,efficientnet_b0,A0,Lung_Opacity,True,0.25556331872940063
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A0,Lung_Opacity,True,0.16396181285381317
+Normal/images/Normal-1580.png,Normal,correctly_classified,efficientnet_b0,A0,Normal,True,0.3651477098464966
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,efficientnet_b0,A0,Normal,True,0.12251061946153641
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A0,COVID,False,0.12743701040744781
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,efficientnet_b0,A0,Normal,False,0.20180459320545197
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,efficientnet_b0,A0,Viral Pneumonia,True,0.26617324352264404
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A0,Viral Pneumonia,True,0.10503461211919785
+COVID/images/COVID-91.png,COVID,correctly_classified,efficientnet_b0,A3,COVID,True,0.6014726161956787
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,efficientnet_b0,A3,COVID,True,0.4875543713569641
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A3,COVID,True,0.2669571340084076
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,efficientnet_b0,A3,Lung_Opacity,True,0.49608591198921204
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,efficientnet_b0,A3,Normal,False,0.47741207480430603
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A3,Lung_Opacity,True,0.23078672587871552
+Normal/images/Normal-1580.png,Normal,correctly_classified,efficientnet_b0,A3,Normal,True,0.6024036407470703
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,efficientnet_b0,A3,Normal,True,0.245392307639122
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A3,Lung_Opacity,False,0.16892533004283905
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,efficientnet_b0,A3,Normal,False,0.37197306752204895
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,efficientnet_b0,A3,Viral Pneumonia,True,0.39004939794540405
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,efficientnet_b0,A3,Viral Pneumonia,True,0.10785100609064102
+COVID/images/COVID-91.png,COVID,correctly_classified,vit_base_patch16_224,A0_vanilla,COVID,True,0.31826308369636536
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,vit_base_patch16_224,A0_vanilla,COVID,True,0.4007303714752197
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A0_vanilla,COVID,True,0.19777990877628326
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,vit_base_patch16_224,A0_vanilla,Lung_Opacity,True,0.10218766331672668
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,vit_base_patch16_224,A0_vanilla,COVID,False,0.42600542306900024
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A0_vanilla,Lung_Opacity,True,0.08764267712831497
+Normal/images/Normal-1580.png,Normal,correctly_classified,vit_base_patch16_224,A0_vanilla,Normal,True,0.1491091400384903
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,vit_base_patch16_224,A0_vanilla,Viral Pneumonia,False,0.23855872452259064
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A0_vanilla,Normal,True,0.016497768461704254
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,vit_base_patch16_224,A0_vanilla,Viral Pneumonia,True,0.3899456262588501
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,vit_base_patch16_224,A0_vanilla,Viral Pneumonia,True,0.42421823740005493
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A0_vanilla,Viral Pneumonia,True,0.16078335046768188
+COVID/images/COVID-91.png,COVID,correctly_classified,vit_base_patch16_224,A3_multiply,COVID,True,0.682328999042511
+COVID/images/COVID-555.png,COVID,a0_wrong_a2_right,vit_base_patch16_224,A3_multiply,COVID,True,0.7405733466148376
+COVID/images/COVID-1450.png,COVID,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A3_multiply,COVID,True,0.5910559892654419
+Lung_Opacity/images/Lung_Opacity-5758.png,Lung_Opacity,correctly_classified,vit_base_patch16_224,A3_multiply,Lung_Opacity,True,0.74686598777771
+Lung_Opacity/images/Lung_Opacity-1945.png,Lung_Opacity,a0_wrong_a2_right,vit_base_patch16_224,A3_multiply,Normal,False,0.8725503087043762
+Lung_Opacity/images/Lung_Opacity-4750.png,Lung_Opacity,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A3_multiply,Lung_Opacity,True,0.36758092045783997
+Normal/images/Normal-1580.png,Normal,correctly_classified,vit_base_patch16_224,A3_multiply,Normal,True,0.865308403968811
+Normal/images/Normal-168.png,Normal,a0_wrong_a2_right,vit_base_patch16_224,A3_multiply,Viral Pneumonia,False,0.5441870093345642
+Normal/images/Normal-2001.png,Normal,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A3_multiply,Normal,True,0.43638986349105835
+Viral Pneumonia/images/Viral Pneumonia-1263.png,Viral Pneumonia,correctly_classified,vit_base_patch16_224,A3_multiply,Viral Pneumonia,True,0.7205832004547119
+Viral Pneumonia/images/Viral Pneumonia-1261.png,Viral Pneumonia,correctly_classified_fallback,vit_base_patch16_224,A3_multiply,Viral Pneumonia,True,0.7013824582099915
+Viral Pneumonia/images/Viral Pneumonia-597.png,Viral Pneumonia,shortcut_artifact_proxy_VERIFY_VISUALLY,vit_base_patch16_224,A3_multiply,Viral Pneumonia,True,0.4586477279663086
