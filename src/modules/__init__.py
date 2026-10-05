@@ -46,6 +46,7 @@ from .counterfactual import (
 from .efficiency_check import check_module_efficiency
 from .figures import plot_attention_grid, plot_heatmap_row, select_heatmap_images
 from .gradcam import cam_for, get_taps
+from .attention_rollout import evaluate_rollout_eil, rollout_cams
 from .lung_attention import (
     CBAMSpatialAttention,
     DenseNetLungAttention,
@@ -94,6 +95,8 @@ __all__ = [
     "pointing_game",
     "cam_for",
     "get_taps",
+    "rollout_cams",
+    "evaluate_rollout_eil",
     "run_epoch",
     "train_phase",
     "evaluate",
