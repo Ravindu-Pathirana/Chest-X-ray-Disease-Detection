@@ -1,0 +1,22 @@
+{
+  "source_commit": "43c14ec894a71237a4073020fbab1ed874fa44ae",
+  "backbone": "densenet121",
+  "arm": "A2_full",
+  "seed": 42,
+  "config": "configs/densenet121_lung_attention.yaml",
+  "checkpoint": "/kaggle/input/datasets/uom230334h/t28-checkpoints/DenseNet/DenseNet/Chest-X-ray-Disease-Detection/artifacts/T18_lung_attention/runs/A2_full/densenet121_A2_full.pt",
+  "checkpoint_sha256": "b53fe4be3252298b2bacdd14474db2bc886dd3c411e3672a6ec0beec510668f0",
+  "split_manifest": "/kaggle/working/Chest-X-ray-Disease-Detection/artifacts/splits/split_manifest_v1.csv",
+  "split_manifest_sha256": "f936dc8886c593e5c468aca695beda339ec20cfc89b1b3254ffea7b0fc51533c",
+  "data_dir": "/kaggle/input/datasets/tawsifurrahman/covid19-radiography-database/COVID-19_Radiography_Dataset",
+  "val_images": 3175,
+  "test_images": 3175,
+  "smoke_images": 112,
+  "device": "cuda",
+  "python": "3.13.15",
+  "torch": "2.11.0+cu128",
+  "tasks": [
+    "occlusion"
+  ],
+  "accuracy_verification": null
+}
