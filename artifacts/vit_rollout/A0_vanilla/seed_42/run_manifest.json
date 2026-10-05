@@ -1,0 +1,25 @@
+{
+  "source_commit": "cd06cdd84cacb65d8f9a5ce1028746487e9d0a57",
+  "arm": "A0_vanilla",
+  "seed": 42,
+  "config": "configs/vit_base_lung_attention.yaml",
+  "checkpoint": "/kaggle/input/datasets/uom230334h/t28-vitbase-all/A0_vanilla/A0_vanilla/vit_base_patch16_224_A0_vanilla.pt",
+  "checkpoint_sha256": "4b8ff3db5a34faf995f4bdcb420d961d78e9f22569c0b76b7326562cd5adbead",
+  "split_manifest": "artifacts/splits/split_manifest_v1.csv",
+  "split_manifest_sha256": "f936dc8886c593e5c468aca695beda339ec20cfc89b1b3254ffea7b0fc51533c",
+  "cam_subset": "artifacts/T26_vit_base_lung_attention/cam_subset_indices.json",
+  "data_dir": "/kaggle/input/datasets/tawsifurrahman/covid19-radiography-database/COVID-19_Radiography_Dataset",
+  "test_images": 3175,
+  "images_scored": 3175,
+  "residual_weight": 0.5,
+  "head_fusion": "mean",
+  "sources": [
+    "patch_mean",
+    "cls"
+  ],
+  "device": "cuda",
+  "python": "3.13.15",
+  "torch": "2.11.0+cu128",
+  "timm": "1.0.29",
+  "smoke": false
+}
