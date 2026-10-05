@@ -1,0 +1,10 @@
+{
+  "delta_accuracy_mean": -0.0009448818897637897,
+  "delta_accuracy_std": 0.005730206424774847,
+  "delta_macro_f1_mean": -0.0006326885850615657,
+  "delta_macro_f1_std": 0.006687138203024958,
+  "delta_eil_post_mean": 0.3014685345056156,
+  "delta_eil_post_std": 0.040123183522757996,
+  "delta_eil_pre_mean": 0.06536690480510393,
+  "delta_eil_pre_std": 0.028170949007380083
+}

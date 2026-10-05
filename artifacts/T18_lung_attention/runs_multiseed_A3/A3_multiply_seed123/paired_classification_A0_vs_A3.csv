@@ -1,0 +1,2 @@
+seed,n,a0_only_correct_b,a3_only_correct_c,mcnemar_two_sided_p,delta_accuracy,delta_accuracy_ci_low,delta_accuracy_ci_high,delta_macro_f1,delta_macro_f1_ci_low,delta_macro_f1_ci_high,bootstrap_n
+123,3175,56,43,0.22762615711004688,-0.004094488188976397,-0.010393700787401539,0.0018897637795275424,-0.0020316336002037527,-0.009187087535778151,0.004996299606093165,2000

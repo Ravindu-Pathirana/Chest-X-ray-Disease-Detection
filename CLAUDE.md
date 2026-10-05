@@ -8,26 +8,44 @@ A research benchmark comparing four transfer-learning architectures (ResNet50, D
 EfficientNet-B0, ViT-Base/16) on chest X-ray disease classification (COVID-19 Radiography
 dataset: COVID / Normal / Lung Opacity / Viral Pneumonia). The point isn't just accuracy — models
 are compared across five trustworthiness axes (accuracy, calibration, explainability/faithfulness,
-OOD robustness via the RSNA dataset, efficiency), because the primary dataset is known to contain
+robustness on external data, efficiency), because the primary dataset is known to contain
 source bias (models can shortcut-learn hospital/scanner artifacts instead of disease features). A
 second research thread develops and ablates shortcut-suppression techniques (lung-mask attention,
 auxiliary segmentation head, Grad-CAM-penalty loss — see `notebooks/candidate-c-grad-cam-shortcut-suppression-loss.ipynb`)
 using the dataset's supplied lung masks. Full methodology and the 17-stage pipeline plan (P01–P17)
 are in `Project Documents/Each task description.md`; product framing is in `README.md`.
 
-**Current state:** the shared experiment-tracking/reproducibility infrastructure (`src/utils/`) is
-built and tested. The dataset split is fixed and committed (`artifacts/splits/split_manifest_v1.csv`,
-verified against the real dataset and cross-checked against AuxSeg's committed test results).
-Model training is happening per-architecture in `notebooks/` (ResNet50 baseline + HP tuning;
-DenseNet121 baseline + AuxSeg candidate + HP tuning; EfficientNet-B0 baseline + tuning). T13
-(DenseNet121 HPO, `notebooks/DenseNet_HPO_train.ipynb`) has a committed winner as of this task
-(94.83% test accuracy) — `configs/densenet121_lung_attention.yaml` now uses that config instead
-of the EfficientNet-B0-inherited placeholder it carried before. T18's Lung-Region Attention Module
-(Candidate A, `src/modules/`) is code-complete and locally verified (unit tests, plus real
-diagnostic runs against the actual dataset for the smoke/overfit checks) but not yet trained on
-Kaggle with the updated config — see `artifacts/T18_lung_attention/T18_module_card.md` for status
-and handoff notes. Don't assume `data/`, `models/`, or `results/` directories exist yet; they are
-`.gitignore`d / not-yet-created per the README's planned layout.
+**Current state (2026-10-05):** training is finished on all four backbones. Each has an arm
+ablation of the Lung-Region Attention Module (Candidate A), a selected arm and a three-seed repeat
+(42/123/2026) of A0 and the selected arm: DenseNet121 `A2_full` (T18), ResNet50 `A3_multiply`
+(T23), EfficientNet-B0 `A3` (T25), ViT-Base `A3_multiply` (T26). Arm names are `A0_vanilla`,
+`A1_gate_only`, `A2_full`, `A3_multiply`, `A4_guidance_only`, `A5_cbam`, `A6_full_bg` on ResNet50
+and ViT-Base; DenseNet121 has A0-A5 plus the separate follow-up arm `A2_bg` instead of A6; and
+EfficientNet-B0 uses plain `A0`..`A6`. Code that walks arms needs to handle all three.
+DenseNet121 `A3_multiply` also has seeds 123/2026 (`artifacts/T18_lung_attention/runs_multiseed_A3/`, added
+2026-10-05 with their external-test and dependence results), so the multiplicative gate has a three-seed
+repeat on every backbone. The T28/T31/T33 summary files and README tables still use `A2_full` for DenseNet121.
+The 44 resulting checkpoints have been evaluated inference-only for calibration (T28), lung versus
+background dependence (T31), external validity (T33) and efficiency (T35); current work is those
+evaluations and the paper. `README.md`'s status and results tables stop at the three-CNN closeout
+and do not yet cover T28/T31/T33, so read the `README.md` in each `artifacts/T*` folder for those.
+
+**Findings that limit what may be claimed** (in code comments, docs, README or paper text):
+
+- RSNA is **not** an external or OOD test set: 14,863 of the 21,165 primary images are
+  pixel-identical to RSNA images, most of them in the training split
+  (`artifacts/T33_rsna_overlap/`). External validity is tested on COVIDGR-1.0 and POLCOVID.
+- On both external sets COVID-vs-normal AUROC falls from about 0.99 to 0.61-0.73, with or without
+  the module (`artifacts/T33_external_covidgr/`, `artifacts/T33_external_polcovid/`).
+- EIL is an anatomical-localisation metric, not evidence of faithfulness. The module raises EIL on
+  every backbone, yet a background swap still flips 52-63% of predictions
+  (`artifacts/T31_dependence/`). Say "moves evidence into the lungs", not "suppresses shortcuts".
+- The dataset's per-file source metadata is wrong for the Normal class; use
+  `artifacts/T33_rsna_overlap/primary_image_source_verified.csv` for any analysis by image source.
+
+The repo has no `data/`, `models/` or `results/` directories. The dataset, the `.pt` checkpoints
+and the external test sets sit outside the repo (locally, in the parent workspace folder; see its
+`CLAUDE.md`) and are passed in as explicit paths.
 
 ## Commands
 
@@ -35,8 +53,10 @@ and handoff notes. Don't assume `data/`, `models/`, or `results/` directories ex
 # Setup (local only — Kaggle/Colab ship a GPU-matched torch preinstalled, don't pip install torch there)
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+# requirements.txt covers only src/utils. The test suite and scripts also need:
+pip install torch torchvision pandas scikit-learn Pillow timm grad-cam tqdm matplotlib scipy
 
-# Run the full test suite
+# Run the full test suite (CPU-only, about 70 s; no dataset, weights or network needed)
 pytest
 
 # Run a single test file / test
@@ -44,10 +64,21 @@ pytest tests/test_infrastructure.py -v
 pytest tests/test_infrastructure.py::test_load_config_reads_baseline_yaml -v
 ```
 
-`requirements.txt` intentionally excludes `torch`/`torchvision` and model-specific deps (`timm`,
-`grad-cam`, `shap`, `scikit-learn`, ...) — it only covers the shared tracking/reproducibility layer
-used by `src/utils`. `conftest.py` puts the repo root on `sys.path` so `from src.utils import ...`
-works under pytest with no packaging setup.
+`requirements.txt` intentionally excludes `torch`/`torchvision` and model-specific deps — it only
+covers the shared tracking/reproducibility layer used by `src/utils`. The authoritative list of
+what the tests need is the install step in `.github/workflows/tests.yml` (CI runs `pytest -v` on
+Python 3.10 for pushes and PRs to `main`); add a new test-time dependency there, not to
+`requirements.txt`. `fvcore` (FLOPs) and `python-pptx` (`requirements-presentation.txt`, for
+`scripts/build_t45_slides.py`) are optional. `conftest.py` puts the repo root on `sys.path` so
+`from src.utils import ...` works under pytest with no packaging setup. There is no linter or
+formatter configured. Tests build models with `pretrained=False`, so they never download weights.
+
+Scripts are run from the repo root as `python scripts/<name>.py`. Checkpoint-only evaluation of one model:
+
+```bash
+python scripts/run_cnn_closeout_inference.py --backbone densenet121 --arm A2_full --seed 42 \
+    --checkpoint <path>.pt --data-dir <COVID-19_Radiography_Dataset> --tasks all   # or --smoke-only
+```
 
 ## Architecture
 
@@ -124,9 +155,27 @@ same role `notebooks/efficiency.py` plays for the efficiency axis.
   plain logits — wrap T18-style `(logits, attention, attention_logits)` models with `LogitsOnly`
   first, same convention as `efficiency.py`/`gradcam.py`.
 
+- `xai_dependence.py` — **T31.** `evaluate_xai_dependence`: per image, blurs or swaps (with a
+  different-class donor image) the lungs, the background, and an area-matched background region,
+  and records the total-variation change in the predicted distribution (`dP`) and
+  `LRG = dP_lung - dP_background`. `build_swap_pairs` freezes the donor pairing
+  (`artifacts/explainable_ai/swap_pairs_seed42.csv`) so it is identical for every arm. This is the
+  dependence test the paper's claims rest on; `counterfactual.py`'s zero/shuffle/noise modes push
+  most images into one class and are kept only as stress tests.
+- `xai_statistics.py` — `paired_eil` (same-image paired bootstrap + Wilcoxon on saved EIL) and
+  `holm_adjust`. Works on committed prediction CSVs, no model needed.
+- `vit_attention.py` — **not exported and not the trained architecture.** A reconstructed ViT
+  wrapper whose LayerNorm placement differs from `lung_attention.ViTLungAttention`, so T26
+  checkpoints do not strict-load into it. Use `build_model(backbone_name="vit_...")` for anything
+  that loads a checkpoint.
+
+`attention_metrics.py` also exports `lung_fraction`, `eil_excess`, `eil_lift` and `pointing_game`
+(EIL corrected for how much of the image the lungs occupy). The EIL definition itself (ReLU, then
+per-image min-max, then energy fraction inside the mask) is fixed by
+`artifacts/T30_eil_definition/T30_eil_definition_confirmed.md`; do not change the normalisation.
+
 Import from `src.modules`, not the submodules directly. Full design rationale, formal equations,
-and the acceptance-criteria targets: `Claude Working Files/T18_Lung_Region_Attention_WBS.md` and
-`artifacts/T18_lung_attention/T18_module_card.md`.
+and the acceptance-criteria targets: `artifacts/T18_lung_attention/T18_module_card.md`.
 
 **Cross-backbone transfer (P13):** `build_model(backbone_name=...)` covers all four backbones.
 ResNet50 (T23) and EfficientNet-B0 (T25) use `DenseNetLungAttention` unchanged. ViT-Base (T26) gets
@@ -144,17 +193,70 @@ not in a backbone submodule). Config: `configs/vit_base_lung_attention.yaml`; te
 `notebooks/archive/T_26_Vit_Base_Model_local_run_2026-10-01.ipynb` is the T26 owner's earlier self-contained notebook (own model
 class, batch 8, early stopping on val macro-F1); its results are in `artifacts/vit_lung_attention/`,
 are not comparable with the T26 protocol above, and are superseded by the Kaggle run. Design background:
-`Claude Working Files/T22_T23_Cross_Backbone_Shortcut_Suppression.md`.
+`T22_T23_Cross_Backbone_Shortcut_Suppression.md` in the parent workspace's `Claude Working Files/`
+(outside this repo).
 
 ### `artifacts/` — committed, reproducible run outputs
 
-Unlike `data/`/`models/`/`results/` (gitignored, not yet created), `artifacts/` **is** committed:
-`artifacts/splits/` holds the fixed split manifest(s) that `src/datasets` loads, and
-`artifacts/<experiment>/runs/<run_name>/` holds small per-run outputs tied to a specific
-experiment (e.g. `artifacts/densenet121_auxseg/`, `artifacts/efficientnet_b0/`,
-`artifacts/T18_lung_attention/`, which also carries top-level status files like
-`T18_module_card.md` alongside its `runs/`). Treat anything here as a checked-in reproducibility
-artifact, not scratch space.
+`.gitignore` ignores `artifacts/*` and re-includes each experiment folder by name, so **a new
+`artifacts/<folder>/` is silently untracked until a `!artifacts/<folder>/` line is added**.
+`*.pt`/`*.pth` stay ignored everywhere; never commit weights. What is committed:
+`artifacts/splits/` holds the fixed split manifest that `src/datasets` loads (21,165 images; the
+test split is 3,175), the per-backbone training folders (`T18_lung_attention/`,
+`T23_resnet50_lung_attention/`, `T25_efficientnet_b0_lung_attention/`,
+`T26_vit_base_lung_attention/`) hold `runs/<arm>/per_image_predictions.csv`, comparison tables and
+a module card each, and the evaluation folders (`T28_calibration/`, `T31_dependence/`,
+`T33_*`, `T35_efficiency/`, `cnn_closeout/`, `explainable_ai/`) each carry a `README.md` stating
+how and when they were produced. `artifacts/calibration/` (Kaggle, seed 42) and
+`artifacts/vit_lung_attention/` are earlier runs superseded by `T28_calibration/` and
+`T26_vit_base_lung_attention/`. Treat anything here as a checked-in reproducibility artifact, not
+scratch space: later analyses read these CSVs as inputs.
+
+### Checkpoint evaluation — the inference-only path
+
+Everything after training goes through one pattern, used by `scripts/run_cnn_closeout_inference.py`
+and by the all-model notebooks (`notebooks/T28_calibration_all_models.ipynb`,
+`T31_dependence_all_models.ipynb`, `T35_efficiency_all_models.ipynb`):
+
+1. Read `config` from inside the checkpoint and rebuild the model with `build_model(...)` from its
+   `model`/`module` blocks; load `model_state_dict` with `strict=True`; check `class_names` order
+   (`COVID, Lung_Opacity, Normal, Viral Pneumonia`).
+2. Recompute test predictions and confirm they reproduce the accuracy committed in that
+   backbone's `artifacts/T18|T23|T25|T26_*` folder (`checkpoint_verification.csv`). No new number
+   is produced from a checkpoint that fails this.
+3. Fit anything fittable (temperature) on validation only; report on test.
+
+Keep inputs fp32: fp16 inputs flip about 2% of predictions. The notebooks default to Kaggle paths
+and run off Kaggle through `TRUST_DATA_ROOT`, `TRUST_CKPT_ROOT` (searched recursively for `*.pt`),
+`TRUST_WORK`, `TRUST_REPO` (skips the `git clone`), `TRUST_DRY_RUN` (first two checkpoints only)
+and `TRUST_WORKERS`. `docs/cnn_inference_runbook.md` documents the script route;
+`docs/KAGGLE_RUN_HANDOFF.md` was written before the checkpoints were available locally and is
+partly superseded.
+
+External-test results follow a protocol written before any model saw the images
+(`PROTOCOL.md` in each `artifacts/T33_external_*` folder), including a pixel-overlap check against
+the primary dataset. The POLCOVID conversion and scoring scripts are not in this repo.
+
+### `scripts/` — builders and runners
+
+Three kinds, and the distinction matters for what may be re-run freely:
+
+- **Builders from committed artifacts** (no model, no images, deterministic):
+  `build_cnn_closeout.py` (authoritative for `artifacts/cnn_closeout/`),
+  `build_explainability_baseline.py`, `build_xai_swap_pairs.py`, `build_t26_vit_tables.py`,
+  `summarize_cnn_inference.py`, `build_t45_slides.py`, `create_research_execution_brief.py`.
+  Regenerate their outputs by running them, not by editing the outputs.
+- **Checkpoint runners** (need weights and the dataset): `run_cnn_closeout_inference.py`
+  (`--tasks` from calibration, counterfactual, occlusion, cam, efficiency, dependence; its
+  `SPECS`/`CLASS_NAMES`/`load_model` are imported by the other runners), `run_rsna_external.py`
+  (binary RSNA scoring; see the RSNA finding above before using its output),
+  `run_t35_efficiency.py`, `audit_checkpoint_archives.py`, `audit_cnn_closeout_readiness.py`.
+- **Kaggle training entry points:** `kaggle_t25_efficientnet_b0_lung_attention.py` (the T25
+  runner) and `make_t26_notebook.py`, which generates `notebooks/T_26_Vit_Base_Model.ipynb` from
+  the T23 notebook by asserted cell rewrites. Change the T26 notebook through the generator.
+
+`notebooks/efficiency.py` is the shared efficiency harness (`benchmark_model`), imported as a
+module by scripts and notebooks despite living in `notebooks/`.
 
 ### `configs/` — YAML-driven experiments
 
@@ -163,7 +265,9 @@ artifact, not scratch space.
 editing it in place. Every important hyperparameter belongs in a config file, not hardcoded in a
 notebook cell. See `configs/README.md` for the copy-naming convention and versioning fields
 (`dataset.split_version`, `augmentation.version` must correspond to real, reproducible artifacts).
-Never put secrets in a config file.
+Never put secrets in a config file. Each `*_lung_attention.yaml` describes arm A2 of its
+backbone; the other arms are produced at run time with `merge_overrides()`. Do not fork a YAML per
+arm, since that lets the arms of an ablation drift apart.
 
 ### `docs/experiment_policy.md` — the cross-team contract
 
