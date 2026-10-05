@@ -1,0 +1,2 @@
+seed,n_paired,a0_eil_post_mean,a3_eil_post_mean,delta_eil_post,delta_eil_post_ci_low,delta_eil_post_ci_high,fraction_images_improved,wilcoxon_two_sided_p,a0_eil_pre_mean,a3_eil_pre_mean,delta_eil_pre,bootstrap_n
+2026,1000,0.295808574475348,0.5740140840411186,0.2782055095657706,0.27354221208076923,0.2827581586736254,0.999,3.3358599511910646e-165,0.295808574475348,0.35028083038330077,0.054472255907952814,2000

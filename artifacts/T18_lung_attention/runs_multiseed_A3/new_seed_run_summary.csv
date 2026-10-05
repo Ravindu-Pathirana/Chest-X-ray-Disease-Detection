@@ -1,0 +1,3 @@
+seed,accuracy,macro_f1,eil_post,eil_pre,attention_dice,attention_iou,ilar,checkpoint
+123,0.9436220472440945,0.949889838758482,0.58519367608428,0.3510624995343387,0.8305372903572292,0.7165518226292659,0.6050953067287685,/kaggle/working/Chest-X-ray-Disease-Detection/artifacts/T18_lung_attention/runs_multiseed_A3/A3_multiply_seed123/densenet121_A3_multiply_seed123.pt
+2026,0.951496062992126,0.9571951317758394,0.5740140840411186,0.35028083038330077,0.832881984250752,0.71946656903648,0.6104591671125157,/kaggle/working/Chest-X-ray-Disease-Detection/artifacts/T18_lung_attention/runs_multiseed_A3/A3_multiply_seed2026/densenet121_A3_multiply_seed2026.pt

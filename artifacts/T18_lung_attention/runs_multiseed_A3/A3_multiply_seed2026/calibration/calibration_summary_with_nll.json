@@ -1,0 +1,18 @@
+{
+  "model_name": "DenseNet121-A3-seed2026",
+  "n_bins": 15,
+  "temperature": 1.059354305267334,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.016150154173374176,
+    "brier": 0.07983372360467911
+  },
+  "after_scaling": {
+    "ece": 0.01389438658952713,
+    "brier": 0.0797305703163147
+  },
+  "raw_nll": 0.1604335457086563,
+  "scaled_nll": 0.15811645984649658,
+  "temperature_refit_for_nll": 1.059354305267334
+}
