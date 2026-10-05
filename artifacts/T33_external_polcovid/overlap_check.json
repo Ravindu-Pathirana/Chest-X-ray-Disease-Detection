@@ -1,0 +1,9 @@
+{
+  "polcovid_images": 4809,
+  "primary_images": 21165,
+  "match_threshold": 0.97,
+  "matched": 1,
+  "max_similarity": 0.9702895283699036,
+  "median_similarity": 0.8879987597465515,
+  "excluded_bad_quality": 16
+}

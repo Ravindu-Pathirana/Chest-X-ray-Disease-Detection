@@ -1,0 +1,59 @@
+{
+  "within_hospital_auc_hospitals": {
+    "C1_covid_vs_normal": [
+      2,
+      6,
+      7,
+      9,
+      11,
+      14,
+      15
+    ],
+    "C2_anypneumonia_vs_normal": [
+      1,
+      2,
+      4,
+      6,
+      7,
+      9,
+      11,
+      14,
+      15
+    ],
+    "C3_covid_vs_pneumonia": [
+      2,
+      6,
+      7,
+      9,
+      11,
+      14,
+      15
+    ],
+    "C4_pneumonia_vs_normal": [
+      1,
+      2,
+      4,
+      6,
+      7,
+      9,
+      11,
+      14,
+      15
+    ]
+  },
+  "source_sensitivity_hospitals": [
+    1,
+    2,
+    4,
+    6,
+    7,
+    11,
+    15
+  ],
+  "n_images_used": 4792,
+  "hospital2_counts": {
+    "COVID-19": 349,
+    "NORMAL": 332,
+    "PNEUMONIA": 229
+  }
+}
