@@ -1,0 +1,41 @@
+{
+  "seed": 2026,
+  "arm": "A3_multiply",
+  "backbone": "densenet121",
+  "source_commit": "43c14ec894a71237a4073020fbab1ed874fa44ae",
+  "checkpoint": "/kaggle/working/Chest-X-ray-Disease-Detection/artifacts/T18_lung_attention/runs_multiseed_A3/A3_multiply_seed2026/densenet121_A3_multiply_seed2026.pt",
+  "checkpoint_sha256": "9799adb5ce5fd35eb33450a1398ad6f0350fca5436b152aa026aeb75043a9d03",
+  "split_manifest_sha256": "f936dc8886c593e5c468aca695beda339ec20cfc89b1b3254ffea7b0fc51533c",
+  "cam_subset_sha256": "9cea1525d25657b2ed11d5a4c31af4f555dfd646840177b334be1c9efe3306fa",
+  "cam_identity_check": {
+    "cam_images": 1000,
+    "identity_match_seed42": true
+  },
+  "test_access_policy": "No test inference before validation-selected phase-2 checkpoint save+reload",
+  "device": "cuda:0",
+  "gpu": "Tesla T4",
+  "python": "3.13.15",
+  "torch": "2.11.0+cu128",
+  "classification": {
+    "accuracy": 0.951496062992126,
+    "macro_f1": 0.9571951317758394
+  },
+  "calibration": {
+    "model_name": "DenseNet121-A3-seed2026",
+    "n_bins": 15,
+    "temperature": 1.059354305267334,
+    "test_n": 3175,
+    "val_n_used_for_temperature_fit": 3175,
+    "before_scaling": {
+      "ece": 0.016150154173374176,
+      "brier": 0.07983372360467911
+    },
+    "after_scaling": {
+      "ece": 0.01389438658952713,
+      "brier": 0.0797305703163147
+    },
+    "raw_nll": 0.1604335457086563,
+    "scaled_nll": 0.15811645984649658,
+    "temperature_refit_for_nll": 1.059354305267334
+  }
+}

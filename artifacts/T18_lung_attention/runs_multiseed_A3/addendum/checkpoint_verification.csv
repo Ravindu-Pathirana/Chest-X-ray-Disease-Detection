@@ -1,0 +1,4 @@
+backbone,arm,seed,test_accuracy,committed_accuracy,pred_agreement,max_abs_prob_diff,checkpoint_sha256_12,covidgr_max_abs_diff_vs_committed,polcovid_max_abs_diff_vs_committed,verified
+densenet121,A3_multiply,42,0.9423622047244095,0.9423622047244095,1.0,1.1102230246251565e-16,f4a9ff398e02,2.979507440770135e-08,5.310287475301934e-07,ok
+densenet121,A3_multiply,123,0.9436220472440945,0.9436220472440945,1.0,7.042288780212402e-05,37af9690a957,,,ok
+densenet121,A3_multiply,2026,0.951496062992126,0.951496062992126,1.0,8.356571197509766e-05,9799adb5ce5f,,,ok
