@@ -1,0 +1,15 @@
+{
+  "model_name": "efficientnet_b0_A0_seed2026",
+  "n_bins": 15,
+  "temperature": 1.1141916513442993,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.02296813577413559,
+    "brier": 0.13232120871543884
+  },
+  "after_scaling": {
+    "ece": 0.014628049917519093,
+    "brier": 0.1315440684556961
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "model_name": "vit_base_A0_vanilla_seed2026",
+  "n_bins": 15,
+  "temperature": 1.1017917394638062,
+  "test_n": 3175,
+  "val_n_used_for_temperature_fit": 3175,
+  "before_scaling": {
+    "ece": 0.01625528559088707,
+    "brier": 0.10550794750452042
+  },
+  "after_scaling": {
+    "ece": 0.011985868215560913,
+    "brier": 0.10521940141916275
+  }
+}
