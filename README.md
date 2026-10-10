@@ -333,20 +333,6 @@ Once checkpoints and images are available, use the [CNN inference runbook](docs/
 
 ---
 
-## 👥 Team
-
-A five-member team where **everyone owns one deep-learning model end-to-end** (data → train → calibrate → explain → robustness → efficiency), plus one shared standard and paper sections.
-
-| Member | DNN model | Shared lead role | Paper sections |
-|--------|-----------|------------------|----------------|
-| **M1** | ResNet50 | Repo, tracking, reproducibility, references | Intro, Related Work, Gap, Conclusion |
-| **M2** | DenseNet121 | Data pipeline (preprocess / augment / split / loaders) | Methodology |
-| **M3** | EfficientNet-B0 | Efficiency harness, Pareto, compute | Slides |
-| **M4** | ViT-Base | Explainability standard + figures | Discussion |
-| **M5** | Lung-mask verification & segmentation | Calibration + robustness protocol, external data, stats | Results, assembly |
-
----
-
 ## 🗓️ Milestones
 
 `M0` Foundations (end W1) → `M1` All models trained (end W2) → `M2` Trust experiments (mid W3) → `M3` Robustness & efficiency (end W3) → `M4` Camera-ready paper & slides (end W4).
@@ -385,7 +371,6 @@ A five-member team where **everyone owns one deep-learning model end-to-end** (d
   title  = {Trustworthy Deep Learning for Chest X-ray Disease Detection:
             Benchmarking the Robustness, Explainability and Calibration of
             CNNs and Vision Transformers under Dataset Shortcut Bias},
-  author = {<Team Members>},
   year   = {2026},
   note   = {Comparative benchmarking study}
 }
